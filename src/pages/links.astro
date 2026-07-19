@@ -1,26 +1,33 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import LinkButton from '../components/LinkButton.astro';
+import TerminalWindow from '../components/TerminalWindow.astro';
 import { socials } from '../data/socials';
 import { AUTHOR } from '../consts';
-
-const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title={`链接 · ${AUTHOR}`} description="我的所有平台链接">
-  <div class="flex flex-col items-center gap-6 py-8">
-    <img
-      src={base + 'avatar.jpg'}
-      alt="头像"
-      class="w-24 h-24 rounded-full object-cover ring-4 ring-zinc-200 dark:ring-zinc-800"
-      onerror="this.style.display='none'"
-    />
-    <div class="text-center">
-      <h1 class="text-xl font-bold">{AUTHOR}</h1>
-      <p class="text-zinc-500 dark:text-zinc-400 text-sm mt-1">所有链接集中于此</p>
+  <TerminalWindow path="~" command="cat links.txt">
+    <p class="t-green t-bold mb-1"># 各平台链接</p>
+    <p class="t-dim mb-5"># 点击即可跳转</p>
+    <div class="flex flex-col">
+      {socials.map((s) => {
+        const isExternal = !s.url.startsWith('/') && !s.url.startsWith('#');
+        return (
+          <a
+            href={s.url}
+            target={isExternal ? '_blank' : undefined}
+            rel={isExternal ? 'noopener noreferrer' : undefined}
+            class="group whitespace-pre-wrap break-words py-2 -mx-2 px-2 rounded hover:bg-paper/60 transition-colors"
+          >
+            <span class="t-green">{s.name.padEnd(10)}</span>
+            <span class="t-dim"> →  </span>
+            <span class="t-cyan group-hover:underline underline-offset-4">{s.url}</span>
+            {s.handle && <span class="t-dim">  ({s.handle})</span>}
+            {isExternal && <span class="t-dim opacity-0 group-hover:opacity-100 transition-opacity"> ↗</span>}
+          </a>
+        );
+      })}
     </div>
-    <div class="w-full max-w-sm flex flex-col gap-3">
-      {socials.map((social) => <LinkButton social={social} />)}
-    </div>
-  </div>
+    <p class="mt-6 t-dim text-xs sm:text-sm"># EOF</p>
+  </TerminalWindow>
 </BaseLayout>

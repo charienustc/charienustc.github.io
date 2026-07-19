@@ -1,8 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import TerminalWindow from '../../components/TerminalWindow.astro';
 import { getCollection } from 'astro:content';
 import { AUTHOR } from '../../consts';
 
+const base = import.meta.env.BASE_URL;
 const posts = (await getCollection('blog'))
   .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
@@ -13,31 +15,38 @@ for (const post of posts) {
   if (!byYear.has(year)) byYear.set(year, []);
   byYear.get(year)!.push(post);
 }
-
 const years = [...byYear.keys()].sort((a, b) => b - a);
-const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title={`归档 · ${AUTHOR}`} description="按年份归档的文章">
-  <h1 class="text-2xl font-bold mb-6">归档</h1>
-  {years.map((year) => (
-    <section class="mb-8">
-      <h2 class="text-xl font-semibold mb-3 text-zinc-700 dark:text-zinc-300">{year}</h2>
-      <ul class="flex flex-col gap-2">
-        {byYear.get(year)!.map((post) => (
-          <li class="flex items-baseline justify-between gap-4">
-            <a
-              href={`${base}blog/${post.id}`}
-              class="text-zinc-900 dark:text-zinc-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              {post.data.title}
-            </a>
-            <time class="shrink-0 text-sm text-zinc-500 dark:text-zinc-400">
-              {post.data.pubDate.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' })}
-            </time>
-          </li>
-        ))}
-      </ul>
-    </section>
-  ))}
+  <TerminalWindow path="~/blog" command="cat archive.log">
+    {years.length === 0 ? (
+      <p class="t-dim">日志为空。</p>
+    ) : (
+      years.map((year) => (
+        <section class="mb-6 last:mb-0">
+          <p class="t-purple t-bold mb-1">## {year} <span class="t-dim font-normal">({byYear.get(year)!.length} 篇)</span></p>
+          <div class="flex flex-col">
+            {byYear.get(year)!.map((post) => {
+              const d = post.data.pubDate;
+              const dateStr = `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+              return (
+                <a
+                  href={`${base}blog/${post.id}`}
+                  class="group whitespace-pre-wrap break-words py-1 -mx-2 px-2 rounded hover:bg-paper/60 transition-colors"
+                >
+                  <span class="t-dim">{dateStr}  </span>
+                  <span class="t-cyan group-hover:text-[var(--green)] transition-colors">{post.data.title}</span>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      ))
+    )}
+    <p class="mt-6 text-xs sm:text-sm">
+      <a href={`${base}blog`} class="t-cyan link-underline">$ cd ~/blog</a>
+      <span class="t-dim ml-4">← 返回文章列表</span>
+    </p>
+  </TerminalWindow>
 </BaseLayout>

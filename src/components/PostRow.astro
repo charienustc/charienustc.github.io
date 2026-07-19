@@ -1,0 +1,22 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'blog'>;
+  /** ls -l 风格行内显示的权限串 */
+  index?: number;
+}
+
+const { entry } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const d = entry.data.pubDate;
+const dateStr = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+---
+
+<a
+  href={`${base}blog/${entry.id}`}
+  class="group block whitespace-pre-wrap break-words py-1.5 -mx-2 px-2 rounded hover:bg-paper/60 transition-colors"
+>
+  <span class="t-dim">-rw-r--r--  {dateStr}  </span><span class="t-cyan group-hover:text-[var(--green)] transition-colors">{entry.id}.md</span>
+  <span class="t-dim block sm:inline sm:pl-4"># {entry.data.title}</span>
+</a>

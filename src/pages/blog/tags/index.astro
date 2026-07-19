@@ -1,8 +1,10 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import TerminalWindow from '../../../components/TerminalWindow.astro';
 import { getCollection } from 'astro:content';
 import { AUTHOR } from '../../../consts';
 
+const base = import.meta.env.BASE_URL;
 const posts = (await getCollection('blog')).filter((p) => !p.data.draft);
 
 const tagCount = new Map<string, number>();
@@ -11,26 +13,31 @@ for (const post of posts) {
     tagCount.set(tag, (tagCount.get(tag) ?? 0) + 1);
   }
 }
-
 const tags = [...tagCount.entries()].sort((a, b) => b[1] - a[1]);
-const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title={`标签 · ${AUTHOR}`} description="全部文章标签">
-  <h1 class="text-2xl font-bold mb-6">标签</h1>
-  {tags.length === 0 ? (
-    <p class="text-zinc-500 dark:text-zinc-400">暂无标签。</p>
-  ) : (
-    <div class="flex flex-wrap gap-3">
-      {tags.map(([tag, count]) => (
-        <a
-          href={`${base}blog/tags/${tag}`}
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-        >
-          <span>#{tag}</span>
-          <span class="text-xs text-zinc-500 dark:text-zinc-400">{count}</span>
-        </a>
-      ))}
-    </div>
-  )}
+  <TerminalWindow path="~/blog/tags" command="ls -l">
+    {tags.length === 0 ? (
+      <p class="t-dim">total 0 —— 暂无标签。</p>
+    ) : (
+      <>
+        <p class="t-dim mb-3">total {tags.length}</p>
+        <div class="flex flex-wrap gap-2">
+          {tags.map(([tag, count]) => (
+            <a
+              href={`${base}blog/tags/${tag}`}
+              class="px-2.5 py-1 rounded border border-line t-cyan hover:text-[var(--green)] hover:border-[var(--green)] transition-colors"
+            >
+              #{tag}<span class="t-dim ml-1.5">{count}</span>
+            </a>
+          ))}
+        </div>
+      </>
+    )}
+    <p class="mt-6 text-xs sm:text-sm">
+      <a href={`${base}blog`} class="t-cyan link-underline">$ cd ~/blog</a>
+      <span class="t-dim ml-4">← 返回文章列表</span>
+    </p>
+  </TerminalWindow>
 </BaseLayout>

@@ -1,0 +1,41 @@
+---
+interface Props {
+  data: Record<string, unknown>;
+}
+const { data } = Astro.props;
+---
+
+<div id="term" class="relative rounded-xl border border-line bg-surface shadow-2xl overflow-hidden">
+  <!-- 窗口标题栏 -->
+  <div class="relative z-20 flex items-center gap-2 px-4 h-10 border-b border-line bg-paper/60 select-none">
+    <span class="w-3 h-3 rounded-full bg-[#ff5f57]"></span>
+    <span class="w-3 h-3 rounded-full bg-[#febc2e]"></span>
+    <span class="w-3 h-3 rounded-full bg-[#28c840]"></span>
+    <span class="ml-3 text-xs text-muted truncate">visitor@{data.author}: ~ — web-sh</span>
+  </div>
+  <!-- 屏幕 -->
+  <div
+    id="term-screen"
+    class="term-scanlines term-scroll relative h-[62vh] min-h-[400px] max-h-[640px] overflow-y-auto px-4 py-3 text-[13px] sm:text-sm leading-relaxed"
+  >
+    <div id="term-out"></div>
+    <div id="term-row" class="hidden items-baseline gap-0">
+      <span id="term-prompt" class="shrink-0 whitespace-pre"></span><input
+        id="term-input"
+        type="text"
+        class="flex-1 min-w-0 bg-transparent outline-none border-none text-ink caret-green p-0 m-0 font-mono text-inherit"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        aria-label="终端输入"
+      />
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ data }}>
+  window.__TERM_DATA__ = data;
+</script>
+<script>
+  import '../scripts/terminal';
+</script>

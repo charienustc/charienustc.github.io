@@ -1,45 +1,72 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Terminal from '../components/Terminal.astro';
+import { getCollection } from 'astro:content';
 import { socials } from '../data/socials';
 import { AUTHOR, SITE_DESCRIPTION } from '../consts';
 
 const base = import.meta.env.BASE_URL;
+
+const posts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const projects = (await getCollection('projects'))
+  .sort((a, b) => b.data.order - a.data.order);
+
+const fmtDate = (d: Date) =>
+  `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+
+const termData = {
+  author: AUTHOR,
+  description: SITE_DESCRIPTION,
+  base,
+  posts: posts.map((p) => ({
+    id: p.id,
+    title: p.data.title,
+    description: p.data.description,
+    date: fmtDate(p.data.pubDate),
+    tags: p.data.tags,
+    excerpt: (p.body ?? '')
+      .split('\n')
+      .filter((l) => l.trim() !== '')
+      .slice(0, 6)
+      .join('\n'),
+  })),
+  projects: projects.map((p) => ({
+    id: p.id,
+    title: p.data.title,
+    description: p.data.description,
+    tags: p.data.tags,
+    url: p.data.url ?? null,
+    repo: p.data.repo ?? null,
+  })),
+  socials: socials.map((s) => ({ name: s.name, url: s.url, handle: s.handle ?? '' })),
+};
 ---
 
 <BaseLayout>
-  <section class="flex flex-col items-center gap-6 py-10 text-center">
-    <img
-      src={base + 'avatar.jpg'}
-      alt="头像"
-      class="w-32 h-32 rounded-full object-cover ring-4 ring-zinc-200 dark:ring-zinc-800"
-      onerror="this.style.display='none'"
-    />
-    <h1 class="text-3xl font-bold tracking-tight">{AUTHOR}</h1>
-    <p class="max-w-prose text-zinc-600 dark:text-zinc-400 leading-relaxed">
-      {SITE_DESCRIPTION}
+  <div class="reveal mb-5">
+    <p class="text-xs sm:text-sm text-muted">
+      <span class="t-green">➜</span> ~/index.html — interactive shell · 这是一个真正可用的终端,不是摆设
     </p>
-    <div class="flex flex-wrap justify-center gap-x-5 gap-y-2">
-      {socials.slice(0, 6).map((s) => (
-        <a
-          href={s.url}
-          target={s.url.startsWith('http') ? '_blank' : undefined}
-          rel={s.url.startsWith('http') ? 'noopener noreferrer' : undefined}
-          class="text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-        >
-          {s.name}
-        </a>
-      ))}
-    </div>
-  </section>
+  </div>
 
-  <section class="mt-8 grid gap-4 sm:grid-cols-2">
-    <a href={base + 'portfolio'} class="rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors">
-      <h2 class="font-semibold text-lg">作品集 →</h2>
-      <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">我做过的一些项目</p>
-    </a>
-    <a href={base + 'blog'} class="rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors">
-      <h2 class="font-semibold text-lg">博客 →</h2>
-      <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">想法、笔记与文章</p>
-    </a>
-  </section>
+  <Terminal data={termData} />
+
+  <!-- 无 JS / 不想用命令时的直达入口(也有利于 SEO) -->
+  <div class="reveal mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted" style="animation-delay:150ms">
+    <span class="t-dim">直达:</span>
+    <a href={`${base}blog`} class="t-cyan link-underline">博客 →</a>
+    <a href={`${base}portfolio`} class="t-cyan link-underline">作品集 →</a>
+    <a href={`${base}links`} class="t-cyan link-underline">链接 →</a>
+  </div>
+  <noscript>
+    <p class="mt-4 text-sm t-yellow">
+      当前浏览器禁用了 JavaScript,终端无法运行。请直接访问:
+      <a href={`${base}blog`} class="t-cyan underline">博客</a> ·
+      <a href={`${base}portfolio`} class="t-cyan underline">作品集</a> ·
+      <a href={`${base}links`} class="t-cyan underline">链接</a>
+    </p>
+  </noscript>
 </BaseLayout>
