@@ -21,8 +21,25 @@ jobs:
       - name: Check out
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          # 允许 esbuild 等运行构建脚本,避免 pnpm 因忽略构建脚本而失败
+          PNPM_ALLOW_BUILD_SCRIPTS: 'true'
+
       - name: Build with Astro
-        uses: withastro/action@v6
+        run: pnpm build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
