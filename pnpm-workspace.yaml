@@ -3,3 +3,7 @@
 packages: []
 overrides:
   postcss: 8.5.15
+# 允许 esbuild 运行构建脚本(安装平台二进制,Astro/Vite 构建必需)。
+# CI 上的 pnpm 默认会因忽略构建脚本而失败,需显式批准。
+onlyBuiltDependencies:
+  - esbuild
