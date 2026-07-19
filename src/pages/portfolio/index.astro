@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+import { AUTHOR } from '../../consts';
+
+const projects = (await getCollection('projects'))
+  .sort((a, b) => b.data.order - a.data.order);
+---
+
+<BaseLayout title={`作品集 · ${AUTHOR}`} description={`${AUTHOR} 的项目与作品`}>
+  <h1 class="text-2xl font-bold mb-6">作品集</h1>
+  {projects.length === 0 ? (
+    <p class="text-zinc-500 dark:text-zinc-400">还没有展示的项目。</p>
+  ) : (
+    <div class="grid gap-6 sm:grid-cols-2">
+      {projects.map((project) => <ProjectCard entry={project} />)}
+    </div>
+  )}
+</BaseLayout>

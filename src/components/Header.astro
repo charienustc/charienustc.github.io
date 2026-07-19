@@ -1,0 +1,34 @@
+---
+import { SITE_TITLE, NAV_LINKS } from '../consts';
+import ThemeToggle from './ThemeToggle.astro';
+
+const base = import.meta.env.BASE_URL;
+const pathname = Astro.url.pathname;
+
+function isActive(href: string): boolean {
+  if (href === '/') return pathname === '/';
+  return pathname.startsWith(base + href);
+}
+---
+
+<header class="sticky top-0 z-10 backdrop-blur bg-white/80 dark:bg-zinc-950/80 border-b border-zinc-200 dark:border-zinc-800">
+  <div class="mx-auto max-w-3xl px-4 h-14 flex items-center justify-between">
+    <a href={base} class="font-semibold tracking-tight">{SITE_TITLE.split(' · ')[0]}</a>
+    <nav class="flex items-center gap-1 text-sm">
+      {NAV_LINKS.map((link) => (
+        <a
+          href={base + link.href.replace(/^\//, '')}
+          class:list={[
+            'px-3 py-1.5 rounded-lg transition-colors',
+            isActive(link.href)
+              ? 'text-blue-600 dark:text-blue-400 font-medium'
+              : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100',
+          ]}
+        >
+          {link.label}
+        </a>
+      ))}
+      <ThemeToggle />
+    </nav>
+  </div>
+</header>

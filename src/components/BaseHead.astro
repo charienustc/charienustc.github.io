@@ -1,0 +1,39 @@
+---
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const { title = SITE_TITLE, description = SITE_DESCRIPTION, image } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImage = image ? new URL(image, Astro.site) : undefined;
+const base = import.meta.env.BASE_URL;
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href={base + 'favicon.svg'} />
+<link rel="sitemap" href={base + 'sitemap-index.xml'} />
+<link rel="canonical" href={canonicalURL} />
+<meta name="generator" content={Astro.generator} />
+<title>{title}</title>
+<meta name="description" content={description} />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+{ogImage && <meta property="og:image" content={ogImage} />}
+<meta name="twitter:card" content="summary_large_image" />
+
+<!-- 主题:在 CSS 之前读取偏好,避免 FOUC -->
+<script is:inline>
+  const t = localStorage.getItem('theme');
+  if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+  }
+</script>

@@ -1,0 +1,18 @@
+# build output
+dist/
+# generated types & cache
+.astro/
+# dependencies
+node_modules/
+# logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# environment
+.env
+.env.production
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

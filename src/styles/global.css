@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+/* 基于 class 的暗色模式切换(配合 ThemeToggle) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 博客正文排版 */
+@plugin "@tailwindcss/typography";
+
+/* 平滑滚动与基础排版 */
+html {
+  scroll-behavior: smooth;
+}
