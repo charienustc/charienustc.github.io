@@ -1,0 +1,5 @@
+# pnpm 配置(overrides 的新位置;package.json 里的 pnpm.overrides 已被新版 pnpm 忽略)。
+# 锁定 postcss 到 8.5.15,避免 CI 供应链 minimumReleaseAge 策略拦截当天发布的版本。
+packages: []
+overrides:
+  postcss: 8.5.15
