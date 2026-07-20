@@ -1,5 +1,14 @@
 [
-  { "name": "GitHub", "url": "https://github.com/charienustc", "icon": "github", "handle": "@charienustc" },
-  { "name": "微博", "url": "https://weibo.com/<username>", "icon": "weibo", "handle": "@<username>" },
-  { "name": "Email", "url": "mailto:charien@mail.ustc.edu.cn", "icon": "mail", "handle": "charien@mail.ustc.edu.cn" }
+  {
+    "name": "GitHub",
+    "url": "https://github.com/charienustc",
+    "icon": "github",
+    "handle": "@charienustc"
+  },
+  {
+    "name": "Email",
+    "url": "mailto:charien@mail.ustc.edu.cn",
+    "icon": "mail",
+    "handle": "charien@mail.ustc.edu.cn"
+  }
 ]
