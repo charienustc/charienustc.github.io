@@ -1,13 +1,12 @@
+// 社交链接数据。实际内容在 socials.json(后台可直接修改)。
+import data from './socials.json';
+
 export interface Social {
   name: string;
   url: string;
-  /** 图标 key,对应 LinkButton 内置的 svg */
+  /** 图标 key */
   icon: 'github' | 'twitter' | 'mail' | 'rss' | 'weibo' | 'bilibili' | 'zhihu' | 'link';
   handle?: string;
 }
 
-export const socials: Social[] = [
-  { name: 'GitHub', url: 'https://github.com/charienustc', icon: 'github', handle: '@charienustc' },
-  { name: '微博', url: 'https://weibo.com/<username>', icon: 'weibo', handle: '@<username>' },
-  { name: 'Email', url: 'mailto:charien@mail.ustc.edu.cn', icon: 'mail', handle: 'charien@mail.ustc.edu.cn' },
-];
+export const socials: Social[] = data as Social[];

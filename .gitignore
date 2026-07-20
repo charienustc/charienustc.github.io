@@ -16,3 +16,5 @@ yarn-error.log*
 .DS_Store
 .vscode/
 .idea/
+# 本地内容管理后台(仅本机使用,不进仓库)
+admin/

@@ -1,8 +1,10 @@
-// 站点常量。把 AUTHOR 和 SITE_DESCRIPTION 改成你的真实信息即可。
-export const SITE_TITLE = "Charien's Homepage";
-export const SITE_DESCRIPTION = '我是 Charien,中国科学技术大学网络空间安全学院本科生。';
-export const AUTHOR = 'charienustc';
-export const SITE_URL = 'https://charienustc.github.io';
+// 站点常量。可编辑字段放在 src/data/site.json(后台可直接修改)。
+import site from './data/site.json';
+
+export const SITE_TITLE = site.title;
+export const SITE_DESCRIPTION = site.description;
+export const AUTHOR = site.author;
+export const SITE_URL = site.url;
 export const NAV_LINKS = [
   { href: '/', label: '主页' },
   { href: '/portfolio', label: '作品' },

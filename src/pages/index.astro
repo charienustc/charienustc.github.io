@@ -48,25 +48,96 @@ const termData = {
 <BaseLayout>
   <div class="reveal mb-5">
     <p class="text-xs sm:text-sm text-muted">
-      <span class="t-green">➜</span> ~/index.html — interactive shell · 这是一个真正可用的终端,不是摆设
+      <span class="t-green">➜</span> ~/index.html — interactive shell
     </p>
   </div>
 
-  <Terminal data={termData} />
+  <div class="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)] items-start">
+    <!-- ========== 左侧:资料面板 ========== -->
+    <aside class="reveal rounded-xl border border-line bg-surface shadow-2xl overflow-hidden">
+      <!-- 窗口标题栏 -->
+      <div class="flex items-center gap-2 px-4 h-10 border-b border-line bg-paper/60 select-none">
+        <span class="w-3 h-3 rounded-full bg-[#ff5f57]"></span>
+        <span class="w-3 h-3 rounded-full bg-[#febc2e]"></span>
+        <span class="w-3 h-3 rounded-full bg-[#28c840]"></span>
+        <span class="ml-3 text-xs text-muted truncate">~/profile</span>
+      </div>
 
-  <!-- 无 JS / 不想用命令时的直达入口(也有利于 SEO) -->
-  <div class="reveal mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted" style="animation-delay:150ms">
-    <span class="t-dim">直达:</span>
-    <a href={`${base}blog`} class="t-cyan link-underline">博客 →</a>
-    <a href={`${base}portfolio`} class="t-cyan link-underline">作品集 →</a>
-    <a href={`${base}links`} class="t-cyan link-underline">链接 →</a>
+      <div class="term-scanlines relative p-5 text-[13px] sm:text-sm leading-relaxed">
+        <!-- 头像 -->
+        <div class="flex justify-center pt-1">
+          <img
+            src={base + 'avatar.jpg'}
+            alt={`${AUTHOR} 的头像`}
+            class="w-28 h-28 rounded-lg border border-line object-cover"
+            onerror="this.style.display='none'"
+          />
+        </div>
+
+        <!-- 自我介绍 -->
+        <h1 class="t-green t-bold text-base mt-4 text-center">{AUTHOR}</h1>
+        <p class="text-ink-soft mt-2 leading-relaxed">{SITE_DESCRIPTION}</p>
+
+        <!-- 社交平台链接 -->
+        <div class="mt-5 border-t border-line pt-4">
+          <p class="t-dim text-xs mb-2.5"># 社交平台</p>
+          <div class="flex flex-col gap-1.5">
+            {socials.map((s) => {
+              const isExternal = !s.url.startsWith('/') && !s.url.startsWith('#');
+              return (
+                <a
+                  href={s.url}
+                  target={isExternal ? '_blank' : undefined}
+                  rel={isExternal ? 'noopener noreferrer' : undefined}
+                  class="group flex items-baseline min-w-0 -mx-1 px-1 py-0.5 rounded hover:bg-paper/60 transition-colors"
+                >
+                  <span class="t-green shrink-0">{s.name}</span>
+                  <span class="t-dim shrink-0">&nbsp;→&nbsp;</span>
+                  <span class="t-cyan truncate group-hover:underline underline-offset-4">{s.handle || s.url}</span>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+
+        <!-- 目录导览 -->
+        <div class="mt-5 border-t border-line pt-4">
+          <p class="t-dim text-xs mb-2.5"># 目录导览</p>
+          <div class="flex flex-col gap-1.5">
+            <a href={`${base}blog`} class="group -mx-1 px-1 py-0.5 rounded hover:bg-paper/60 transition-colors">
+              <span class="t-cyan group-hover:underline underline-offset-4">blog/</span>
+              <span class="text-ink-soft">&nbsp;&nbsp;博客文章(Markdown)</span>
+            </a>
+            <a href={`${base}portfolio`} class="group -mx-1 px-1 py-0.5 rounded hover:bg-paper/60 transition-colors">
+              <span class="t-cyan group-hover:underline underline-offset-4">projects/</span>
+              <span class="text-ink-soft">&nbsp;&nbsp;项目与作品</span>
+            </a>
+            <a href={`${base}links`} class="group -mx-1 px-1 py-0.5 rounded hover:bg-paper/60 transition-colors">
+              <span class="t-cyan group-hover:underline underline-offset-4">links.txt</span>
+              <span class="text-ink-soft">&nbsp;&nbsp;各平台链接聚合</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- README -->
+        <div class="mt-5 border-t border-line pt-4">
+          <p class="t-dim text-xs mb-2.5"># README</p>
+          <p class="text-ink-soft leading-relaxed">
+            这是一个伪装成 Linux 终端的个人主页。右侧终端不是摆设:输入
+            <span class="t-green">help</span> 查看全部命令,<span class="t-green">ls</span> 看目录,<span class="t-green">cat</span> 读文件,<span class="t-green">neofetch</span> 有彩蛋。
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ========== 右侧:可交互终端 ========== -->
+    <div class="min-w-0">
+      <Terminal data={termData} />
+      <noscript>
+        <p class="mt-4 text-sm t-yellow">
+          当前浏览器禁用了 JavaScript,终端无法运行,请使用左侧链接浏览内容。
+        </p>
+      </noscript>
+    </div>
   </div>
-  <noscript>
-    <p class="mt-4 text-sm t-yellow">
-      当前浏览器禁用了 JavaScript,终端无法运行。请直接访问:
-      <a href={`${base}blog`} class="t-cyan underline">博客</a> ·
-      <a href={`${base}portfolio`} class="t-cyan underline">作品集</a> ·
-      <a href={`${base}links`} class="t-cyan underline">链接</a>
-    </p>
-  </noscript>
 </BaseLayout>
