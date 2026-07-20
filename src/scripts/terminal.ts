@@ -398,6 +398,7 @@ const CMDS: Record<string, { desc: string; run: CmdFn }> = {
     desc: '系统信息(彩蛋)',
     run: () => {
       const theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      const uv = document.getElementById('busuanzi_value_site_uv')?.textContent?.trim();
       const art = [
         ' ██████╗██╗  ██╗',
         '██╔════╝██║  ██║',
@@ -415,6 +416,7 @@ const CMDS: Record<string, { desc: string; run: CmdFn }> = {
         [{ t: 'Shell:    ', c: 't-yellow' }, 'web-sh 1.0'],
         [{ t: 'Theme:    ', c: 't-yellow' }, theme],
         [{ t: 'Terminal: ', c: 't-yellow' }, 'browser'],
+        [{ t: 'Visitors: ', c: 't-yellow' }, uv || '…'],
         [{ t: 'Uptime:   ', c: 't-yellow' }, `${Math.round((Date.now() - bootTime) / 1000)}s`],
       ];
       const rows = Math.max(art.length, info.length);
