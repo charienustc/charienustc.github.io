@@ -7,3 +7,5 @@ overrides:
 # CI 上的 pnpm 默认会因忽略构建脚本而失败,需显式批准。
 onlyBuiltDependencies:
   - esbuild
+allowBuilds:
+  esbuild: set this to true or false

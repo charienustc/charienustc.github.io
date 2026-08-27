@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import TerminalWindow from '../../components/TerminalWindow.astro';
 import { getCollection } from 'astro:content';
 import { AUTHOR } from '../../consts';
 
@@ -19,34 +18,54 @@ const years = [...byYear.keys()].sort((a, b) => b - a);
 ---
 
 <BaseLayout title={`归档 · ${AUTHOR}`} description="按年份归档的文章">
-  <TerminalWindow path="~/blog" command="cat archive.log">
+  <div class="reveal max-w-3xl mx-auto">
+    <header class="mb-10 sm:mb-12">
+      <h1 class="font-serif text-3xl sm:text-4xl font-bold text-ink mb-3">归档</h1>
+      <p class="text-ink-soft">按年份整理的全部文章</p>
+    </header>
+
     {years.length === 0 ? (
-      <p class="t-dim">日志为空。</p>
+      <div class="card p-8 text-center text-muted">
+        还没有文章,敬请期待。
+      </div>
     ) : (
-      years.map((year) => (
-        <section class="mb-6 last:mb-0">
-          <p class="t-purple t-bold mb-1">## {year} <span class="t-dim font-normal">({byYear.get(year)!.length} 篇)</span></p>
-          <div class="flex flex-col">
-            {byYear.get(year)!.map((post) => {
-              const d = post.data.pubDate;
-              const dateStr = `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
-              return (
-                <a
-                  href={`${base}blog/${post.id}`}
-                  class="group whitespace-pre-wrap break-words py-1 -mx-2 px-2 rounded hover:bg-paper/60 transition-colors"
-                >
-                  <span class="t-dim">{dateStr}  </span>
-                  <span class="t-cyan group-hover:text-[var(--green)] transition-colors">{post.data.title}</span>
-                </a>
-              );
-            })}
-          </div>
-        </section>
-      ))
+      <div class="space-y-10">
+        {years.map((year) => (
+          <section class="relative pl-6 sm:pl-8 border-l-2 border-line">
+            <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-accent border-4 border-paper"></div>
+            <h2 class="font-serif text-2xl font-bold text-ink mb-4">
+              {year}
+              <span class="text-muted text-base font-normal ml-2">({byYear.get(year)!.length} 篇)</span>
+            </h2>
+            <div class="space-y-3">
+              {byYear.get(year)!.map((post) => {
+                const d = post.data.pubDate;
+                const dateStr = `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+                return (
+                  <a
+                    href={`${base}blog/${post.id}`}
+                    class="group flex items-baseline gap-4 py-2 -mx-2 px-2 rounded-lg hover:bg-surface transition-colors"
+                  >
+                    <span class="text-sm text-muted w-12 shrink-0">{dateStr}</span>
+                    <span class="text-ink group-hover:text-accent transition-colors font-medium">
+                      {post.data.title}
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+      </div>
     )}
-    <p class="mt-6 text-xs sm:text-sm">
-      <a href={`${base}blog`} class="t-cyan link-underline">$ cd ~/blog</a>
-      <span class="t-dim ml-4">← 返回文章列表</span>
-    </p>
-  </TerminalWindow>
+
+    <div class="mt-12">
+      <a href={`${base}blog`} class="inline-flex items-center text-sm font-medium text-accent hover:opacity-75 transition-opacity">
+        <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        返回文章列表
+      </a>
+    </div>
+  </div>
 </BaseLayout>

@@ -1,0 +1,21 @@
+---
+interface Props {
+  href?: string;
+  class?: string;
+}
+
+const { href, class: className = '' } = Astro.props;
+const baseClasses = 'card block overflow-hidden';
+---
+
+{
+  href ? (
+    <a href={href} class:list={[baseClasses, className]}>
+      <slot />
+    </a>
+  ) : (
+    <div class:list={[baseClasses, className]}>
+      <slot />
+    </div>
+  )
+}

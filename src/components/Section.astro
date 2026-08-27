@@ -1,0 +1,18 @@
+---
+interface Props {
+  title: string;
+  href?: string;
+  linkText?: string;
+}
+
+const { title, href, linkText = '查看全部' } = Astro.props;
+---
+
+<div class="flex items-end justify-between gap-4 mb-6 sm:mb-8">
+  <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink">{title}</h2>
+  {href && (
+    <a href={href} class="text-sm font-medium text-accent link-underline">
+      {linkText} →
+    </a>
+  )}
+</div>

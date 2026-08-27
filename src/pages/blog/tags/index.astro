@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import TerminalWindow from '../../../components/TerminalWindow.astro';
 import { getCollection } from 'astro:content';
 import { AUTHOR } from '../../../consts';
 
@@ -17,27 +16,39 @@ const tags = [...tagCount.entries()].sort((a, b) => b[1] - a[1]);
 ---
 
 <BaseLayout title={`标签 · ${AUTHOR}`} description="全部文章标签">
-  <TerminalWindow path="~/blog/tags" command="ls -l">
+  <div class="reveal max-w-3xl mx-auto">
+    <header class="mb-10 sm:mb-12">
+      <h1 class="font-serif text-3xl sm:text-4xl font-bold text-ink mb-3">标签</h1>
+      <p class="text-ink-soft">共 {tags.length} 个标签</p>
+    </header>
+
     {tags.length === 0 ? (
-      <p class="t-dim">total 0 —— 暂无标签。</p>
+      <div class="card p-8 text-center text-muted">
+        还没有标签。
+      </div>
     ) : (
-      <>
-        <p class="t-dim mb-3">total {tags.length}</p>
-        <div class="flex flex-wrap gap-2">
+      <div class="card p-6 sm:p-8">
+        <div class="flex flex-wrap gap-3">
           {tags.map(([tag, count]) => (
             <a
-              href={`${base}blog/tags/${tag}`}
-              class="px-2.5 py-1 rounded border border-line t-cyan hover:text-[var(--green)] hover:border-[var(--green)] transition-colors"
+              href={`${base}blog/tags/${encodeURIComponent(tag)}`}
+              class="group inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-soft text-accent font-medium hover:bg-accent hover:text-accent-text transition-colors"
             >
-              #{tag}<span class="t-dim ml-1.5">{count}</span>
+              #{tag}
+              <span class="text-xs opacity-70 group-hover:opacity-100">{count}</span>
             </a>
           ))}
         </div>
-      </>
+      </div>
     )}
-    <p class="mt-6 text-xs sm:text-sm">
-      <a href={`${base}blog`} class="t-cyan link-underline">$ cd ~/blog</a>
-      <span class="t-dim ml-4">← 返回文章列表</span>
-    </p>
-  </TerminalWindow>
+
+    <div class="mt-12">
+      <a href={`${base}blog`} class="inline-flex items-center text-sm font-medium text-accent hover:opacity-75 transition-opacity">
+        <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        返回文章列表
+      </a>
+    </div>
+  </div>
 </BaseLayout>

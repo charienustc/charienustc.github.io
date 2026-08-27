@@ -11,20 +11,20 @@ function isActive(href: string): boolean {
 }
 ---
 
-<header class="sticky top-0 z-40 backdrop-blur-md bg-paper/85 border-b border-line font-mono">
-  <div class="mx-auto max-w-4xl px-6 h-14 flex items-center justify-between">
-    <a href={base} class="text-base whitespace-nowrap text-ink font-['Times_New_Roman',serif]">
+<header class="sticky top-0 z-40 backdrop-blur-xl bg-paper/80 border-b border-line">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <a href={base} class="font-serif text-xl sm:text-2xl font-bold text-ink tracking-tight hover:text-accent transition-colors">
       {SITE_TITLE}
     </a>
-    <nav class="flex items-center gap-0.5 sm:gap-1 text-sm">
+    <nav class="flex items-center gap-1 sm:gap-2 text-sm font-medium">
       {NAV_LINKS.map((link) => (
         <a
           href={base + link.href.replace(/^\//, '')}
           class:list={[
-            'px-2 sm:px-2.5 py-1.5 transition-colors',
+            'px-3 py-1.5 rounded-full transition-colors',
             isActive(link.href)
-              ? 't-green t-bold'
-              : 'text-ink-soft hover:text-[var(--green)]',
+              ? 'bg-accent text-accent-text'
+              : 'text-ink-soft hover:bg-accent-soft hover:text-accent',
           ]}
         >
           {link.label}

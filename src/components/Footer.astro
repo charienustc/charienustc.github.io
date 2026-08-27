@@ -3,17 +3,16 @@ import { AUTHOR } from '../consts';
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-t border-line mt-16 font-mono">
-  <div class="mx-auto max-w-4xl px-6 py-7 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted">
+<footer class="border-t border-line mt-auto">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted">
     <span>© {year} {AUTHOR}</span>
     <!-- 不蒜子统计:数据返回前保持隐藏 -->
     <span id="busuanzi_container_site_pv" style="display:none">
-      <span class="t-green">$</span> stat — visitors <span id="busuanzi_value_site_uv" class="t-cyan"></span>
-      · views <span id="busuanzi_value_site_pv" class="t-cyan"></span>
+      visitors <span id="busuanzi_value_site_uv" class="text-accent font-medium"></span>
+      · views <span id="busuanzi_value_site_pv" class="text-accent font-medium"></span>
     </span>
     <span>
-      <span class="t-green">➜</span> exit code <span class="t-green">0</span> ·
-      built with <a href="https://astro.build" class="t-cyan link-underline" target="_blank" rel="noopener">Astro</a>
+      built with <a href="https://astro.build" class="text-accent hover:opacity-75 transition-opacity" target="_blank" rel="noopener">Astro</a>
     </span>
   </div>
 </footer>

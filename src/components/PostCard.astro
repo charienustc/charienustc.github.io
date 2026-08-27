@@ -1,0 +1,38 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Card from './Card.astro';
+import Tag from './Tag.astro';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const d = post.data.pubDate;
+const dateStr = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+---
+
+<Card href={`${base}blog/${post.id}`} class="flex flex-col h-full p-5 sm:p-6 group">
+  <div class="flex items-center gap-2 text-xs text-muted mb-3">
+    <time datetime={d.toISOString()}>{dateStr}</time>
+    {post.data.tags.length > 0 && (
+      <span class="text-line">·</span>
+    )}
+    <div class="flex flex-wrap gap-1.5">
+      {post.data.tags.slice(0, 3).map((tag) => <span class="tag pointer-events-none">{tag}</span>)}
+    </div>
+  </div>
+  <h3 class="font-serif text-xl font-bold text-ink mb-2 group-hover:text-accent transition-colors">
+    {post.data.title}
+  </h3>
+  <p class="text-ink-soft text-sm leading-relaxed line-clamp-3 mb-4 flex-1">
+    {post.data.description}
+  </p>
+  <span class="inline-flex items-center text-sm font-medium text-accent mt-auto">
+    阅读全文
+    <svg class="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h14M12 5l7 7-7 7" />
+    </svg>
+  </span>
+</Card>

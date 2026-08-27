@@ -1,143 +1,50 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Terminal from '../components/Terminal.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import PostCard from '../components/PostCard.astro';
 import { getCollection } from 'astro:content';
-import { socials } from '../data/socials';
-import { AUTHOR, SITE_DESCRIPTION } from '../consts';
 
 const base = import.meta.env.BASE_URL;
 
 const posts = (await getCollection('blog'))
   .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
 
 const projects = (await getCollection('projects'))
-  .sort((a, b) => b.data.order - a.data.order);
-
-const fmtDate = (d: Date) =>
-  `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
-
-const termData = {
-  author: AUTHOR,
-  description: SITE_DESCRIPTION,
-  base,
-  posts: posts.map((p) => ({
-    id: p.id,
-    title: p.data.title,
-    description: p.data.description,
-    date: fmtDate(p.data.pubDate),
-    tags: p.data.tags,
-    excerpt: (p.body ?? '')
-      .split('\n')
-      .filter((l) => l.trim() !== '')
-      .slice(0, 6)
-      .join('\n'),
-  })),
-  projects: projects.map((p) => ({
-    id: p.id,
-    title: p.data.title,
-    description: p.data.description,
-    tags: p.data.tags,
-    url: p.data.url ?? null,
-    repo: p.data.repo ?? null,
-  })),
-  socials: socials.map((s) => ({ name: s.name, url: s.url, handle: s.handle ?? '' })),
-};
+  .sort((a, b) => b.data.order - a.data.order)
+  .filter((p) => p.data.featured)
+  .slice(0, 3);
 ---
 
 <BaseLayout>
-  <div class="reveal mb-5">
-    <p class="text-xs sm:text-sm text-muted">
-      <span class="t-green">➜</span> ~/index.html — interactive shell
-    </p>
-  </div>
+  <Hero />
 
-  <div class="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)] items-start">
-    <!-- ========== 左侧:资料面板 ========== -->
-    <aside class="reveal rounded-xl border border-line bg-surface shadow-2xl overflow-hidden">
-      <!-- 窗口标题栏 -->
-      <div class="flex items-center gap-2 px-4 h-10 border-b border-line bg-paper/60 select-none">
-        <span class="w-3 h-3 rounded-full bg-[#ff5f57]"></span>
-        <span class="w-3 h-3 rounded-full bg-[#febc2e]"></span>
-        <span class="w-3 h-3 rounded-full bg-[#28c840]"></span>
-        <span class="ml-3 text-xs text-muted truncate">~/profile</span>
-      </div>
-
-      <div class="term-scanlines relative p-5 text-[13px] sm:text-sm leading-relaxed">
-        <!-- 头像 -->
-        <div class="flex justify-center pt-1">
-          <img
-            src={base + 'avatar.jpg'}
-            alt={`${AUTHOR} 的头像`}
-            class="w-28 h-28 rounded-lg border border-line object-cover"
-            onerror="this.style.display='none'"
-          />
+  {
+    projects.length > 0 && (
+      <section class="reveal mt-20 sm:mt-28" style="animation-delay: 0.1s">
+        <Section title="精选项目" href={`${base}portfolio`} linkText="全部项目" />
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project) => (
+            <ProjectCard project={project} />
+          ))}
         </div>
+      </section>
+    )
+  }
 
-        <!-- 自我介绍 -->
-        <h1 class="t-green t-bold text-base mt-4 text-center">{AUTHOR}</h1>
-        <p class="text-ink-soft mt-2 leading-relaxed">{SITE_DESCRIPTION}</p>
-
-        <!-- 社交平台链接 -->
-        <div class="mt-5 border-t border-line pt-4">
-          <p class="t-dim text-xs mb-2.5"># 社交平台</p>
-          <div class="flex flex-col gap-1.5">
-            {socials.map((s) => {
-              const isExternal = !s.url.startsWith('/') && !s.url.startsWith('#');
-              return (
-                <a
-                  href={s.url}
-                  target={isExternal ? '_blank' : undefined}
-                  rel={isExternal ? 'noopener noreferrer' : undefined}
-                  class="group flex items-baseline min-w-0 -mx-1 px-1 py-0.5 rounded hover:bg-paper/60 transition-colors"
-                >
-                  <span class="t-green shrink-0">{s.name}</span>
-                  <span class="t-dim shrink-0">&nbsp;→&nbsp;</span>
-                  <span class="t-cyan truncate group-hover:underline underline-offset-4">{s.handle || s.url}</span>
-                </a>
-              );
-            })}
-          </div>
+  {
+    posts.length > 0 && (
+      <section class="reveal mt-20 sm:mt-28" style="animation-delay: 0.2s">
+        <Section title="最近文章" href={`${base}blog`} linkText="全部文章" />
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post) => (
+            <PostCard post={post} />
+          ))}
         </div>
-
-        <!-- 目录导览 -->
-        <div class="mt-5 border-t border-line pt-4">
-          <p class="t-dim text-xs mb-2.5"># 目录导览</p>
-          <div class="flex flex-col gap-1.5">
-            <a href={`${base}blog`} class="group -mx-1 px-1 py-0.5 rounded hover:bg-paper/60 transition-colors">
-              <span class="t-cyan group-hover:underline underline-offset-4">blog/</span>
-              <span class="text-ink-soft">&nbsp;&nbsp;博客文章(Markdown)</span>
-            </a>
-            <a href={`${base}portfolio`} class="group -mx-1 px-1 py-0.5 rounded hover:bg-paper/60 transition-colors">
-              <span class="t-cyan group-hover:underline underline-offset-4">projects/</span>
-              <span class="text-ink-soft">&nbsp;&nbsp;项目与作品</span>
-            </a>
-            <a href={`${base}links`} class="group -mx-1 px-1 py-0.5 rounded hover:bg-paper/60 transition-colors">
-              <span class="t-cyan group-hover:underline underline-offset-4">links.txt</span>
-              <span class="text-ink-soft">&nbsp;&nbsp;各平台链接聚合</span>
-            </a>
-          </div>
-        </div>
-
-        <!-- README -->
-        <div class="mt-5 border-t border-line pt-4">
-          <p class="t-dim text-xs mb-2.5"># README</p>
-          <p class="text-ink-soft leading-relaxed">
-            这是一个伪装成 Linux 终端的个人主页。右侧终端不是摆设:输入
-            <span class="t-green">help</span> 查看全部命令,<span class="t-green">ls</span> 看目录,<span class="t-green">cat</span> 读文件,<span class="t-green">neofetch</span> 有彩蛋。
-          </p>
-        </div>
-      </div>
-    </aside>
-
-    <!-- ========== 右侧:可交互终端 ========== -->
-    <div class="min-w-0">
-      <Terminal data={termData} />
-      <noscript>
-        <p class="mt-4 text-sm t-yellow">
-          当前浏览器禁用了 JavaScript,终端无法运行,请使用左侧链接浏览内容。
-        </p>
-      </noscript>
-    </div>
-  </div>
+      </section>
+    )
+  }
 </BaseLayout>

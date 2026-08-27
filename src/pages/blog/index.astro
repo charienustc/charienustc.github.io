@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import TerminalWindow from '../../components/TerminalWindow.astro';
-import PostRow from '../../components/PostRow.astro';
+import Section from '../../components/Section.astro';
+import PostCard from '../../components/PostCard.astro';
 import { getCollection } from 'astro:content';
 import { AUTHOR } from '../../consts';
 
@@ -12,21 +12,32 @@ const posts = (await getCollection('blog'))
 ---
 
 <BaseLayout title={`博客 · ${AUTHOR}`} description={`${AUTHOR} 的博客文章`}>
-  <TerminalWindow path="~/blog" command="ls -l">
+  <div class="reveal">
+    <header class="mb-10 sm:mb-12 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div>
+        <h1 class="font-serif text-3xl sm:text-4xl font-bold text-ink mb-2">博客</h1>
+        <p class="text-ink-soft">共 {posts.length} 篇文章</p>
+      </div>
+      <div class="flex items-center gap-3 text-sm">
+        <a href={`${base}blog/tags`} class="px-3 py-1.5 rounded-full border border-line text-ink-soft hover:border-accent hover:text-accent transition-colors">
+          标签云
+        </a>
+        <a href={`${base}blog/archive`} class="px-3 py-1.5 rounded-full border border-line text-ink-soft hover:border-accent hover:text-accent transition-colors">
+          归档
+        </a>
+      </div>
+    </header>
+
     {posts.length === 0 ? (
-      <p class="t-dim">total 0 —— 还没有文章,敬请期待。</p>
+      <div class="card p-8 text-center text-muted">
+        还没有文章,敬请期待。
+      </div>
     ) : (
-      <>
-        <p class="t-dim mb-1">total {posts.length}</p>
-        <div class="flex flex-col">
-          {posts.map((post) => <PostRow entry={post} />)}
-        </div>
-      </>
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post) => (
+          <PostCard post={post} />
+        ))}
+      </div>
     )}
-    <p class="mt-6 text-muted text-xs sm:text-sm">
-      <span class="t-dim">相关:</span>
-      <a href={`${base}blog/tags`} class="t-cyan link-underline ml-2">ls tags/</a>
-      <a href={`${base}blog/archive`} class="t-cyan link-underline ml-3">cat archive.log</a>
-    </p>
-  </TerminalWindow>
+  </div>
 </BaseLayout>
