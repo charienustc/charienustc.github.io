@@ -11,25 +11,44 @@ function isActive(href: string): boolean {
 }
 ---
 
-<header class="sticky top-0 z-40 liquid-glass">
-  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-center relative">
-    <nav class="flex items-center gap-1 sm:gap-2 text-sm font-medium">
+<!-- SVG 滤镜:为液态玻璃提供轻微折射与色差 -->
+<svg width="0" height="0" class="absolute" aria-hidden="true">
+  <defs>
+    <filter id="liquid-glass-refraction" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" result="displacement" />
+      <feGaussianBlur in="displacement" stdDeviation="0.6" result="blurred" />
+      <feColorMatrix in="blurred" type="matrix" values="
+        1.02 0    0    0 0
+        0    0.98 0    0 0
+        0    0    1.03 0 0
+        0    0    0    1 0
+      " result="chromatic" />
+      <feMerge>
+        <feMergeNode in="chromatic" />
+      </feMerge>
+    </filter>
+  </defs>
+</svg>
+
+<header class="sticky top-4 z-50 flex justify-center px-4">
+  <div class="ios-liquid-glass-pill">
+    <nav class="relative z-10 flex items-center gap-0.5 sm:gap-1 text-sm font-medium">
       {NAV_LINKS.map((link) => (
         <a
           href={base + link.href.replace(/^\//, '')}
           class:list={[
-            'px-3 py-1.5 rounded-full transition-colors',
+            'px-3 sm:px-4 py-2 rounded-full transition-all duration-200',
             isActive(link.href)
-              ? 'bg-accent text-accent-text'
-              : 'text-ink-soft hover:bg-accent-soft hover:text-accent',
+              ? 'bg-white/60 dark:bg-white/15 text-ink dark:text-ink shadow-sm'
+              : 'text-ink-soft hover:text-ink hover:bg-white/30 dark:hover:bg-white/10',
           ]}
         >
           {link.label}
         </a>
       ))}
-    </nav>
-    <div class="absolute right-4 sm:right-6 lg:right-8 top-1/2 -translate-y-1/2">
+      <div class="w-px h-5 bg-ink/10 dark:bg-white/10 mx-1"></div>
       <ThemeToggle />
-    </div>
+    </nav>
   </div>
 </header>

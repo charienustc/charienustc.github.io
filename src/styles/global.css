@@ -177,6 +177,81 @@ body::before {
   );
 }
 
+/* iOS 26 风格悬浮液态玻璃胶囊 */
+.ios-liquid-glass-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem;
+  border-radius: 9999px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.25) 100%
+    );
+  backdrop-filter: blur(22px) saturate(200%);
+  -webkit-backdrop-filter: blur(22px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 1px rgba(255, 255, 255, 0.6),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.03);
+  isolation: isolate;
+}
+
+/* 上层高光反光 */
+.ios-liquid-glass-pill::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.1) 40%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  z-index: -1;
+}
+
+/* 底部折射暗边,增加玻璃厚度感 */
+.ios-liquid-glass-pill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.04);
+  z-index: -1;
+}
+
+.dark .ios-liquid-glass-pill {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0.06) 100%
+    );
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.15);
+}
+
+.dark .ios-liquid-glass-pill::before {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.05) 40%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
 /* 自定义滚动条 */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
