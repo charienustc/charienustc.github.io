@@ -7,7 +7,7 @@ export const AUTHOR = site.author;
 export const SITE_URL = site.url;
 export const NAV_LINKS = [
   { href: '/', label: '主页' },
-  { href: '/portfolio', label: '作品' },
+  { href: '/portfolio', label: '项目' },
   { href: '/blog', label: '博客' },
   { href: '/links', label: '链接' },
 ];
