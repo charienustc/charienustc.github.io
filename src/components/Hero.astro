@@ -5,10 +5,12 @@ import { AUTHOR, SITE_DESCRIPTION } from '../consts';
 const base = import.meta.env.BASE_URL;
 ---
 
-<section class="reveal grid lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-16 items-center min-h-[50vh] py-8">
-  <div class="order-2 lg:order-1">
-    <p class="text-sm font-medium text-accent mb-3 tracking-wide uppercase">Hello, I'm</p>
-    <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-ink tracking-tight mb-4">
+<section class="reveal relative grid lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-16 items-center min-h-[62vh] py-8">
+  <!-- Hero 区独立光晕,给首屏纵深 -->
+  <div class="hero-glow" aria-hidden="true"></div>
+
+  <div class="relative order-2 lg:order-1">
+    <h1 class="font-serif text-5xl sm:text-6xl lg:text-7xl font-bold text-ink tracking-tight mb-5 hero-name">
       {AUTHOR}
     </h1>
     <p class="text-lg sm:text-xl text-ink-soft leading-relaxed max-w-xl mb-8">
@@ -17,13 +19,13 @@ const base = import.meta.env.BASE_URL;
     <div class="flex flex-wrap gap-3 mb-8">
       <a
         href={`${base}portfolio`}
-        class="inline-flex items-center px-5 py-2.5 rounded-full bg-accent text-accent-text font-medium text-sm hover:opacity-90 transition-opacity"
+        class="btn-primary inline-flex items-center px-6 py-3 rounded-full font-medium text-sm"
       >
         查看项目
       </a>
       <a
         href={`${base}blog`}
-        class="inline-flex items-center px-5 py-2.5 rounded-full border border-line text-ink font-medium text-sm hover:border-accent hover:text-accent transition-colors"
+        class="btn-ghost inline-flex items-center px-6 py-3 rounded-full font-medium text-sm"
       >
         阅读博客
       </a>
@@ -62,13 +64,16 @@ const base = import.meta.env.BASE_URL;
     </div>
   </div>
 
-  <div class="order-1 lg:order-2 flex justify-center">
-    <div class="relative">
-      <div class="absolute inset-0 rounded-3xl bg-accent/10 rotate-6"></div>
+  <div class="relative order-1 lg:order-2 flex justify-center">
+    <div class="avatar-stack">
+      <!-- 外层轮廓框:反向错位 -->
+      <div class="avatar-outline" aria-hidden="true"></div>
+      <!-- 内层实色块:正向错位 -->
+      <div class="avatar-plate" aria-hidden="true"></div>
       <img
         src={base + 'avatar.jpg'}
         alt={`${AUTHOR} 的头像`}
-        class="relative w-48 h-48 sm:w-64 sm:h-64 rounded-3xl object-cover border-2 border-line shadow-xl"
+        class="avatar-img"
         onerror="this.style.display='none'"
       />
     </div>

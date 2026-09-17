@@ -18,3 +18,7 @@ yarn-error.log*
 .idea/
 # 本地内容管理后台(仅本机使用,不进仓库)
 admin/
+# 本地 Claude Code 状态与日志
+.claude/
+# 未使用的素材
+public/background.jpg

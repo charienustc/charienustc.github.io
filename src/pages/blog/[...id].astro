@@ -22,9 +22,9 @@ const fmt = (d: Date) =>
 ---
 
 <BaseLayout title={`${title} · ${AUTHOR}`} description={description} image={heroImage}>
-  <article class="reveal max-w-3xl mx-auto">
+  <article class="reveal mx-auto" style="max-width: 72ch">
     <header class="mb-8 sm:mb-10">
-      <h1 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-ink tracking-tight mb-4">
+      <h1 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-ink tracking-tight mb-4" style="text-wrap: balance">
         {title}
       </h1>
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">

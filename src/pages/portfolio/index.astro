@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Section from '../../components/Section.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
+import EmptyState from '../../components/EmptyState.astro';
 import { getCollection } from 'astro:content';
 import { AUTHOR } from '../../consts';
 
@@ -19,9 +20,12 @@ const projects = (await getCollection('projects'))
     </header>
 
     {projects.length === 0 ? (
-      <div class="card p-8 text-center text-muted">
-        还没有展示的项目,敬请期待。
-      </div>
+      <EmptyState
+        title="还没有展示的项目"
+        description="正在整理中。可以先看看博客,了解我最近在做什么。"
+        href={`${base}blog`}
+        linkText="阅读博客"
+      />
     ) : (
       <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
