@@ -34,16 +34,18 @@ function isActive(href: string): boolean {
 
 <header class="sticky top-4 z-50 flex justify-center px-4">
   <div class="ios-liquid-glass-pill">
-    <nav class="relative z-10 flex items-center gap-0.5 sm:gap-1 text-sm font-medium">
+    <nav
+      data-nav-pill
+      class="relative z-10 flex items-center gap-0.5 sm:gap-1 text-sm font-medium"
+    >
+      <!-- 滑动指示器:在 tab 之间平移 -->
+      <span class="nav-indicator" aria-hidden="true"></span>
       {NAV_LINKS.map((link) => (
         <a
           href={base + link.href.replace(/^\//, '')}
-          class:list={[
-            'px-3 sm:px-4 py-2 rounded-full transition-all duration-200',
-            isActive(link.href)
-              ? 'bg-white/12 text-ink shadow-sm'
-              : 'text-ink-soft hover:text-ink hover:bg-white/8',
-          ]}
+          data-active={isActive(link.href) ? 'true' : 'false'}
+          aria-current={isActive(link.href) ? 'page' : undefined}
+          class="nav-tab px-3 sm:px-4 py-2 rounded-full"
         >
           {link.label}
         </a>
@@ -53,13 +55,133 @@ function isActive(href: string): boolean {
 </header>
 
 <script>
-  const fade = document.querySelector<HTMLElement>('.header-fade');
-  if (fade) {
-    const sync = () => {
-      fade.dataset.visible = window.scrollY > 8 ? 'true' : 'false';
-    };
-    sync();
-    window.addEventListener('scroll', sync, { passive: true });
-    document.addEventListener('astro:after-swap', sync);
+  // 注意:ClientRouter 的软导航会整体替换 <header>,旧的 <nav> 节点会连同它身上的
+  // 监听器一起被丢弃。所以所有元素引用都做成惰性查询,交互监听统一委托到 document,
+  // 换页后(astro:page-load)重新量取位置即可。
+  const navEl = () => document.querySelector<HTMLElement>('[data-nav-pill]');
+  const indEl = () => navEl()?.querySelector<HTMLElement>('.nav-indicator');
+  const tabEls = () =>
+    Array.from(navEl()?.querySelectorAll<HTMLElement>('.nav-tab') ?? []);
+  const activeTab = () => tabEls().find((el) => el.dataset.active === 'true');
+
+  const inNav = (node: EventTarget | null) =>
+    node instanceof Element && !!node.closest('[data-nav-pill]');
+  const tabFrom = (node: EventTarget | null) =>
+    node instanceof Element ? node.closest<HTMLElement>('.nav-tab') : null;
+
+  /** 把指示器对齐到目标 tab;animate=true 时用弹簧曲线滑过去 */
+  function moveIndicator(target: HTMLElement | undefined | null, animate: boolean) {
+    const nav = navEl();
+    const indicator = indEl();
+    if (!nav || !indicator || !target) return;
+    // 转场中途 navEl() 可能拿到已从文档摘下的节点,此时 rect 全是 0,
+    // 写进去等于把指示器打成 0 尺寸且不会报错 —— 直接跳过,交给下一次归位。
+    if (!nav.isConnected || !indicator.isConnected || !target.isConnected) return;
+    const navRect = nav.getBoundingClientRect();
+    const rect = target.getBoundingClientRect();
+    indicator.style.width = `${rect.width}px`;
+    indicator.style.height = `${rect.height}px`;
+    indicator.style.transform = `translate3d(${rect.left - navRect.left}px, ${rect.top - navRect.top}px, 0)`;
+    if (!animate) indicator.style.transition = 'none';
+    indicator.dataset.show = 'true';
+    if (!animate) {
+      // 强制回流,确认无过渡的那一帧已经落地,再恢复过渡属性
+      void indicator.offsetWidth;
+      indicator.style.transition = '';
+    }
   }
+
+  /** 重新量取当前 active 页签并归位 */
+  function syncIndicator(animate = false) {
+    moveIndicator(activeTab(), animate);
+  }
+
+  // resize / 字体加载:瞬时归位,避免看到多余的滑动
+  const resetIndicator = () => syncIndicator(false);
+
+  // 键盘聚焦时指示器跟随
+  document.addEventListener('focusin', (event) => {
+    const tab = tabFrom(event.target);
+    if (tab && inNav(tab)) moveIndicator(tab, true);
+  });
+
+  // 左右方向键在页签间移动焦点(不导航)。
+  // 焦点当前就在某个页签上时,索引一律以它为准 —— focusIndex 只是「焦点还在胶囊里、
+  // 但不在任何页签上」时的起点记忆。否则换页重建 DOM 后,旧的 focusIndex 会和实际焦点
+  // 对不上,按方向键会跳到错误的页签。
+  let focusIndex = -1;
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    const nav = navEl();
+    const tabs = tabEls();
+    if (!nav || !tabs.length) return;
+
+    const current = tabs.indexOf(document.activeElement as HTMLElement);
+    const focusedOnTab = current >= 0;
+    if (!focusedOnTab && !nav.contains(document.activeElement)) return;
+
+    const step = event.key === 'ArrowRight' ? 1 : -1;
+    const from = focusedOnTab ? current : focusIndex < 0 ? 0 : focusIndex;
+    const next = tabs[(from + step + tabs.length) % tabs.length];
+    // 先确定真的会落到某个页签上,再吞掉按键
+    if (!next) return;
+    event.preventDefault();
+    focusIndex = (from + step + tabs.length) % tabs.length;
+    next.focus();
+  });
+
+  // 点击:指示器瞬时落到被点的 tab(不等导航完成),按动感由 :active 缩放给出
+  document.addEventListener('click', (event) => {
+    if (!inNav(event.target)) return;
+    const tab = tabFrom(event.target);
+    if (tab) moveIndicator(tab, false);
+  });
+
+  // 尺寸变化 / 字体加载完成后重新量一次,避免偏移
+  window.addEventListener('resize', resetIndicator, { passive: true });
+  document.fonts?.ready.then(resetIndicator);
+
+  // 首次进入直接定位(不滑动)
+  syncIndicator(false);
+
+  // 换页后的归位统一在 astro:page-load 里做:
+  // after-swap 时机太早 —— 那时文档还在 view-transition 的双份状态里,量到的是过渡中的
+  // 中间值。
+  // 注意 page-load 也早于转场结束(它挂在 updateCallbackDone 上,不是 finished),所以这里
+  // 等两帧让布局落定。
+  // 连续换页时,先发起的那次回调可能晚于新一轮才跑:用令牌让它作废,避免旧值覆盖新值。
+  // 但「作废」只针对过期的回调 —— 最新一轮必须真正把位置写下去,否则指示器会停在 0 尺寸,
+  // 所以最新的那次重试到成功为止,而不是放弃。
+  let settleToken = 0;
+  document.addEventListener('astro:page-load', () => {
+    const token = ++settleToken;
+    // 换页后页签列表整个换了,清掉上页残留的焦点索引
+    focusIndex = -1;
+
+    const settle = (attempt = 0) => {
+      if (token !== settleToken) return; // 已被更新的换页取代,交给那一轮
+      requestAnimationFrame(() => {
+        if (token !== settleToken) return;
+        // 每次都现场重新查询:上一帧拿到的节点可能已被换掉
+        if (!navEl() || !activeTab()) {
+          if (attempt < 10) settle(attempt + 1); // 布局还没就绪,下一帧再试
+          return;
+        }
+        syncIndicator(false);
+      });
+    };
+    settle();
+  });
+
+  const fadeEl = () => document.querySelector<HTMLElement>('.header-fade');
+
+  function syncFade() {
+    const fade = fadeEl();
+    if (fade) fade.dataset.visible = window.scrollY > 8 ? 'true' : 'false';
+  }
+
+  syncFade();
+  window.addEventListener('scroll', syncFade, { passive: true });
+  document.addEventListener('astro:after-swap', syncFade);
+  document.addEventListener('astro:page-load', syncFade);
 </script>

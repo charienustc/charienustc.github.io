@@ -290,6 +290,82 @@ body::after {
   z-index: -1;
 }
 
+/* ============ Tab 滑动指示器 + 按动反馈 ============ */
+
+/* 指示器:由 JS 量取目标 tab 的几何位置后平移过去 */
+.nav-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.12);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    0 2px 10px rgb(var(--glow) / 0.18);
+  transition:
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    width 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    height 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.nav-indicator[data-show='true'] {
+  opacity: 1;
+}
+
+.nav-tab {
+  position: relative;
+  z-index: 1;
+  color: var(--ink-soft);
+  /* 按动:压扁快、回弹慢,带一点回弹感 */
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    color 0.22s ease;
+}
+
+.nav-tab:hover {
+  color: var(--ink);
+}
+
+.nav-tab[data-active='true'] {
+  color: var(--ink);
+}
+
+/* 按下去的瞬间:缩小 + 轻微下沉 */
+.nav-tab:active {
+  transform: translateY(1.5px) scale(0.93);
+  transition-duration: 0.1s;
+  transition-timing-function: ease-out;
+}
+
+/* 键盘聚焦时同样给按动反馈 */
+.nav-tab:focus-visible {
+  transform: scale(0.95);
+  color: var(--ink);
+  outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* 关掉的是「运动」本身,不只是把时长压到接近 0 ——
+     保留 cubic-bezier 的过冲曲线配极短时长仍可能闪出单帧跳变。
+     按动反馈改为纯颜色变化,仍然可感知。 */
+  .nav-indicator {
+    transition: opacity 0.01ms;
+  }
+  .nav-tab {
+    transition: color 0.22s ease;
+  }
+  .nav-tab:active,
+  .nav-tab:focus-visible {
+    transform: none;
+    color: var(--ink);
+  }
+}
+
 /* 顶栏遮罩:滚动时内容在胶囊上下缘渐隐,避免文字贴玻璃边 */
 .header-fade {
   position: fixed;
