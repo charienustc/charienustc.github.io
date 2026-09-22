@@ -183,6 +183,10 @@ a.tag:hover {
   transition: border-color 0.3s ease;
 }
 
+.site-header[data-scrolled='true'] {
+  border-bottom-color: var(--line);
+}
+
 /* 渐进高斯模糊:向下延伸到内容区,模糊从底部(弱)到顶部(强)递增。
    六层叠加,每层模糊度翻倍、mask 带错位衔接,近似连续渐变。
    滚动前隐藏,避免首屏静态内容被模糊层覆盖。 */
@@ -191,16 +195,16 @@ a.tag:hover {
   top: 0;
   left: 0;
   right: 0;
-  height: calc(100% + 2.5rem);
+  height: calc(100% + 3.5rem);
   z-index: 0;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
-  /* 淡淡的纸色渐变托底,保证顶部文字可读 */
   background: linear-gradient(
     to bottom,
-    color-mix(in srgb, var(--paper) 72%, transparent) 0%,
-    color-mix(in srgb, var(--paper) 30%, transparent) 55%,
+    color-mix(in srgb, var(--paper) 88%, transparent) 0%,
+    color-mix(in srgb, var(--paper) 55%, transparent) 40%,
+    color-mix(in srgb, var(--paper) 15%, transparent) 80%,
     transparent 100%
   );
 }
@@ -216,36 +220,36 @@ a.tag:hover {
 
 /* 最顶层(最重模糊)→ 最底层(近乎清晰) */
 .header-blur > div:nth-child(1) {
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   mask-image: linear-gradient(to bottom, black 0%, black 12.5%, transparent 37.5%);
   -webkit-mask-image: linear-gradient(to bottom, black 0%, black 12.5%, transparent 37.5%);
 }
 
 .header-blur > div:nth-child(2) {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   mask-image: linear-gradient(to bottom, transparent 0%, black 12.5%, black 25%, transparent 50%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12.5%, black 25%, transparent 50%);
 }
 
 .header-blur > div:nth-child(3) {
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   mask-image: linear-gradient(to bottom, transparent 12.5%, black 25%, black 37.5%, transparent 62.5%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 12.5%, black 25%, black 37.5%, transparent 62.5%);
 }
 
 .header-blur > div:nth-child(4) {
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   mask-image: linear-gradient(to bottom, transparent 25%, black 37.5%, black 50%, transparent 75%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 25%, black 37.5%, black 50%, transparent 75%);
 }
 
 .header-blur > div:nth-child(5) {
-  backdrop-filter: blur(1px);
-  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
   mask-image: linear-gradient(to bottom, transparent 37.5%, black 50%, black 62.5%, transparent 87.5%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 37.5%, black 50%, black 62.5%, transparent 87.5%);
 }
