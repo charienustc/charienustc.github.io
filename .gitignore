@@ -22,3 +22,4 @@ admin/
 .claude/
 # 未使用的素材
 public/background.jpg
+.qoder-credits/
