@@ -15,7 +15,7 @@ const dateStr = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}
 <a href={`${base}blog/${post.id}`} class="row group py-5 sm:py-6 flex items-baseline gap-4 sm:gap-7" data-reveal>
   <time datetime={d.toISOString()} class="label shrink-0 w-[5.5rem]">{dateStr}</time>
   <div class="flex-1 min-w-0">
-    <h3 class="row-title font-serif text-lg sm:text-xl font-bold text-ink">
+    <h3 class="row-title font-serif text-base sm:text-lg font-semibold text-ink">
       {post.data.title}
     </h3>
     <p class="mt-1.5 text-sm text-ink-soft leading-relaxed line-clamp-2">

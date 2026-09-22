@@ -84,10 +84,19 @@ body {
   background-color: var(--surface);
 }
 
-/* 行内箭头:hover 时从左侧滑入 */
+/* 行内箭头:绝对定位于行右缘垂直居中(flex 混排 baseline 时 self-center
+   会相对「基线组撑出的行盒」居中,而不是行的几何中心,所以改成绝对定位)。
+   hover 时从右侧滑入 */
+.row:has(.row-arrow) {
+  padding-right: 1.75rem;
+}
+
 .row .row-arrow {
+  position: absolute;
+  right: 0.25rem;
+  top: 50%;
   opacity: 0;
-  transform: translateX(-6px);
+  transform: translateY(-50%) translateX(-6px);
   transition:
     opacity 0.25s ease,
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
@@ -95,7 +104,7 @@ body {
 
 .row:hover .row-arrow {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateY(-50%) translateX(0);
 }
 
 .row .row-title {
@@ -171,16 +180,81 @@ a.tag:hover {
 /* ============ 顶栏 ============ */
 .site-header {
   border-bottom: 1px solid transparent;
-  transition:
-    border-color 0.3s ease,
-    background-color 0.3s ease;
+  transition: border-color 0.3s ease;
 }
 
-.site-header[data-scrolled='true'] {
-  border-bottom-color: var(--line);
-  background-color: color-mix(in srgb, var(--paper) 86%, transparent);
-  backdrop-filter: blur(12px) saturate(140%);
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
+/* 渐进高斯模糊:向下延伸到内容区,模糊从底部(弱)到顶部(强)递增。
+   六层叠加,每层模糊度翻倍、mask 带错位衔接,近似连续渐变。
+   滚动前隐藏,避免首屏静态内容被模糊层覆盖。 */
+.header-blur {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(100% + 2.5rem);
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  /* 淡淡的纸色渐变托底,保证顶部文字可读 */
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--paper) 72%, transparent) 0%,
+    color-mix(in srgb, var(--paper) 30%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+.site-header[data-scrolled='true'] .header-blur {
+  opacity: 1;
+}
+
+.header-blur > div {
+  position: absolute;
+  inset: 0;
+}
+
+/* 最顶层(最重模糊)→ 最底层(近乎清晰) */
+.header-blur > div:nth-child(1) {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  mask-image: linear-gradient(to bottom, black 0%, black 12.5%, transparent 37.5%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 12.5%, transparent 37.5%);
+}
+
+.header-blur > div:nth-child(2) {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 12.5%, black 25%, transparent 50%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12.5%, black 25%, transparent 50%);
+}
+
+.header-blur > div:nth-child(3) {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  mask-image: linear-gradient(to bottom, transparent 12.5%, black 25%, black 37.5%, transparent 62.5%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 12.5%, black 25%, black 37.5%, transparent 62.5%);
+}
+
+.header-blur > div:nth-child(4) {
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  mask-image: linear-gradient(to bottom, transparent 25%, black 37.5%, black 50%, transparent 75%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 25%, black 37.5%, black 50%, transparent 75%);
+}
+
+.header-blur > div:nth-child(5) {
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+  mask-image: linear-gradient(to bottom, transparent 37.5%, black 50%, black 62.5%, transparent 87.5%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 37.5%, black 50%, black 62.5%, transparent 87.5%);
+}
+
+.header-blur > div:nth-child(6) {
+  backdrop-filter: blur(0.5px);
+  -webkit-backdrop-filter: blur(0.5px);
+  mask-image: linear-gradient(to bottom, transparent 50%, black 62.5%, black 75%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 50%, black 62.5%, black 75%, transparent 100%);
 }
 
 .nav-link {
@@ -314,6 +388,107 @@ a.tag:hover {
   outline-offset: 2px;
 }
 
+/* ============ 文章目录:迷你刻度条,悬停展开 ============ */
+/* 吸附在文章右侧页边,宽屏(xl+)才显示 */
+.toc {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: -15rem;
+  height: 100%;
+  width: 13rem;
+}
+
+@media (min-width: 1280px) {
+  .toc {
+    display: block;
+  }
+}
+
+.toc-inner {
+  position: sticky;
+  top: 50vh;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.5rem 0;
+}
+
+.toc-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* 折叠态:只看见一排刻度线,h3 更短且缩进 */
+.toc-dash {
+  flex-shrink: 0;
+  height: 2px;
+  width: 1.6rem;
+  border-radius: 1px;
+  background: var(--line);
+  transition:
+    width 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.2s ease;
+}
+
+.toc-link[data-depth='3'] {
+  padding-left: 0.9rem;
+}
+
+.toc-link[data-depth='3'] .toc-dash {
+  width: 1.05rem;
+}
+
+/* 标题文字:默认隐藏,悬停/聚焦目录时展开 */
+.toc-text {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 10.5rem;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.2s ease;
+}
+
+.toc:hover .toc-text,
+.toc:focus-within .toc-text {
+  opacity: 1;
+  transform: none;
+}
+
+.toc-link:hover .toc-dash {
+  background: var(--muted);
+}
+
+.toc-link:hover .toc-text {
+  color: var(--ink);
+}
+
+/* 当前小节:刻度加长变朱红 */
+.toc-link[data-active='true'] .toc-dash {
+  background: var(--accent);
+  width: 2.3rem;
+}
+
+.toc-link[data-active='true'] .toc-text {
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toc-dash,
+  .toc-text {
+    transition: none;
+  }
+}
+
 /* ============ 文章正文排版:衬线正文,编辑排版 ============ */
 .prose-custom {
   font-family: var(--font-serif);
@@ -376,11 +551,17 @@ a.tag:hover {
   border-radius: 4px;
 }
 
+/* 代码块:macOS 窗口风格 —— 交通灯 + 窗口栏 + 深色窗口体 */
 .prose-custom pre {
-  background: var(--surface);
+  position: relative;
+  background:
+    /* 窗口栏与代码区的分隔线(渐变实现,腾出 ::after 给语言标签) */
+    linear-gradient(to bottom, transparent calc(2.1rem - 1px), rgb(255 255 255 / 0.07) calc(2.1rem - 1px), rgb(255 255 255 / 0.07) 2.1rem, transparent 2.1rem),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.045) 2.1rem, transparent 2.1rem),
+    #201e1a;
   border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 1.1rem 1.3rem;
+  border-radius: 10px;
+  padding: 2.6rem 1.3rem 1.1rem;
   overflow-x: auto;
   margin: 1.6em 0;
   font-size: 0.88rem;
@@ -388,12 +569,79 @@ a.tag:hover {
   max-width: 100%;
 }
 
+/* 交通灯:红 / 黄 / 绿 */
+.prose-custom pre::before {
+  content: "";
+  position: absolute;
+  top: 0.85rem;
+  left: 1.05rem;
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 50%;
+  background: #ff5f57;
+  box-shadow:
+    1.1rem 0 0 #febc2e,
+    2.2rem 0 0 #28c840;
+}
+
+/* 语言标签:窗口栏右侧,复制按钮左边 */
+.prose-custom pre[data-language]::after {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.68rem;
+  right: 4.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.38);
+}
+
 .prose-custom pre code {
-  color: var(--ink-soft);
+  color: #e8e5dd;
   background: none;
   border: none;
   padding: 0;
   font-size: inherit;
+}
+
+/* 复制按钮:JS 注入到 .code-window 容器,横向滚动时保持钉在右上角 */
+.code-window {
+  position: relative;
+}
+
+.code-copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.45);
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 5px;
+  padding: 0.18rem 0.5rem;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.code-copy:hover {
+  color: #fff;
+  border-color: rgb(255 255 255 / 0.3);
+}
+
+.code-copy[data-copied='true'] {
+  color: #28c840;
+  border-color: rgb(40 200 64 / 0.45);
+  background: rgb(40 200 64 / 0.1);
 }
 
 .prose-custom blockquote {

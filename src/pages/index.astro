@@ -24,8 +24,8 @@ const projects = (await getCollection('projects'))
 
   {
     projects.length > 0 && (
-      <section class="mb-16 sm:mb-24">
-        <Section title="精选项目" index="01" href={`${base}portfolio`} linkText="全部项目" />
+      <section class="mb-20 sm:mb-28">
+        <Section title="精选项目" href={`${base}portfolio`} linkText="全部项目" />
         <div>
           {projects.map((project, i) => (
             <ProjectCard project={project} index={i} />
@@ -37,8 +37,8 @@ const projects = (await getCollection('projects'))
 
   {
     posts.length > 0 && (
-      <section class="mb-16 sm:mb-24">
-        <Section title="最近文章" index="02" href={`${base}blog`} linkText="全部文章" />
+      <section class="mb-20 sm:mb-28">
+        <Section title="博客" href={`${base}blog`} linkText="全部文章" />
         <div>
           {posts.map((post) => (
             <PostCard post={post} />

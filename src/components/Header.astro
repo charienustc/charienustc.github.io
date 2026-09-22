@@ -11,7 +11,17 @@ function isActive(href: string): boolean {
 ---
 
 <header class="site-header sticky top-0 z-50" data-scrolled="false">
-  <div class="mx-auto w-full max-w-3xl px-5 sm:px-8 h-16 flex items-center justify-between gap-6">
+  <!-- 渐进模糊层:六层 backdrop-filter 模糊度递减,mask 分带衔接,
+       从顶栏下缘(近乎清晰)向上(最重模糊)渐变。仅滚动后显示 -->
+  <div class="header-blur" aria-hidden="true">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+  <div class="relative z-10 mx-auto w-full max-w-3xl px-5 sm:px-8 h-16 flex items-center justify-between gap-6">
     <a
       href={base}
       class="font-serif text-lg font-bold tracking-tight text-ink hover:text-accent transition-colors"

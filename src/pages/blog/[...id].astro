@@ -14,8 +14,9 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 const { title, description, pubDate, updatedDate, tags, heroImage } = post.data;
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
 const base = import.meta.env.BASE_URL;
 const fmt = (d: Date) =>
   `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
@@ -24,7 +25,19 @@ const fmt = (d: Date) =>
 <BaseLayout title={`${title} · ${AUTHOR}`} description={description} image={heroImage}>
   <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
 
-  <article>
+  <article class="relative">
+    {tocHeadings.length > 0 && (
+      <nav class="toc" aria-label="文章目录" data-toc>
+        <div class="toc-inner">
+          {tocHeadings.map((h) => (
+            <a href={`#${h.slug}`} class="toc-link" data-depth={h.depth} data-slug={h.slug}>
+              <span class="toc-dash" aria-hidden="true"></span>
+              <span class="toc-text">{h.text}</span>
+            </a>
+          ))}
+        </div>
+      </nav>
+    )}
     <header class="mb-10 sm:mb-12" data-reveal>
       <p class="label mb-5">
         <time datetime={pubDate.toISOString()}>{fmt(pubDate)}</time>
@@ -81,5 +94,32 @@ const fmt = (d: Date) =>
     window.addEventListener('resize', syncProgress, { passive: true });
     document.addEventListener('astro:page-load', syncProgress);
     syncProgress();
+
+    // 目录 scrollspy:视口顶部 120px 以上的最后一个标题即当前小节。
+    // 元素一律惰性查询,换页后目录不存在时静默跳过。
+    function syncToc() {
+      const toc = document.querySelector('[data-toc]');
+      if (!toc) return;
+      const links = toc.querySelectorAll<HTMLElement>('.toc-link');
+      const headings = document.querySelectorAll('.prose-custom h2[id], .prose-custom h3[id]');
+      let current: string | null = null;
+      for (const h of headings) {
+        if (h.getBoundingClientRect().top <= 120) current = h.id;
+        else break;
+      }
+      // 页面滚到底时,最后一节可能永远跨不过阈值线 —— 直接点亮最后一个标题
+      if (!current || window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2 && headings.length > 0) {
+          current = headings[headings.length - 1].id;
+        }
+      }
+      links.forEach((l) => {
+        l.dataset.active = l.dataset.slug === current ? 'true' : 'false';
+      });
+    }
+
+    window.addEventListener('scroll', syncToc, { passive: true });
+    document.addEventListener('astro:page-load', syncToc);
+    syncToc();
   </script>
 </BaseLayout>
