@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-Personal homepage for `charienustc`, deployed to GitHub Pages at `https://charienustc.github.io`. Built as a static Astro 7 site and styled as a Linux terminal.
+Personal homepage for `charienustc`, deployed to GitHub Pages at `https://charienustc.github.io`. Built as a static Astro 7 site with a minimal editorial design (warm paper background, serif display type, hairline-rule list rows, light/dark theme toggle).
 
 ## Common commands
 
@@ -32,7 +32,7 @@ Schemas are enforced with Zod. Draft posts (`draft: true`) are filtered out in `
 
 Static routes live under `src/pages/`:
 
-- `index.astro` — Homepage with profile panel and interactive terminal.
+- `index.astro` — Homepage with typographic hero and featured projects / recent posts as list rows.
 - `blog/index.astro` — Post list.
 - `blog/[...id].astro` — Individual post renderer; uses `render()` for MDX.
 - `blog/tags/` and `blog/tags/[tag].astro` — Tag index and filtered list.
@@ -42,18 +42,18 @@ Static routes live under `src/pages/`:
 
 ### Layout and components
 
-- `src/layouts/BaseLayout.astro` — Shell: `<html>`, `<Header>`, `<Footer>`, main container, imports global styles.
-- `src/components/BaseHead.astro` — Meta, OG tags, fonts, theme initializer, and Busuanzi analytics script.
-- `src/components/Terminal.astro` + `src/scripts/terminal.ts` — Browser-based interactive shell on the homepage. It receives serialized collection data via `window.__TERM_DATA__` and implements commands like `ls`, `cat`, `cd`, `open`, `neofetch`, `theme`.
-- `src/components/TerminalWindow.astro` — Static terminal-styled container used on inner pages.
-- `src/components/PostRow.astro` — `ls -l`-style blog list row.
+- `src/layouts/BaseLayout.astro` — Shell: `<html>`, `<Header>`, `<Footer>`, main container, imports global styles and the scroll-reveal script.
+- `src/components/BaseHead.astro` — Meta, OG tags, fonts, inline theme initializer (reads `localStorage.theme`, falls back to system preference), and Busuanzi analytics script.
+- `src/components/PageHeader.astro` — Shared page header: mono kicker label + large serif title + optional description.
+- `src/components/PostCard.astro` / `src/components/ProjectCard.astro` — Editorial list-row items (hairline dividers, hover arrow slide), used on home, blog, tags, and portfolio pages.
 
 ### Styling
 
 - Tailwind CSS v4 is loaded via `@tailwindcss/vite` in `astro.config.mjs`.
-- `src/styles/global.css` defines the design tokens and `@theme inline` mappings. Theme colors are CSS custom properties that flip between light (default) and `.dark` modes.
-- The default theme is light. User preference (`localStorage.theme === 'dark'`) is applied inline in `BaseHead.astro`.
-- Custom classes: `.t-green`, `.t-cyan`, `.t-blue`, `.t-yellow`, `.t-red`, `.t-purple`, `.t-dim`, `.t-bold`, `.term-scanlines`, `.reveal`, `.link-underline`, `.article-body`.
+- `src/styles/global.css` defines the design tokens and `@theme inline` mappings. Theme colors are CSS custom properties that flip between light (default) and `.dark` modes (dark is a custom variant on the `.dark` class).
+- The default theme is light. User preference (`localStorage.theme === 'dark'`) is applied inline in `BaseHead.astro` before first paint; the header toggle switches the `.dark` class on `<html>`.
+- Custom classes: `.label` (mono uppercase micro-labels), `.row` / `.row-title` / `.row-arrow` (hairline list rows), `.link-underline`, `.tag`, `.site-header` / `.nav-link`, `.reading-progress`, `.prose-custom` (serif article typography).
+- Scroll-triggered reveals: elements with `data-reveal` get `.is-visible` via `src/scripts/reveal.ts` (IntersectionObserver, re-armed on `astro:page-load`). Optional stagger via `style="--reveal-delay: 120ms"`.
 
 ### Configuration and data
 

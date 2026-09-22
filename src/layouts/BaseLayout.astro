@@ -22,12 +22,12 @@ const { title, description, image } = Astro.props;
   </head>
   <body class="min-h-screen bg-paper text-ink font-sans antialiased flex flex-col">
     <Header />
-    <main class="flex-1 mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+    <main class="flex-1 mx-auto w-full max-w-3xl px-5 sm:px-8 py-14 sm:py-20">
       <slot />
     </main>
     <Footer />
     <script>
-      import '../scripts/card-glow.ts';
+      import '../scripts/reveal.ts';
     </script>
   </body>
 </html>

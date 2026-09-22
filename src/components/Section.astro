@@ -1,17 +1,21 @@
 ---
 interface Props {
   title: string;
+  index?: string;
   href?: string;
   linkText?: string;
 }
 
-const { title, href, linkText = '查看全部' } = Astro.props;
+const { title, index, href, linkText = '查看全部' } = Astro.props;
 ---
 
-<div class="flex items-end justify-between gap-4 mb-6 sm:mb-8">
-  <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink">{title}</h2>
+<div class="flex items-end justify-between gap-4 mb-6" data-reveal>
+  <div class="flex items-baseline gap-3">
+    {index && <span class="label text-accent">{index}</span>}
+    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink tracking-tight">{title}</h2>
+  </div>
   {href && (
-    <a href={href} class="text-sm font-medium text-accent link-underline">
+    <a href={href} class="text-sm text-ink-soft hover:text-ink link-underline shrink-0">
       {linkText} →
     </a>
   )}

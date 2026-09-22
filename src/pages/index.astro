@@ -24,11 +24,11 @@ const projects = (await getCollection('projects'))
 
   {
     projects.length > 0 && (
-      <section class="reveal mt-20 sm:mt-28" style="animation-delay: 0.1s">
-        <Section title="精选项目" href={`${base}portfolio`} linkText="全部项目" />
-        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <ProjectCard project={project} />
+      <section class="mb-16 sm:mb-24">
+        <Section title="精选项目" index="01" href={`${base}portfolio`} linkText="全部项目" />
+        <div>
+          {projects.map((project, i) => (
+            <ProjectCard project={project} index={i} />
           ))}
         </div>
       </section>
@@ -37,9 +37,9 @@ const projects = (await getCollection('projects'))
 
   {
     posts.length > 0 && (
-      <section class="reveal mt-20 sm:mt-28" style="animation-delay: 0.2s">
-        <Section title="最近文章" href={`${base}blog`} linkText="全部文章" />
-        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <section class="mb-16 sm:mb-24">
+        <Section title="最近文章" index="02" href={`${base}blog`} linkText="全部文章" />
+        <div>
           {posts.map((post) => (
             <PostCard post={post} />
           ))}
