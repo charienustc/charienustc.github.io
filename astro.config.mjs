@@ -8,6 +8,16 @@ export default defineConfig({
   site: 'https://charienustc.github.io',
   vite: {
     plugins: [tailwindcss()],
+    css: {
+      transformer: 'postcss',
+      lightningcss: {
+        targets: {
+          chrome: 120,
+          safari: 17,
+          firefox: 120,
+        },
+      },
+    },
   },
   integrations: [mdx(), sitemap()],
 });

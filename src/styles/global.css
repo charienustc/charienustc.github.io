@@ -220,43 +220,43 @@ a.tag:hover {
 
 /* 最顶层(最重模糊)→ 最底层(近乎清晰) */
 .header-blur > div:nth-child(1) {
-  backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
   mask-image: linear-gradient(to bottom, black 0%, black 12.5%, transparent 37.5%);
   -webkit-mask-image: linear-gradient(to bottom, black 0%, black 12.5%, transparent 37.5%);
 }
 
 .header-blur > div:nth-child(2) {
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   mask-image: linear-gradient(to bottom, transparent 0%, black 12.5%, black 25%, transparent 50%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12.5%, black 25%, transparent 50%);
 }
 
 .header-blur > div:nth-child(3) {
-  backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
   mask-image: linear-gradient(to bottom, transparent 12.5%, black 25%, black 37.5%, transparent 62.5%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 12.5%, black 25%, black 37.5%, transparent 62.5%);
 }
 
 .header-blur > div:nth-child(4) {
-  backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
   mask-image: linear-gradient(to bottom, transparent 25%, black 37.5%, black 50%, transparent 75%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 25%, black 37.5%, black 50%, transparent 75%);
 }
 
 .header-blur > div:nth-child(5) {
-  backdrop-filter: blur(1.5px);
   -webkit-backdrop-filter: blur(1.5px);
+  backdrop-filter: blur(1.5px);
   mask-image: linear-gradient(to bottom, transparent 37.5%, black 50%, black 62.5%, transparent 87.5%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 37.5%, black 50%, black 62.5%, transparent 87.5%);
 }
 
 .header-blur > div:nth-child(6) {
-  backdrop-filter: blur(0.5px);
   -webkit-backdrop-filter: blur(0.5px);
+  backdrop-filter: blur(0.5px);
   mask-image: linear-gradient(to bottom, transparent 50%, black 62.5%, black 75%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 50%, black 62.5%, black 75%, transparent 100%);
 }
