@@ -408,10 +408,10 @@ navigation:
     nameKey: nav.about
     path: /about
     icon: fa6-regular:circle-user
-  - name: 歌单
-    nameKey: nav.music
-    path: /music
-    icon: ri:music-2-fill
+  # - name: 歌单
+  #   nameKey: nav.music
+  #   path: /music
+  #   icon: ri:music-2-fill
 
 # =============================================================================
 # Christmas/Seasonal Features
@@ -597,18 +597,17 @@ seo:
     # host: true                       # 可选：添加 Host 指令（Yandex）
 
 # =============================================================================
-# Christmas/Seasonal Features
+# Background Music Player
+# 背景音乐播放器 - 悬浮播放按钮 + 全局播放器
+# 注释掉整个 bgm 段即可关闭（有 audio 时自动启用）
 # =============================================================================
-bgm:
-  enabled: true  # (有 audio 时自动启用，显式 false 可禁用)
-  # metingApi: https://163.hyc.moe/  # Meting API 地址，默认为 https://163.hyc.moe/，推荐自部署
-  audio:
-    - title: 最爱山山
-      list:
-        - https://music.163.com/playlist?id=8676645748
-    - title: Love Vocaloid
-      list:
-        - https://music.163.com/playlist?id=8882890045
+# bgm:
+#   enabled: true
+#   # metingApi: https://163.hyc.moe/  # Meting API 地址，默认为 https://163.hyc.moe/，推荐自部署
+#   audio:
+#     - title: 我的歌单
+#       list:
+#         - https://music.163.com/playlist?id=你的歌单ID
 
 christmas:
   enabled: false # 总开关
