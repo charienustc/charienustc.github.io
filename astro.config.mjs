@@ -56,6 +56,10 @@ const isAnalyze = ANALYZE === 'true';
 // Get robots.txt config from YAML
 const robotsConfig = yamlConfig.seo?.robots;
 
+// Routes that exist only as redirect shells when their feature is disabled.
+// `/bangumi` redirects to /404 when the YAML section is absent, so keep it out of the sitemap.
+const disabledRoutePatterns = [...(yamlConfig.bangumi ? [] : [/^\/bangumi\/?$/])];
+
 // i18n configuration from YAML
 const i18nYaml = yamlConfig.i18n;
 const i18nDefaultLocale = i18nYaml?.defaultLocale ?? 'zh';
@@ -232,7 +236,9 @@ export default defineConfig({
   },
   integrations: [
     react(),
-    sitemap(),
+    sitemap({
+      filter: (page) => !disabledRoutePatterns.some((pattern) => pattern.test(new URL(page).pathname)),
+    }),
     icon({
       include: {
         gg: ['*'],
