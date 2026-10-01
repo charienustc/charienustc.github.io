@@ -9,7 +9,7 @@ tags:
   - CSS
   - Tailwind
 categories:
-  - [笔记, 前端]
+  - 示例
 cover: /img/cover/3.webp
 ---
 

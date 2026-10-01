@@ -8,7 +8,7 @@ tags:
   - 草稿
   - 示例
 categories:
-  - 工具
+  - 示例
 draft: true
 ---
 

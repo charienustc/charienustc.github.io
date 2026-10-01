@@ -3,7 +3,7 @@ link: note/shoka-features
 title: Shoka 主题 Markdown 语法演示
 date: 2026-02-07 12:00:00
 categories:
-  - 笔记
+  - 示例
 tags:
   - Shoka
   - Markdown

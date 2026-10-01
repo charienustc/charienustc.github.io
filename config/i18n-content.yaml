@@ -13,11 +13,11 @@
 
 en:
   categories:
+    sample: Samples
     life: Life
     note: Notes
-    tools: Tools
     weekly: Weekly
-    front-end: Frontend
+    explore: Explore
 
   series:
     weekly:
@@ -31,20 +31,20 @@ en:
     note:
       label: Notes
       description: Technical and study notes
-    note/front-end:
-      label: Frontend
-      description: Frontend technologies
-    tools:
-      label: Tools
-      description: Tool usage and productivity
+    explore:
+      label: Explore
+      description: Explorations and experiments
+    weekly:
+      label: Weekly
+      description: A regularly updated digest
 
 ja:
   categories:
+    sample: サンプル
     life: 日常
     note: ノート
-    tools: ツール
     weekly: 週刊
-    front-end: フロントエンド
+    explore: 探索
 
   series:
     weekly:
@@ -58,20 +58,20 @@ ja:
     note:
       label: ノート
       description: 技術と学習のノート
-    note/front-end:
-      label: フロントエンド
-      description: フロントエンド技術
-    tools:
-      label: ツール
-      description: ツールの使い方と生産性
+    explore:
+      label: 探索
+      description: 探索と試み
+    weekly:
+      label: 週刊
+      description: 定期更新の週間ダイジェスト
 
 ko:
   categories:
+    sample: 샘플
     life: 에세이
     note: 노트
-    tools: 도구
     weekly: 주간지
-    front-end: 프론트엔드
+    explore: 탐색
 
   series:
     weekly:
@@ -85,9 +85,9 @@ ko:
     note:
       label: 노트
       description: 기술 노트, 학습 노트
-    note/front-end:
-      label: 프론트엔드
-      description: 프론트엔드 기술 관련
-    tools:
-      label: 도구
-      description: 도구 사용법, 효율성 향상
+    explore:
+      label: 탐색
+      description: 탐구와 시도
+    weekly:
+      label: 주간지
+      description: 정기적으로 업데이트되는 주간 다이제스트

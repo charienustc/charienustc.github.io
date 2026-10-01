@@ -8,7 +8,7 @@ tags:
   - 入门
   - Astro
 categories:
-  - 工具
+  - 示例
 sticky: true
 ---
 

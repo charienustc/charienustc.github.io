@@ -5,7 +5,7 @@ date: 2026-02-17
 password: demo
 description: "这是一篇演示加密功能的文章"
 categories:
-  - 笔记
+  - 示例
 tags:
   - 加密
   - 测试

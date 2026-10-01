@@ -8,7 +8,8 @@ tags:
   - 可视化
   - Markdown
 categories:
-  - [笔记, 前端]
+  - 示例
+
 ---
 
 本文将详细介绍如何在 Markdown 中使用 [@antv/infographic](https://infographic.antv.vision/) 创建各种精美的信息图表。

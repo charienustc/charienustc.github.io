@@ -13,7 +13,8 @@ tags:
   - Shiki
   - 前端工程
 categories:
-  - [笔记, 前端]
+  - 示例
+
 ---
 
 这次升级看起来只是把 `astro` 从 5.16.6 改成 6.x，实际却穿过了内容身份、Markdown 编译、Vite

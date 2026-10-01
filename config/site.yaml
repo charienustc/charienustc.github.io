@@ -68,17 +68,11 @@ i18n:
 # =============================================================================
 categoryMap:
   # Primary categories
+  示例: sample
   随笔: life
   笔记: note
-  工具: tools
   周刊: weekly
-  # Secondary categories (for nested paths)
-  前端: front-end
-  # Add more as needed:
-  # 书摘: reading
-  # 后端: back-end
-  # 算法: algorithm
-  # 项目: project
+  探索: explore
 
 # =============================================================================
 # Featured Categories (Homepage)
@@ -99,14 +93,14 @@ featuredCategories:
     label: 笔记
     image: /img/cover/4.webp
     description: 技术笔记、学习笔记
-  - link: note/front-end # 嵌套分类：笔记/前端
-    label: 前端
+  - link: explore # 对应 categoryMap 中 探索: explore
+    label: 探索
     image: /img/cover/1.webp
-    description: 前端技术相关
-  - link: tools # 对应 categoryMap 中 工具: tools
-    label: 工具
+    description: 探索与尝试
+  - link: weekly # 对应 categoryMap 中 周刊: weekly
+    label: 周刊
     image: /img/cover/11.webp
-    description: 工具使用、效率提升
+    description: 定期更新的周刊
 
 # =============================================================================
 # Featured Series
@@ -166,11 +160,11 @@ featuredSeries:
 # -----------------------------------------------------------------------------
 social:
   github:
-    url: https://github.com/your-username # 替换为你的 GitHub 链接
+    url: https://github.com/charienustc # 替换为你的 GitHub 链接
     icon: ri:github-fill # Remix Icon 的 GitHub 图标
     color: '#191717' # (可选) 图标颜色
   email:
-    url: mailto:your@email.com # 替换为你的邮箱，需加 mailto: 前缀
+    url: mailto:charien@mail.ustc.edu.cn # 替换为你的邮箱，需加 mailto: 前缀
     icon: ri:mail-line
     color: '#55acd5'
   rss:
@@ -189,7 +183,7 @@ social:
   #   icon: ri:bilibili-fill
   #   color: '#da708a'
   # zhihu:
-  #   url: https://www.zhihu.com/people/your-id
+  #   url: https://www.zhihu.com/people/Charien
   #   icon: ri:zhihu-fill
   #   color: '#1e88e5'
   # music:
@@ -232,27 +226,9 @@ friends:
     - site: Charien的小窝
       url: https://charienustc.github.io
       owner: Charien
-      desc: FE / ACG / 手工 / 深色模式强迫症 / INFP / 兴趣广泛养两只猫的老宅女 / remote
-      image: https://blog.cosine.ren/img/avatar.webp
+      desc: 一个努力做科研的土豆 / 王者荣耀
+      image: https://charienustc.github.io/img/avatar.webp
       color: '#ed788b'
-    - site: 示例博客 A
-      url: https://example-a.com
-      owner: Alice
-      desc: 一个热爱技术的开发者
-      image: https://api.dicebear.com/7.x/avataaars/svg?seed=Alice
-      color: '#BEDCFF'
-    - site: 示例博客 B
-      url: https://example-b.com
-      owner: Bob
-      desc: 分享生活与技术的小站
-      image: https://api.dicebear.com/7.x/avataaars/svg?seed=Bob
-      color: '#FBC1CC'
-    - site: 示例博客 C
-      url: https://example-c.com
-      owner: Carol
-      desc: 记录学习与成长的地方
-      image: https://api.dicebear.com/7.x/avataaars/svg?seed=Carol
-      color: '#ABDCFF'
 
 # =============================================================================
 # Announcements
