@@ -87,19 +87,19 @@ categoryMap:
 featuredCategories:
   - link: life # 对应 categoryMap 中 随笔: life
     label: 随笔
-    image: /img/cover/2.webp
+    image: /img/cover/1.webp
     description: 生活记录、随想随笔
   - link: note # 对应 categoryMap 中 笔记: note
     label: 笔记
-    image: /img/cover/4.webp
+    image: /img/cover/2.webp
     description: 技术笔记、学习笔记
   - link: explore # 对应 categoryMap 中 探索: explore
     label: 探索
-    image: /img/cover/1.webp
+    image: /img/cover/3.webp
     description: 探索与尝试
   - link: weekly # 对应 categoryMap 中 周刊: weekly
     label: 周刊
-    image: /img/cover/11.webp
+    image: /img/cover/4.webp
     description: 定期更新的周刊
 
 # =============================================================================
@@ -281,7 +281,7 @@ announcements:
 # =============================================================================
 # Default Cover List
 # 默认封面列表 - 文章没有指定封面时将随机从列表中选择一张作为封面
-# 不设置则使用内置的 21 张默认封面 (/img/cover/1~21.webp)
+# 不设置则使用内置的 13 张默认封面 (/img/cover/1~13.webp)
 # =============================================================================
 # defaultCoverList:
 #   - /img/cover/1.webp
