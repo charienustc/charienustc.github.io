@@ -32,14 +32,15 @@
     color: currentColor;
     @apply border-border text-foreground border-b;
 
-    /* Frosted-glass background: near-opaque surface + strong backdrop blur,
-       replacing the gradient once the header is past the scroll threshold.
-       High surface opacity keeps page content from showing through; the blur
-       softens whatever remains at the edges.
+    /* Gaussian-blur header surface, replacing the gradient past the scroll
+       threshold. The surface stays translucent so scrolled content actually
+       passes under it — that is what makes the backdrop-filter read as a
+       gaussian blur instead of a flat panel. `saturate` keeps the smeared
+       colours from washing out.
        `bg-none` is required because the base `::before` paints `background-image`
        (bg-gradient-header), which would otherwise sit on top of the new colour. */
     &::before {
-      @apply bg-none bg-background/95 opacity-100 backdrop-blur-xl;
+      @apply bg-none bg-background/60 opacity-100 backdrop-blur-2xl backdrop-saturate-150;
     }
 
     button,
