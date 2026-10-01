@@ -37,3 +37,7 @@ pnpm-debug.log*
 
 # Backup files
 backups/
+
+# Source images kept for regenerating site assets (see src/assets/img/)
+# The derived files live in public/ and are committed instead.
+src/assets/img/
