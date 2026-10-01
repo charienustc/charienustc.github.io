@@ -114,7 +114,7 @@ export const uiStrings: UIStrings = {
   'friends.previewTitle': '構成のプレビュー',
   'friends.copyConfig': '構成をコピー',
   'friends.copiedConfig': 'コピーしました!',
-  'friends.hint': '説明: 上記のコードをコピーして、下のコメントセクションに貼り付けてください。',
+  'friends.hint': '説明: 上記の構成をコピーしてメールでお送りください。アドレスは左側にあります。',
 
   // ── コードブロック ──────────────────────────────────────────────
   'code.copy': 'コードをコピー',

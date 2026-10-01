@@ -114,7 +114,7 @@ export const uiStrings: UIStrings = {
   'friends.previewTitle': 'Config Preview',
   'friends.copyConfig': 'Copy Config',
   'friends.copiedConfig': 'Copied!',
-  'friends.hint': 'Tip: Copy the code above and paste it in the comment section below.',
+  'friends.hint': 'Tip: Copy the config above and email it to us — the address is in the sidebar on the left.',
 
   // ── Code Block ──────────────────────────────────────────────
   'code.copy': 'Copy code',

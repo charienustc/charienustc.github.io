@@ -112,7 +112,7 @@ export const uiStrings = {
   'friends.previewTitle': '양식 미리보기',
   'friends.copyConfig': '양식 복사',
   'friends.copiedConfig': '복사 완료!',
-  'friends.hint': '팁: 위의 코드를 복사해서 아래 댓글란에 붙여넣고 전송해 주시면, 확인할게요~',
+  'friends.hint': '팁: 위의 양식을 복사해서 메일로 보내주세요. 주소는 왼쪽에 있어요~',
 
   // ── Code Block ──────────────────────────────────────────────
   'code.copy': '코드 복사',

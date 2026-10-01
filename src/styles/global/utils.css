@@ -32,9 +32,14 @@
     color: currentColor;
     @apply border-border text-foreground border-b;
 
-    /* Show gradient background via pseudo-element opacity */
+    /* Frosted-glass background: near-opaque surface + strong backdrop blur,
+       replacing the gradient once the header is past the scroll threshold.
+       High surface opacity keeps page content from showing through; the blur
+       softens whatever remains at the edges.
+       `bg-none` is required because the base `::before` paints `background-image`
+       (bg-gradient-header), which would otherwise sit on top of the new colour. */
     &::before {
-      @apply opacity-100;
+      @apply bg-none bg-background/95 opacity-100 backdrop-blur-xl;
     }
 
     button,

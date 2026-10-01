@@ -126,7 +126,7 @@ featuredSeries:
     fullName: 我的技术周刊 # 完整名称
     description: | # 支持多行 Markdown
       记录一些值得回看的零散发现。
-    cover: /img/weekly_header.webp # 系列页面头图
+    cover: /img/site_header_1920.webp # 系列页面头图
     enabled: true # 启用此系列
     icon: ri:newspaper-line # 导航图标
     links: # 相关链接（可选）
@@ -212,14 +212,14 @@ friends:
     title: 友情链接 # 页面标题
     subtitle: 欢迎交换友链！ # 页面副标题
     applyTitle: 申请友链 # 申请区块标题
-    applyDesc: 请在本页留言，格式如下 # 申请说明
+    applyDesc: 填写后复制生成的配置，发送到邮箱 charien@mail.ustc.edu.cn # 申请说明
     exampleYaml: | # 申请格式示例，会显示在页面上
       - site: 你的博客名称 # 站点名称
         url: https://your-blog.com/ # 站点网址
         owner: 你的昵称 # 昵称
         desc: 站点简介 # 站点简介
         image: https://your-blog.com/avatar.jpg # 头像链接
-        color: "#ffc0cb" # 主题色（可选）
+        color: "#55acd5" # 主题色（可选）
   data: # 友链列表
     - site: Charien的小窝
       url: https://charienustc.github.io

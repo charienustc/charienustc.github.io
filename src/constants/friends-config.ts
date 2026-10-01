@@ -12,5 +12,5 @@ export const friendsIntro: FriendsIntro = yamlConfig.friends?.intro ?? {
   title: 'Friends',
   subtitle: '',
   applyTitle: 'Apply for friend link',
-  applyDesc: 'Leave a comment with the following format',
+  applyDesc: 'Copy the generated config and email it to us',
 };

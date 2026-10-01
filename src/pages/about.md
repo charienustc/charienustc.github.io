@@ -3,32 +3,28 @@ layout: ../layouts/PageLayout.astro
 title: "About"
 coverTitle: "关于我"
 date: 2025-01-03 01:01:33
-description: "关于我？"
+description: "关于我，以及这个站点。"
 ---
 
-## 你好，这里是余弦
+## 你好，我是 Charien
 
-[![github badge](https://img.shields.io/badge/dynamic/json?color=blue&label=Github&query=%24.data.totalSubs&url=https%3A%2F%2Fapi.spencerwoo.com%2Fsubstats%2F%3Fsource%3Dgithub%26queryKey%3Dyusixian)](https://github.com/yusixian)
+一个还在路上的研究者，平时折腾一些自己感兴趣的问题，顺便把过程和想法记在这里。
 
-cosine = 余弦 = cos
+这个博客主要放三类东西：
 
-愿热情永存，愿热爱不灭，愿生活无憾
+- **笔记** —— 已经想清楚、有结论的内容
+- **探索** —— 还没有定论、边做边想的过程
+- **周刊** —— 零散的发现和值得回看的片段
 
-> 我们 都只是无名之辈 \
-> 做你自己最喜欢的事 \
-> 像花一样 肆意绽放 \
-> 不去管 有没有人欣赏
+写下来首先是给自己看的。如果碰巧对别人也有点用，那就更好了。
+
+### 关于这个站点
+
+用 [Astro](https://astro.build/) 搭的静态博客，源码在 [GitHub](https://github.com/charienustc/charienustc.github.io)，托管在 GitHub Pages。主题基于 [astro-koharu](https://github.com/cosZone/astro-koharu) 改造，做了不少个人化调整。
 
 ### 找到我
 
-个人 Telegram 前端频道：日常碎碎念，偶尔掉落优质前端博文推荐、学习资源等
+- GitHub：[@charienustc](https://github.com/charienustc)
+- 邮箱：charien@mail.ustc.edu.cn
 
-https://t.me/cosine_front_end
-
-Gitbook 前端学习记录
-
-https://book.cosine.ren/
-
-[![GitHub State](https://git-stats.cosine.ren/api?username=yusixian&theme=dark&show_icons=true&hide_border=true)](https://github.com/anuraghazra/github-readme-stats)
-
-[![GitHub Streak](https://github-readme-streak-stats-rust-tau.vercel.app?user=yusixian&theme=dark&date_format=%5BY%20%5DM%20&hide_border=true)](https://git.io/streak-stats)
+> 目前这里是占位内容，想到要写什么了随时替换。

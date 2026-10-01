@@ -18,7 +18,7 @@ interface CSSCustomProperties extends React.CSSProperties {
   '--card-color'?: string;
 }
 
-const DEFAULT_COLOR = '#ffc0cb';
+const DEFAULT_COLOR = '#55acd5';
 // Cute SVG Avatar Data URI (Pink Theme)
 const DEFAULT_AVATAR = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg">

@@ -21,7 +21,7 @@ export default function FriendRequestForm() {
     url: '',
     desc: '',
     image: '',
-    color: '#ffc0cb',
+    color: '#55acd5',
   });
 
   const { copied, copy } = useClipboard({ timeout: 2000 });
@@ -32,7 +32,7 @@ url: ${formData.url || 'https://example.com'}
 owner: ${formData.owner || t('friends.ownerPlaceholder')}
 desc: ${formData.desc || t('friends.descPlaceholder')}
 image: ${formData.image || 'https://example.com/avatar.jpg'}
-color: "${formData.color || '#ffc0cb'}"`;
+color: "${formData.color || '#55acd5'}"`;
   }, [formData, t]);
 
   const handleCopy = useCallback(() => {
@@ -203,7 +203,7 @@ color: "${formData.color || '#ffc0cb'}"`;
               </pre>
             </div>
 
-            <div className="mt-6 flex items-center gap-3 rounded-xl bg-pink-50 p-4 font-medium text-pink-600 text-xs dark:bg-pink-900/20 dark:text-pink-300">
+            <div className="mt-6 flex items-center gap-3 rounded-xl bg-blue-50 p-4 font-medium text-blue-600 text-xs dark:bg-blue-900/20 dark:text-blue-300">
               {t('friends.hint')}
             </div>
           </div>
