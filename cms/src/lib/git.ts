@@ -15,8 +15,7 @@
 
 import { execFile } from 'node:child_process';
 
-/** Cap on a commit subject, matching how the git CLI is normally driven. */
-export const MAX_SUBJECT_LENGTH = 200;
+import { MAX_SUBJECT_LENGTH } from './commit-message';
 
 /** Longest we wait for a single git command before giving up. */
 const GIT_TIMEOUT_MS = 30_000;

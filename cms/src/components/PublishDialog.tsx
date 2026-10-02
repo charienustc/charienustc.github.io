@@ -168,7 +168,7 @@ export function PublishDialog({
                   value={type}
                   onChange={(e) => setType(e.target.value as CommitType)}
                   disabled={isPublishing}
-                  className="rounded-lg border border-input bg-background px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                  className="w-44 shrink-0 rounded-lg border border-input bg-background px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                 >
                   {COMMIT_TYPES.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -183,25 +183,27 @@ export function PublishDialog({
                   value={scope}
                   onChange={(e) => setScope(e.target.value)}
                   disabled={isPublishing}
-                  className="w-32 rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
-                />
-                <input
-                  ref={descriptionRef}
-                  type="text"
-                  aria-label="提交说明"
-                  placeholder="一句话说明改了什么"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleSubmit();
-                    }
-                  }}
-                  disabled={isPublishing}
-                  className="min-w-0 flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                  className="w-32 shrink-0 rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                 />
               </div>
+              {/* The description gets its own row: sharing one with the two
+                  selects left it too narrow to read what had been typed. */}
+              <input
+                ref={descriptionRef}
+                type="text"
+                aria-label="提交说明"
+                placeholder="一句话说明改了什么"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSubmit();
+                  }
+                }}
+                disabled={isPublishing}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+              />
 
               <p className="flex items-center gap-1.5 text-muted-foreground text-xs">
                 <Icon icon="ri:terminal-line" className="size-3.5 shrink-0" />

@@ -3,11 +3,21 @@
  *
  * Pure functions behind the one-click publish dialog. Kept separate from
  * `git.ts` so they can be unit-tested without a repository or a git binary.
+ *
+ * This module is imported by the BROWSER (the publish dialog uses it to build
+ * and validate the subject), so it must stay free of Node builtins. In
+ * particular it must not import from `git.ts`, which pulls in
+ * `node:child_process` — Vite externalises that and the app fails to mount.
+ * `MAX_SUBJECT_LENGTH` is therefore declared here and `git.ts` imports it.
  */
 
-import { MAX_SUBJECT_LENGTH } from './git';
-
-export { MAX_SUBJECT_LENGTH };
+/**
+ * Cap on a commit subject, matching how the git CLI is normally driven.
+ *
+ * Lives here rather than in `git.ts` so the client can share it without
+ * importing a module that depends on Node builtins.
+ */
+export const MAX_SUBJECT_LENGTH = 200;
 
 /**
  * Conventional-commit types this repo already uses, most common first.
