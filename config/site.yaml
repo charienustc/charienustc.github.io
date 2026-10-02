@@ -15,7 +15,7 @@ site:
   # alternate: Charien's Nest # 网站英文名称 用于页脚、Logo、@ handle 等
   subtitle: 一个努力做科研的土豆 # 网站副标题
   name: Charien # 作者名称 - 请修改为你的名字
-  description: 一个基于 Astro 的现代化博客主题 # 网站描述
+  description: 记录科研、代码与生活的自留地 # 网站描述
   avatar: /img/avatar.webp # 网站头像
   showLogo: true # 是否显示 Logo
   author: Charien # 作者名称 - 请修改为你的名字
