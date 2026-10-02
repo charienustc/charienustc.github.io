@@ -38,9 +38,15 @@
        gaussian blur instead of a flat panel. `saturate` keeps the smeared
        colours from washing out.
        `bg-none` is required because the base `::before` paints `background-image`
-       (bg-gradient-header), which would otherwise sit on top of the new colour. */
+       (bg-gradient-header), which would otherwise sit on top of the new colour.
+
+       This is the ONLY glass surface in the header. `.header-capsule` draws the
+       rounded border and shadow on top of it but must not declare its own
+       `backdrop-filter` — an absolutely-positioned, negatively-stacked child of
+       the header blurs its own stacking context instead of the page, so the
+       effect silently does nothing there. See components/header-capsule.css. */
     &::before {
-      @apply bg-none bg-background/60 opacity-100 backdrop-blur-2xl backdrop-saturate-150;
+      @apply bg-none bg-background/45 opacity-100 backdrop-blur-lg backdrop-saturate-150;
     }
 
     button,
