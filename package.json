@@ -47,10 +47,7 @@
     "docker:rebuild": "bash docker/rebuild.sh",
     "docker:up:dynamic": "docker compose --env-file ./.env -f docker/docker-compose.dynamic.yml up -d --build",
     "docker:down:dynamic": "docker compose -f docker/docker-compose.dynamic.yml down",
-    "docker:logs:dynamic": "docker compose -f docker/docker-compose.dynamic.yml logs -f",
-    "acceptance": "pnpm build && node acceptance/scripts/run.mjs",
-    "acceptance:report": "node acceptance/scripts/report.mjs",
-    "acceptance:open": "node acceptance/scripts/report.mjs && node acceptance/scripts/open.mjs"
+    "docker:logs:dynamic": "docker compose -f docker/docker-compose.dynamic.yml logs -f"
   },
   "dependencies": {
     "@antv/infographic": "^0.2.4",

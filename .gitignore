@@ -13,6 +13,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+# Claude Code session transcripts
+.claude/logs/
 
 # environment variables
 .env
