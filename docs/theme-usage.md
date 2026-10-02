@@ -241,6 +241,88 @@ pnpm generate:similarities:gpu    # 使用 GPU
 
 结果写入 `src/assets/similarities.json`，用于文章底部的相关推荐。
 
+### 评论系统
+
+`src/components/comment/Comment.astro` 是一个 **provider 路由组件**，按
+`config/site.yaml` 的 `comment.provider` 动态选择并懒加载对应实现。内置四种，
+依赖已装好，切换只需改配置。
+
+| provider | 数据存放 | 需自建服务端 |
+| --- | --- | --- |
+| `giscus` | GitHub Discussions | ❌ |
+| `waline` | 自建 / Vercel | ✅ |
+| `twikoo` | 腾讯云 / Vercel | ✅ |
+| `remark42` | 自建服务器 | ✅ |
+
+**已挂载评论的页面**：文章页、`/about` 等独立页面（受 frontmatter
+`comments: false` 控制）、`/friends`、`/bangumi`。其中 `/bangumi`
+默认关闭（`bangumi` 段被注释 → 页面与导航一并隐藏）。
+
+本仓库当前使用 **giscus**：
+
+```yaml
+comment:
+  provider: giscus
+  giscus:
+    repo: charienustc/charienustc.github.io
+    repoId: R_kgDOTdSR5Q
+    category: Announcements
+    categoryId: DIC_kwDOTdSR5c4DG2qx
+    mapping: pathname
+    reactionsEnabled: '1'
+    emitMetadata: '0'
+    inputPosition: top
+    lang: zh-CN
+```
+
+**配置 giscus 的三个前置条件**（缺任一都会导致评论框不显示或报错）：
+
+1. **仓库开启 Discussions** —— Settings → General → Features → 勾选 Discussions
+2. **安装 giscus App** —— <https://github.com/apps/giscus>，选对应仓库。
+   **必须走网页 OAuth，无 API 可替代**
+3. **拿到 `repoId` 与 `categoryId`**
+
+> ⚠️ `repoId` / `categoryId` 是 GitHub 内部 GraphQL ID（形如 `R_kgDO...` /
+> `DIC_kwDO...`），无法手写推导。除在 <https://giscus.app> 手动抄取外，
+> 也可用 `gh` 直接从 API 取，省去一步：
+>
+> ```bash
+> # 开启 Discussions
+> gh api -X PATCH repos/<owner>/<repo> -f has_discussions=true
+>
+> # repoId = 仓库 node_id
+> gh repo view <owner>/<repo> --json id
+>
+> # categoryId = 从分类列表里找
+> gh api graphql -f query='
+> query {
+>   repository(owner: "<owner>", name: "<repo>") {
+>     discussionCategories(first: 25) { nodes { id name isAnswerable } }
+>   }
+> }'
+> ```
+
+**分类选择的硬约束**：giscus 只支持 **Announcement** 或普通
+**Open-ended discussion** 类型的分类。列表里 `isAnswerable: true`
+的分类（如 `Q&A`）**不能用于 giscus**，会被拒绝。
+
+> ⚠️ GitHub GraphQL API **没有**创建 Discussion 分类的 mutation
+> （`createDiscussionCategory` 不存在）。想要独立分类只能网页手动建。
+
+**`mapping` 的取舍** —— 决定评论与页面的关联方式：
+
+| 取值 | 关联依据 | 风险 |
+| --- | --- | --- |
+| `pathname`（默认） | 文章路径 | **改 URL 会丢评论关联** |
+| `og:title` | 文章标题 | 改标题会丢关联 |
+
+两者都只是把风险换个位置。建议写文章时定好 slug 就别再改。若确实要改
+URL，可手动把原 discussion 的标题改成新路径来保住关联。
+
+**验证是否配置成功** —— 打开任一有评论的页面，若 iframe 内渲染出
+「**使用 GitHub 登录**」按钮，说明 App 已装、权限已通；若提示
+`giscus is not installed on this repository`，则第 2 步未完成。
+
 ### 圣诞特效
 
 可开关的节日装饰（雪花、圣诞配色、圣诞帽、灯串），配置见 `config/site.yaml` 的 `christmas` 部分。相关样式在 `src/styles/christmas/christmas-theme.css`。
@@ -447,6 +529,12 @@ YAML 在构建期缓存，需重启 dev server 或重新构建。
 
 **图片没显示占位色？**
 运行 `pnpm generate:lqips` 后提交 `src/assets/lqips.json`。
+
+**评论框不显示？**
+先确认 `comment.provider` 不是 `none`。若为 `giscus`，检查仓库是否已开 Discussions 且装了 giscus App（见「评论系统」节）。
+
+**换了文章 URL 后评论不见了？**
+giscus 的 `mapping: pathname` 按路径关联评论，改 URL 会导致匹配不到原 discussion。discussion 本身还在 GitHub 上，未丢失。
 
 ---
 
