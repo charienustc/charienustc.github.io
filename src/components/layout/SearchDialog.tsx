@@ -10,6 +10,7 @@ import { Dialog, DialogPortal } from '@components/ui/dialog';
 import { useIsMounted } from '@hooks/useIsMounted';
 import { useEscapeKey, useKeyboardShortcut } from '@hooks/useKeyboardShortcut';
 import { useTranslation } from '@hooks/useTranslation';
+import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { $isSearchOpen, closeModal, openModal } from '@store/modal';
@@ -18,21 +19,11 @@ import { useCallback, useEffect, useMemo } from 'react';
 
 // Icons
 function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className}>
-      <title>Search</title>
-      <path d="M18.03 16.62 22.31 20.9 20.9 22.31 16.62 18.03A8.96 8.96 0 0 1 11 20a9 9 0 1 1 9-9 8.96 8.96 0 0 1-1.97 5.62Zm-2.01-.75A7 7 0 1 0 11 18a6.98 6.98 0 0 0 4.87-1.98l.15-.15Z" />
-    </svg>
-  );
+  return <Icon icon="lucide:search" className={className} />;
 }
 
 function CloseIcon({ className }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className}>
-      <title>Close</title>
-      <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" />
-    </svg>
-  );
+  return <Icon icon="lucide:x" className={className} />;
 }
 
 export default function SearchDialog() {

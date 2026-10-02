@@ -244,6 +244,7 @@ export default defineConfig({
         gg: ['*'],
         'fa6-regular': ['*'],
         'fa6-solid': ['*'],
+        lucide: ['*'],
         ri: ['*'],
       },
     }),

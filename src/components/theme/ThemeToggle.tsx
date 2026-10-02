@@ -3,12 +3,10 @@
  *
  * A sun/moon toggle for switching between light and dark themes.
  * Features View Transitions API for smooth theme changes.
- *
- * Inspired by https://codepen.io/aaroniker/pen/raaMMGx
  */
 
+import { Icon } from '@iconify/react';
 import { useCallback, useEffect, useState } from 'react';
-import './theme-toggle.css';
 
 /**
  * Hook to manage theme state
@@ -90,10 +88,6 @@ interface ThemeToggleProps {
 export default function ThemeToggle({ className }: ThemeToggleProps) {
   const { isDark, toggle } = useTheme();
 
-  const handleChange = () => {
-    toggle();
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -103,15 +97,15 @@ export default function ThemeToggle({ className }: ThemeToggleProps) {
 
   return (
     <button
-      className={`theme-toggle scale-80 cursor-pointer transition duration-300 hover:scale-90 ${className || ''}`}
-      aria-label="toggle theme"
+      className={`cursor-pointer transition duration-300 hover:scale-110 ${className || ''}`}
+      aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+      onClick={toggle}
       onKeyDown={handleKeyDown}
       type="button"
     >
-      <label className="toggle block cursor-pointer" aria-label="toggle theme">
-        <input type="checkbox" className="hidden" checked={isDark} onChange={handleChange} />
-        <div className="toggle-indicator" />
-      </label>
+      <span className="inline-flex size-8 items-center justify-center">
+        <Icon icon={isDark ? 'lucide:sun' : 'lucide:moon'} className="size-8" />
+      </span>
     </button>
   );
 }

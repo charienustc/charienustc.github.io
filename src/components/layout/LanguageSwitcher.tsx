@@ -67,7 +67,7 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
                 {entry.label}
                 {isActive && (
                   <span className="inline-flex size-3.5 shrink-0 items-center justify-center">
-                    <Icon icon="ri:check-line" className="size-3.5" />
+                    <Icon icon="lucide:check" className="size-3.5" />
                   </span>
                 )}
               </div>
@@ -94,7 +94,7 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
       >
         {/* 图标数据异步加载，固定尺寸容器保证 SSR/加载前后几何不变，避免 popover 重定位 */}
         <span className="inline-flex size-8 items-center justify-center">
-          <Icon icon="ri:translate" className="size-8" />
+          <Icon icon="lucide:languages" className="size-8" />
         </span>
       </button>
     </Popover>
