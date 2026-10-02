@@ -494,9 +494,9 @@ comment:
   #   siteId: your-site-id
   giscus:
     repo: charienustc/charienustc.github.io # GitHub 仓库名 (owner/repo 格式)
-    repoId: R_kgDOPLACEHOLDER # TODO: 仓库 ID，从 https://giscus.app 获取后替换本行
+    repoId: R_kgDOTdSR5Q # 仓库 node_id
     category: Announcements # Discussion 分类名称
-    categoryId: DIC_kwDOPLACEHOLDER # TODO: 分类 ID，从 https://giscus.app 获取后替换本行
+    categoryId: DIC_kwDOTdSR5c4DG2qx # Discussions 分类 ID
     mapping: pathname # 映射方式
     reactionsEnabled: '1' # 启用 reactions ('0' | '1')
     emitMetadata: '0' # 发送元数据 ('0' | '1')
