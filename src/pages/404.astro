@@ -152,10 +152,10 @@ const DEBUG_CAT_STATE = false;
 <style>
   .cat-404-container {
     /* Palette - soft pastel colors for light mode */
-    --c-stroke: #f5a0b8;
-    --c-head-bg: rgba(245, 160, 184, 0.1);
-    --c-ear-fill: rgba(245, 180, 160, 0.2);
-    --c-nose: #f5b0a0;
+    --c-stroke: #5ba7e0;
+    --c-head-bg: rgba(91, 167, 224, 0.1);
+    --c-ear-fill: rgba(94, 200, 232, 0.2);
+    --c-nose: #7cc4e8;
     --c-features: #666;
 
     --anim-dur: 6s;
@@ -170,10 +170,10 @@ const DEBUG_CAT_STATE = false;
   }
 
   :global(.dark) .cat-404-container {
-    --c-stroke: rgba(241, 139, 179, 0.7);
-    --c-head-bg: rgba(241, 139, 179, 0.1);
-    --c-ear-fill: rgba(240, 163, 135, 0.15);
-    --c-nose: rgba(240, 163, 135, 0.8);
+    --c-stroke: rgba(108, 184, 240, 0.7);
+    --c-head-bg: rgba(108, 184, 240, 0.1);
+    --c-ear-fill: rgba(94, 200, 232, 0.15);
+    --c-nose: rgba(124, 196, 232, 0.8);
     --c-features: #bbb;
   }
 
@@ -387,47 +387,47 @@ const DEBUG_CAT_STATE = false;
   }
 
   .home-btn {
-    background: linear-gradient(135deg, #ed6ea0 0%, #ec8c69 100%);
+    background: linear-gradient(135deg, #4a9ee8 0%, #5ec8e8 100%);
     color: white;
-    box-shadow: 0 2px 8px rgba(237, 110, 160, 0.25);
+    box-shadow: 0 2px 8px rgba(74, 158, 232, 0.25);
   }
 
   .home-btn:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(237, 110, 160, 0.35);
+    box-shadow: 0 6px 20px rgba(74, 158, 232, 0.35);
   }
 
   .archive-btn {
-    background: linear-gradient(135deg, rgba(237, 110, 160, 0.06) 0%, rgba(236, 140, 105, 0.06) 100%);
-    color: #ed6ea0;
-    border: 2px solid rgba(237, 110, 160, 0.25);
+    background: linear-gradient(135deg, rgba(74, 158, 232, 0.06) 0%, rgba(94, 200, 232, 0.06) 100%);
+    color: #4a9ee8;
+    border: 2px solid rgba(74, 158, 232, 0.25);
   }
 
   .archive-btn:hover {
-    background: linear-gradient(135deg, rgba(237, 110, 160, 0.12) 0%, rgba(236, 140, 105, 0.12) 100%);
-    border-color: rgba(237, 110, 160, 0.4);
+    background: linear-gradient(135deg, rgba(74, 158, 232, 0.12) 0%, rgba(94, 200, 232, 0.12) 100%);
+    border-color: rgba(74, 158, 232, 0.4);
     transform: translateY(-2px) scale(1.02);
   }
 
   @media (prefers-color-scheme: dark) {
     .home-btn {
-      background: linear-gradient(135deg, rgba(241, 139, 179, 0.9) 0%, rgba(240, 163, 135, 0.9) 100%);
-      box-shadow: 0 2px 8px rgba(241, 139, 179, 0.3);
+      background: linear-gradient(135deg, rgba(108, 184, 240, 0.9) 0%, rgba(94, 200, 232, 0.9) 100%);
+      box-shadow: 0 2px 8px rgba(108, 184, 240, 0.3);
     }
 
     .home-btn:hover {
-      box-shadow: 0 6px 20px rgba(241, 139, 179, 0.4);
+      box-shadow: 0 6px 20px rgba(108, 184, 240, 0.4);
     }
 
     .archive-btn {
-      background: linear-gradient(135deg, rgba(241, 139, 179, 0.08) 0%, rgba(240, 163, 135, 0.08) 100%);
-      color: #f18bb3;
-      border-color: rgba(241, 139, 179, 0.3);
+      background: linear-gradient(135deg, rgba(108, 184, 240, 0.08) 0%, rgba(94, 200, 232, 0.08) 100%);
+      color: #6cb8f0;
+      border-color: rgba(108, 184, 240, 0.3);
     }
 
     .archive-btn:hover {
-      background: linear-gradient(135deg, rgba(241, 139, 179, 0.18) 0%, rgba(240, 163, 135, 0.18) 100%);
-      border-color: rgba(241, 139, 179, 0.5);
+      background: linear-gradient(135deg, rgba(108, 184, 240, 0.18) 0%, rgba(94, 200, 232, 0.18) 100%);
+      border-color: rgba(108, 184, 240, 0.5);
     }
   }
 
