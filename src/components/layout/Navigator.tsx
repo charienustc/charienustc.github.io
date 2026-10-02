@@ -89,17 +89,23 @@ function useNavIndicator<T extends HTMLElement>(activePath: string) {
     };
 
     // Move the pill onto `el`, or hide it when no element is given.
+    // The geometry goes into custom properties rather than `left`/`width`
+    // directly, so the stylesheet can transition them (see header-capsule.css).
     const place = (el: HTMLElement | null, instant = false) => {
       if (!el) {
         indicator.setAttribute('data-visible', 'false');
         return;
       }
       if (instant) indicator.setAttribute('data-instant', 'true');
-      indicator.style.left = `${el.offsetLeft}px`;
-      indicator.style.width = `${el.offsetWidth}px`;
+      indicator.style.setProperty('--ind-x', `${el.offsetLeft}px`);
+      indicator.style.setProperty('--ind-w', `${el.offsetWidth}px`);
       indicator.setAttribute('data-visible', 'true');
-      // Keep `hover:after:`-style transitions from animating the position jump.
-      if (instant) requestAnimationFrame(() => indicator.removeAttribute('data-instant'));
+      if (instant) {
+        // Drop `data-instant` once the un-animated value has been committed, so
+        // the next hover glides from here instead of flying in from the left.
+        void indicator.offsetWidth;
+        indicator.removeAttribute('data-instant');
+      }
     };
 
     const activeItem = () => nav.querySelector<HTMLElement>('[aria-current="page"]');

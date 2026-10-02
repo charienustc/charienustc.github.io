@@ -10,17 +10,37 @@
  * pink-tinted shadow that would clash with the blue theme here.
  */
 
+/* Typed so they interpolate. An unregistered custom property is a token
+   substitution, not a number, so transitioning it would jump rather than
+   tween. */
+@property --ind-x {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --ind-w {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
 /* ---------------------------------------------------------------------------
    Sliding pill that follows the hovered / active nav item.
 
-   Positioned entirely by JS (`left` + `width`), so React never re-renders per
-   pointer move.
+   Positioned by Navigator, which writes `--ind-x` / `--ind-w` as custom
+   properties. Those are animated by the transition below, so the pill glides
+   between items instead of snapping. `translate` is used rather than `left`
+   because transform-ish properties stay on the compositor — animating `left`
+   would relayout the nav on every frame.
    --------------------------------------------------------------------------- */
 .nav-indicator {
   position: absolute;
   left: 0;
   inset-block: 0.25rem;
   z-index: -1;
+  width: var(--ind-w, 0px);
+  translate: var(--ind-x, 0px);
   border-radius: 9999px;
   background-color: color-mix(in oklab, currentColor 18%, transparent);
   pointer-events: none;
@@ -39,7 +59,12 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .nav-indicator {
+    /* `translate` and `width` carry the slide; the rest are the enter/leave
+       fade. Registered as `@property` below so the custom properties
+       interpolate — without a type, they would swap discretely. */
     transition:
+      translate 0.3s var(--ease-out-expo),
+      width 0.3s var(--ease-out-expo),
       opacity 0.2s var(--ease-out-quart),
       scale 0.48s var(--ease-out-expo),
       background-color 0.32s var(--ease-out-quart);
