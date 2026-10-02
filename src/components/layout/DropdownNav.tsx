@@ -18,6 +18,7 @@ const DropdownNavComponent = ({ item, currentPath, className, locale = defaultLo
   const name = resolveNavName(item.nameKey, item.name, locale);
 
   const strippedPath = stripLocaleFromPath(currentPath);
+  const hasActiveChild = children?.some((child) => child.path && child.path === strippedPath) ?? false;
 
   const renderDropdownContent = useCallback(
     () => (
@@ -60,14 +61,10 @@ const DropdownNavComponent = ({ item, currentPath, className, locale = defaultLo
     <Popover open={isOpen} onOpenChange={setIsOpen} placement="bottom-start" trigger="hover" render={renderDropdownContent}>
       <button
         type="button"
-        className={cn(
-          'inline-flex h-10 items-center px-3 py-2 text-base tracking-wider',
-          'relative after:absolute after:bottom-1 after:left-1/2 after:h-0.5 after:w-0',
-          'after:-translate-x-1/2 after:bg-white after:transition-all after:duration-300 after:content-[""]',
-          className,
-        )}
+        className={cn('inline-flex h-10 items-center px-3 py-2 text-base tracking-wider', className)}
         aria-expanded={isOpen}
         aria-haspopup="true"
+        aria-current={hasActiveChild ? 'page' : undefined}
         aria-label={t(locale, 'common.menuLabel', { name })}
       >
         {icon && (

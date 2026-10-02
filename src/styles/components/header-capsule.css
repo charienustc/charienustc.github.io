@@ -1,0 +1,125 @@
+/**
+ * Header navigation surface — sliding indicator + scroll capsule.
+ *
+ * Ported from the upstream theme author's site (blog.cosine.ren), which drives
+ * both effects from the same `.with-background` class the header already
+ * toggles on scroll (`src/components/layout/Navigator.tsx`). No extra JS is
+ * needed for the capsule; the indicator is positioned by Navigator.
+ *
+ * Colours resolve from this repo's own variables — the upstream source ships a
+ * pink-tinted shadow that would clash with the blue theme here.
+ */
+
+/* ---------------------------------------------------------------------------
+   Sliding pill that follows the hovered / active nav item.
+
+   Positioned entirely by JS (`left` + `width`), so React never re-renders per
+   pointer move.
+   --------------------------------------------------------------------------- */
+.nav-indicator {
+  position: absolute;
+  left: 0;
+  inset-block: 0.25rem;
+  z-index: -1;
+  border-radius: 9999px;
+  background-color: color-mix(in oklab, currentColor 18%, transparent);
+  pointer-events: none;
+}
+
+.nav-indicator[data-visible="false"] {
+  opacity: 0;
+  scale: 0.8 0.6;
+}
+
+/* Once the header picks up a background the indicator switches from the white
+   `currentColor` (readable over the cover image) to the theme primary. */
+#site-header.with-background .nav-indicator {
+  background-color: hsl(var(--primary) / 0.14);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nav-indicator {
+    transition:
+      opacity 0.2s var(--ease-out-quart),
+      scale 0.48s var(--ease-out-expo),
+      background-color 0.32s var(--ease-out-quart);
+  }
+
+  .nav-indicator[data-visible="false"] {
+    transition:
+      opacity 0.16s var(--ease-in-quart),
+      scale 0.18s var(--ease-in-quart),
+      background-color 0.32s var(--ease-out-quart);
+  }
+}
+
+/* Suppress the slide for one frame so the pill does not fly in from the left
+   edge on first paint. Set by Navigator, cleared on the next frame. */
+.nav-indicator[data-instant="true"] {
+  transition: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Frosted capsule wrapping the header content, revealed on scroll.
+   --------------------------------------------------------------------------- */
+.header-inner {
+  /* The capsule sits at a negative z-index; isolation keeps it from falling
+     behind the header's own background layer. */
+  isolation: isolate;
+  position: relative;
+  transition: translate 0.52s var(--ease-out-expo);
+}
+
+.header-capsule {
+  position: absolute;
+  inset: -0.375rem -1.25rem;
+  z-index: -1;
+  border: 1px solid hsl(var(--primary) / 0.16);
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
+  box-shadow:
+    0 0.75rem 2rem -1rem rgb(0 0 0 / 0.12),
+    0 0.25rem 0.75rem -0.5rem rgb(0 0 0 / 0.08);
+  opacity: 0;
+  scale: 0.96 0.85;
+  pointer-events: none;
+}
+
+#site-header.with-background .header-inner {
+  translate: 0 0.375rem;
+}
+
+#site-header.with-background .header-capsule {
+  opacity: 1;
+  scale: 1;
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  backdrop-filter: blur(16px) saturate(1.5);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .header-capsule {
+    transition:
+      opacity 0.32s var(--ease-out-quart),
+      scale 0.56s var(--ease-out-expo);
+  }
+}
+
+.dark .header-capsule {
+  border-color: hsl(var(--primary) / 0.22);
+  box-shadow:
+    0 0.75rem 2rem -1rem rgb(0 0 0 / 0.65),
+    inset 0 1px rgb(255 255 255 / 0.04);
+}
+
+/* Active nav item takes the theme colour once the header has a background. */
+#site-header.with-background nav [aria-current="page"] {
+  color: hsl(var(--primary));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #site-header nav [aria-current="page"] {
+    transition:
+      color 0.32s var(--ease-out-quart),
+      text-shadow 0.32s var(--ease-out-quart);
+  }
+}
