@@ -83,7 +83,7 @@ const strippedPath = stripLocaleFromPath(Astro.url.pathname);
               data-collapsible
             >
               <button
-                class="flex-center hover:bg-foreground/5 h-12 w-full cursor-pointer rounded-xl transition-colors"
+                class="flex-center hover:bg-foreground/5 h-12 w-full cursor-pointer rounded-xl text-base tracking-wider opacity-75 transition-all duration-300 hover:opacity-100 text-muted-foreground/80"
                 data-collapse-trigger={collapseId}
                 aria-expanded="false"
                 aria-label={t(locale, 'common.menuLabel', { name: displayName })}
