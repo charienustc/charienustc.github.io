@@ -42,11 +42,13 @@ export const colors = {
     foreground: 'hsl(var(--warning-foreground))',
   },
 
-  // Shoka theme accent (replaces hardcoded #E95469)
+  // Shoka theme accent. Tracks the site's blue primary so the sole consumer
+  // (the mobile menu icon) matches the rest of the theme rather than the
+  // upstream pink it was ported with.
   shoka: {
-    DEFAULT: '#E95469',
-    light: '#FF6B7A',
-    dark: '#D63F55',
+    DEFAULT: 'hsl(var(--primary))',
+    light: 'hsl(var(--primary))',
+    dark: 'hsl(var(--primary))',
   },
 
   // Theme toggle colors
