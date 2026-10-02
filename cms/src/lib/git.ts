@@ -140,6 +140,29 @@ export interface RepoState {
   ahead: number;
 }
 
+/** Stage the whole working tree, including deletions. */
+export async function stageAll(projectRoot: string): Promise<void> {
+  await run(projectRoot, ['add', '-A']);
+}
+
+/**
+ * Unstage everything, leaving the working tree untouched.
+ *
+ * `git reset` with no revision is the "unstage all" form. It is safe on a
+ * repository with an unborn HEAD, which a plain `git reset HEAD` is not.
+ */
+export async function unstageAll(projectRoot: string): Promise<void> {
+  await runAllowFailure(projectRoot, ['reset', '-q']);
+}
+
+/** Whether anything is currently staged. */
+export async function hasStagedChanges(projectRoot: string): Promise<boolean> {
+  // `--quiet` exits 1 to mean "there is a difference", so the exit status is
+  // the answer rather than an error.
+  const result = await runAllowFailure(projectRoot, ['diff', '--cached', '--quiet']);
+  return result.status !== 0;
+}
+
 /**
  * Read the repository state shown in the dialog before anything is committed.
  *
@@ -192,7 +215,11 @@ export interface CommitAndPushResult {
 }
 
 /**
- * Stage everything, commit, and push.
+ * Commit the staged tree and push.
+ *
+ * Assumes the caller has already staged (and linted) — the index state is the
+ * caller's business, because the lint gate has to run against a staged tree and
+ * undo its own staging when it fails.
  *
  * Ordering is deliberate: commit first, then push. If the push fails the commit
  * still exists locally, so the work is never lost and the button can be pressed
@@ -220,15 +247,10 @@ export async function commitAndPush(projectRoot: string, rawSubject: string): Pr
     );
   }
 
-  await run(projectRoot, ['add', '-A']);
-
-  // `--quiet` exits 1 to mean "there is a difference", so the status is the
-  // answer here rather than an error.
-  const staged = await runAllowFailure(projectRoot, ['diff', '--cached', '--quiet']);
-  const hasStagedChanges = staged.status !== 0;
+  await stageAll(projectRoot);
 
   let committed = false;
-  if (hasStagedChanges) {
+  if (await hasStagedChanges(projectRoot)) {
     await run(projectRoot, ['commit', '-m', subject]);
     committed = true;
   }

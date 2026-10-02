@@ -9,29 +9,34 @@
  */
 
 import { execFile } from 'node:child_process';
-import path from 'node:path';
 import type { Context } from 'hono';
 import { z } from 'zod';
 import { buildSubject, summarizeCommandFailure } from '@/lib/commit-message';
-import { commitAndPush, GitCommandError, getRepoState } from '@/lib/git';
+import { commitAndPush, GitCommandError, getRepoState, stageAll, unstageAll } from '@/lib/git';
 
 /**
  * Lint check run before the commit.
  *
- * This is exactly the command `.husky/pre-commit` runs, so a commit that passes
+ * This is the same command `.husky/pre-commit` runs, so a commit that passes
  * here cannot then be rejected by the hook. Running it up front (rather than
  * letting the hook fail) is what makes the error readable: git would otherwise
  * report only "pre-commit hook exited with code 1" and bury the Biome output.
+ *
+ * The tree MUST be staged before calling this. `lint-staged` only looks at
+ * staged files and exits 0 with "No staged files found." when the index is
+ * empty — a clean-looking pass that checks nothing. The caller stages first and
+ * unstages again if this fails.
  *
  * `shell: true` is required because the binary is `pnpm.cmd` on Windows, and
  * `node_modules/.bin/pnpm` does not exist — Node has refused to spawn `.cmd`
  * without a shell since the CVE-2024-27980 fix.
  *
- * Run from `cms/`, which is the nearest package.json — pnpm walks up to the
- * root manifest, so the root `lint-staged` config is the one that applies.
- * `--diff` is not usable here (it requires a dirty worktree, and after `git add`
- * everything is staged), but `lint-staged` establishes its own stash, so the
- * result is the same as the hook's. The point is the pass/fail.
+ * Run from the repository ROOT, not from `cms/`. `lint-staged` discovers its
+ * config relative to the git root, and invoking it from `cms/` fails outright
+ * with "No valid configuration found" — verified both ways.
+ *
+ * `--diff` is not usable here: it lints only unstaged changes, which is the
+ * opposite of the state this runs in.
  */
 const LINT_COMMAND = 'pnpm';
 const LINT_ARGS = ['exec', 'lint-staged'];
@@ -54,12 +59,11 @@ function projectRootOf(c: Context): string {
  * Returns null when it passes, or a human-readable failure when it does not.
  */
 function runLint(projectRoot: string): Promise<string | null> {
-  const cmsDir = path.join(projectRoot, 'cms');
   return new Promise((resolve) => {
     execFile(
       LINT_COMMAND,
       LINT_ARGS,
-      { cwd: cmsDir, timeout: LINT_TIMEOUT_MS, shell: true, windowsHide: true, maxBuffer: 4 * 1024 * 1024 },
+      { cwd: projectRoot, timeout: LINT_TIMEOUT_MS, shell: true, windowsHide: true, maxBuffer: 4 * 1024 * 1024 },
       (error, stdout, stderr) => {
         if (!error) {
           resolve(null);
@@ -117,14 +121,23 @@ export async function gitCommitPushHandler(c: Context) {
 
   try {
     const state = await getRepoState(projectRoot);
-    // Nothing staged and nothing ahead means there is genuinely nothing to do.
+    // Nothing in the tree and nothing ahead means there is genuinely nothing to
+    // do.
     if (state.changedFiles.length === 0 && state.ahead === 0) {
       return c.json({ error: '没有需要提交的改动' }, 400);
     }
 
+    // Stage before linting: `lint-staged` inspects only the index, so linting an
+    // empty index is a no-op that reports success. Staging here (rather than
+    // relying on commitAndPush to do it) is what makes the gate meaningful.
     if (state.changedFiles.length > 0) {
+      await stageAll(projectRoot);
       const lintError = await runLint(projectRoot);
       if (lintError) {
+        // Restore the index to how we found it. lint-staged stages the tree as
+        // part of running its tasks and does not unstage on failure; leaving it
+        // that way is invisible in the UI but a surprise in a terminal.
+        await unstageAll(projectRoot);
         return c.json({ error: `lint 检查未通过，已取消提交：\n\n${lintError}` }, 500);
       }
     }
