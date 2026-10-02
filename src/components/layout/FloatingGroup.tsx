@@ -127,12 +127,12 @@ export default function FloatingGroup() {
             >
               {christmasConfig.enabled && (
                 <FloatingButton onClick={toggleChristmas} ariaLabel={t('floating.christmas')} title={t('floating.christmas')}>
-                  <Icon icon={isChristmasEnabled ? 'ri:snowy-fill' : 'ri:snowy-line'} className="h-5 w-5" />
+                  <Icon icon={isChristmasEnabled ? 'lucide:snowflake' : 'lucide:cloud-snow'} className="h-5 w-5" />
                 </FloatingButton>
               )}
               {bgmConfig.enabled && bgmConfig.audio.length > 0 && isBgmWidgetEnabled && (
                 <FloatingButton onClick={toggleBgmPanel} ariaLabel={t('floating.bgm')} title={t('floating.bgm')} dataBgmToggle>
-                  <Icon icon={isBgmPanelOpen ? 'ri:music-2-fill' : 'ri:music-2-line'} className="h-5 w-5" />
+                  <Icon icon={isBgmPanelOpen ? 'lucide:music' : 'lucide:music'} className="h-5 w-5" />
                 </FloatingButton>
               )}
               <FloatingButton
@@ -142,17 +142,17 @@ export default function FloatingGroup() {
                 dataSettingsToggle
                 onIntent={preloadSettingsPanel}
               >
-                <Icon icon={isSettingsOpen ? 'ri:settings-3-fill' : 'ri:settings-3-line'} className="h-5 w-5" />
+                <Icon icon={isSettingsOpen ? 'lucide:settings' : 'lucide:settings'} className="h-5 w-5" />
               </FloatingButton>
               <FloatingButton onClick={scrollToTop} ariaLabel={t('floating.backToTop')} title={t('floating.backToTop')}>
-                <Icon icon="ri:arrow-up-s-line" className="h-5 w-5" />
+                <Icon icon="lucide:arrow-up" className="h-5 w-5" />
               </FloatingButton>
               <FloatingButton
                 onClick={scrollToBottom}
                 ariaLabel={t('floating.scrollToBottom')}
                 title={t('floating.scrollToBottom')}
               >
-                <Icon icon="ri:arrow-down-s-line" className="h-5 w-5" />
+                <Icon icon="lucide:arrow-down" className="h-5 w-5" />
               </FloatingButton>
             </m.div>
           )}
@@ -164,7 +164,7 @@ export default function FloatingGroup() {
           title={t('floating.toggleToolbar')}
           className="size-9 flex-center"
         >
-          <Icon icon={isExpanded ? 'ri:close-large-fill' : 'ri:magic-fill'} className="size-4" />
+          <Icon icon={isExpanded ? 'lucide:x' : 'lucide:wand-sparkles'} className="size-4" />
         </FloatingButton>
       </m.div>
     </LazyMotionProvider>

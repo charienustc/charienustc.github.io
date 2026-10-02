@@ -22,10 +22,10 @@ import type { Announcement } from '@/types/announcement';
 const HOVER_READ_DELAY = 1000; // ms before marking as read on hover
 
 const typeStyles: Record<string, { color: string; icon: string }> = {
-  info: { color: '#3b82f6', icon: 'ri:information-line' },
-  warning: { color: '#eab308', icon: 'ri:alert-line' },
-  success: { color: '#22c55e', icon: 'ri:checkbox-circle-line' },
-  important: { color: '#ef4444', icon: 'ri:error-warning-line' },
+  info: { color: '#3b82f6', icon: 'lucide:info' },
+  warning: { color: '#eab308', icon: 'lucide:triangle-alert' },
+  success: { color: '#22c55e', icon: 'lucide:circle-check' },
+  important: { color: '#ef4444', icon: 'lucide:circle-alert' },
 };
 
 export function getAnnouncementColor(announcement: Announcement): string {
@@ -63,7 +63,7 @@ function AnnouncementToastContent({ announcement }: { announcement: Announcement
           className="inline-flex items-center gap-1 text-primary text-sm hover:underline"
         >
           {announcement.link.text ?? 'Learn more'}
-          {announcement.link.external && <Icon icon="ri:external-link-line" className="h-3 w-3" />}
+          {announcement.link.external && <Icon icon="lucide:external-link" className="h-3 w-3" />}
         </a>
       )}
     </div>

@@ -34,9 +34,9 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
             class="flex cursor-pointer list-none items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground [&::-webkit-details-marker]:hidden"
             aria-label={t(locale, 'common.language')}
           >
-            <Icon name="ri:translate" class="size-4" />
+            <Icon name="lucide:languages" class="size-4" />
             <span>{getLocaleLabel(locale)}</span>
-            <Icon name="ri:arrow-down-s-line" class="size-4 transition-transform duration-200 group-open:rotate-180" />
+            <Icon name="lucide:arrow-down" class="size-4 transition-transform duration-200 group-open:rotate-180" />
           </summary>
           <div class="absolute right-0 top-full z-10 mt-1 flex min-w-28 flex-col overflow-hidden rounded-lg bg-background/80 shadow-lg backdrop-blur-sm dark:bg-black/40">
             {localeEntries.map((entry) => {
@@ -65,7 +65,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
         aria-label={t(locale, 'drawer.close')}
         class="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
       >
-        <Icon name="ri:close-line" class="h-6 w-6" />
+        <Icon name="lucide:x" class="h-6 w-6" />
       </button>
     </div>
     <HomeSider className="tablet:flex tablet:mt-0 mt-4 hidden w-full min-w-full p-0" isDrawer type={type} post={post} />

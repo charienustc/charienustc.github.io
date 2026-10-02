@@ -127,7 +127,7 @@ function TimelineItem({
               onClick={(e) => e.stopPropagation()}
             >
               {announcement.link.text ?? t('announcement.learnMore')}
-              <Icon icon="ri:arrow-right-s-line" className="h-3.5 w-3.5 md:h-4 md:w-4" />
+              <Icon icon="lucide:arrow-right" className="h-3.5 w-3.5 md:h-4 md:w-4" />
             </a>
           )}
         </div>
@@ -173,7 +173,7 @@ export default function AnnouncementListPopup() {
               <div className="flex items-center justify-between border-border border-b bg-linear-to-r from-primary/5 to-transparent p-3 md:p-4">
                 <div className="flex items-center gap-2 md:gap-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 md:h-10 md:w-10 md:rounded-xl">
-                    <Icon icon="ri:notification-3-line" className="h-4 w-4 text-primary md:h-5 md:w-5" />
+                    <Icon icon="lucide:bell" className="h-4 w-4 text-primary md:h-5 md:w-5" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-sm md:text-base">{t('announcement.title')}</h3>
@@ -201,7 +201,7 @@ export default function AnnouncementListPopup() {
                     aria-label={t('common.close')}
                     type="button"
                   >
-                    <Icon icon="ri:close-line" className="h-4 w-4 md:h-5 md:w-5" />
+                    <Icon icon="lucide:x" className="h-4 w-4 md:h-5 md:w-5" />
                   </button>
                 </div>
               </div>
@@ -210,10 +210,7 @@ export default function AnnouncementListPopup() {
               <div className="max-h-[60vh] overflow-y-auto p-3 md:p-4">
                 {announcements.length === 0 ? (
                   <div className="py-8 text-center text-muted-foreground md:py-12">
-                    <Icon
-                      icon="ri:notification-off-line"
-                      className="mx-auto mb-2 h-12 w-12 opacity-20 md:mb-3 md:h-16 md:w-16"
-                    />
+                    <Icon icon="lucide:bell-off" className="mx-auto mb-2 h-12 w-12 opacity-20 md:mb-3 md:h-16 md:w-16" />
                     <p className="font-medium text-sm md:text-base">{t('announcement.empty')}</p>
                     <p className="mt-1 text-xs opacity-70 md:text-sm">{t('announcement.emptyHint')}</p>
                   </div>

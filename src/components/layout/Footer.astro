@@ -28,7 +28,7 @@ const startYear = siteConfig?.startYear ?? currentYear;
     <!-- Site Stats -->
     <div class="text-muted-foreground flex flex-wrap items-center justify-center gap-6 text-sm md:gap-4">
       <button class="flex items-center gap-2 opacity-75 transition-opacity duration-300 hover:opacity-100" title={t(locale, 'footer.totalWordsTitle')}>
-        <Icon name="ri:file-text-line" class="h-4 w-4" />
+        <Icon name="lucide:file-text" class="h-4 w-4" />
         <span class="font-medium">{stats.formattedWords}</span>
         <span class="text-xs">{t(locale, 'footer.wordUnit')}</span>
       </button>
@@ -36,14 +36,14 @@ const startYear = siteConfig?.startYear ?? currentYear;
       <div class="bg-muted-foreground/30 h-4 w-px"></div>
 
       <button class="flex items-center gap-2 opacity-75 transition-opacity duration-300 hover:opacity-100" title={t(locale, 'footer.readingTimeTitle')}>
-        <Icon name="ri:time-line" class="h-4 w-4" />
+        <Icon name="lucide:clock" class="h-4 w-4" />
         <span class="font-medium">{stats.formattedTime}</span>
       </button>
 
       <div class="bg-muted-foreground/30 h-4 w-px"></div>
 
       <button class="flex items-center gap-2 opacity-75 transition-opacity duration-300 hover:opacity-100" title={t(locale, 'footer.postCountTitle')}>
-        <Icon name="ri:article-line" class="h-4 w-4" />
+        <Icon name="lucide:newspaper" class="h-4 w-4" />
         <span class="font-medium">{stats.postCount}</span>
         <span class="text-xs">{t(locale, 'footer.postUnit')}</span>
       </button>
@@ -52,7 +52,7 @@ const startYear = siteConfig?.startYear ?? currentYear;
         <>
           <div class="bg-muted-foreground/30 h-4 w-px"></div>
           <div class="flex items-center gap-2 opacity-75 transition-opacity duration-300 hover:opacity-100" title={t(locale, 'stats.pageviews')}>
-            <Icon name="ri:eye-line" class="h-4 w-4" />
+            <Icon name="lucide:eye" class="h-4 w-4" />
             <span class="font-medium"><UmamiPVSpan client:load statsConfig={umamiSiteStatsConfig} /></span>
             <span class="text-xs">{t(locale, 'stats.pageviews')}</span>
           </div>

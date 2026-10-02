@@ -36,7 +36,7 @@ export default function FooterAnnouncementEntry() {
         )}
         title="View announcements"
       >
-        <Icon icon="ri:notification-3-line" className="h-4 w-4" />
+        <Icon icon="lucide:bell" className="h-4 w-4" />
         <span>Announcements</span>
 
         {/* Unread badge - only show after mount to avoid hydration mismatch */}

@@ -77,7 +77,7 @@ const DropdownNavComponent = ({ item, currentPath, className, locale = defaultLo
         )}
         {name}
         <Icon
-          icon="ri:arrow-drop-down-fill"
+          icon="lucide:chevron-down"
           className={cn('absolute -right-1.5 size-6 transition-transform duration-300', {
             'rotate-180': isOpen,
           })}
