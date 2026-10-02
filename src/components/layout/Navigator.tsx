@@ -111,8 +111,11 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
 
   return (
     <div className="flex grow tablet:grow-0 items-center">
-      {/* Desktop navigation */}
-      <div className="flex tablet:hidden grow items-center">
+      {/* Desktop navigation.
+          Absolutely centred against the header row (which is `relative`) so it
+          sits in the true middle of the page regardless of how wide the logo
+          and the right-hand icon cluster are — justify-between alone drifts. */}
+      <div className="absolute left-1/2 flex tablet:hidden -translate-x-1/2 items-center">
         {filteredRouters.map((item) => {
           const displayName = resolveNavName(item.nameKey, item.name, locale);
           if (item.children?.length) {
