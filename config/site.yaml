@@ -205,7 +205,7 @@ friends:
     title: 友情链接 # 页面标题
     subtitle: 欢迎交换友链！ # 页面副标题
     applyTitle: 申请友链 # 申请区块标题
-    applyDesc: 填写后复制生成的配置，发送到邮箱 charien@mail.ustc.edu.cn # 申请说明
+    applyDesc: 复制下方生成的配置，发送到邮箱 charien@mail.ustc.edu.cn，或直接粘贴在页面下方的评论区 # 申请说明
     exampleYaml: | # 申请格式示例，会显示在页面上
       - site: 你的博客名称 # 站点名称
         url: https://your-blog.com/ # 站点网址
