@@ -57,8 +57,8 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
               className={cn(
                 'group px-4 py-2 text-sm outline-hidden transition-colors duration-300 hover:bg-gradient-shoka-button',
                 {
-                  'rounded-ss-2xl': index === 0,
-                  'rounded-ee-2xl': index === localeEntries.length - 1,
+                  'rounded-t-xl': index === 0,
+                  'rounded-b-xl': index === localeEntries.length - 1,
                   'bg-gradient-shoka-button text-muted': isActive,
                 },
               )}

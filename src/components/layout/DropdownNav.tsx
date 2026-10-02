@@ -37,8 +37,8 @@ const DropdownNavComponent = ({ item, currentPath, className, locale = defaultLo
                   className={cn(
                     'group px-4 py-2 text-base outline-hidden transition-colors duration-300 hover:bg-gradient-shoka-button',
                     {
-                      'rounded-ss-2xl': index === 0,
-                      'rounded-ee-2xl': index === children.length - 1,
+                      'rounded-t-xl': index === 0,
+                      'rounded-b-xl': index === children.length - 1,
                       'bg-gradient-shoka-button text-muted': strippedPath === child.path,
                     },
                   )}
@@ -76,12 +76,6 @@ const DropdownNavComponent = ({ item, currentPath, className, locale = defaultLo
           </span>
         )}
         {name}
-        <Icon
-          icon="lucide:chevron-down"
-          className={cn('absolute -right-1.5 size-6 transition-transform duration-300', {
-            'rotate-180': isOpen,
-          })}
-        />
       </button>
     </Popover>
   );
