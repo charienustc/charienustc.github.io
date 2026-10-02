@@ -3,7 +3,7 @@ import type { MomentsChannelConfig, MomentsConfig, RouterItem } from './types';
 const DEFAULT_PATH = 'moments';
 const DEFAULT_TITLE = '碎碎念';
 const DEFAULT_DESCRIPTION = '记录频道中的日常消息';
-const DEFAULT_ICON = 'ri:chat-smile-3-fill';
+const DEFAULT_ICON = 'lucide:message-circle';
 const INTERNAL_CHANNEL_SLUGS = new Set(['search', 'rss.xml']);
 const SAFE_SEGMENT = /^[a-z0-9][a-z0-9_-]*$/i;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

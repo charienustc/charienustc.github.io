@@ -27,6 +27,6 @@ export function getSeriesPath(slug: string): string {
 
 /** Fallback navigation used when `config/site.yaml` does not define `navigation`. */
 export const DEFAULT_ROUTERS: Router[] = [
-  { name: 'Home', path: Routes.Home, icon: 'fa6-solid:house-chimney' },
-  { name: 'About', path: Routes.About, icon: 'fa6-regular:circle-user' },
+  { name: 'Home', path: Routes.Home, icon: 'lucide:house' },
+  { name: 'About', path: Routes.About, icon: 'lucide:circle-user-round' },
 ];

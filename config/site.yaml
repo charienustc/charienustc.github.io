@@ -108,7 +108,7 @@ featuredCategories:
 #   description: 系列介绍文字，支持多行 Markdown（可选）
 #   cover: 系列页面头图路径，相对于 public 目录（可选）
 #   enabled: 是否启用此系列，设为 false 可关闭（可选，默认 true）
-#   icon: 导航图标，Iconify 格式如 'ri:newspaper-line'（可选）
+#   icon: 导航图标，Iconify 格式如 'lucide:newspaper'（可选）
 #   highlightOnHome: 是否在首页高亮显示最新文章（可选，默认 true，显式设为 false 可禁用）
 #   links: 相关链接配置（可选）
 # -----------------------------------------------------------------------------
@@ -121,7 +121,7 @@ featuredSeries:
       记录一些值得回看的零散发现。
     cover: /img/site_header_1920.webp # 系列页面头图
     enabled: true # 启用此系列
-    icon: ri:newspaper-line # 导航图标
+    icon: lucide:newspaper # 导航图标
     links: # 相关链接（可选）
       # github: https://github.com/your-username/your-repo # (可选) GitHub 仓库
       rss: /rss.xml # (可选) RSS 订阅链接
@@ -156,11 +156,11 @@ social:
     color: '#191717' # (可选) 图标颜色
   email:
     url: mailto:charien@mail.ustc.edu.cn # 替换为你的邮箱，需加 mailto: 前缀
-    icon: ri:mail-line
+    icon: lucide:mail
     color: '#55acd5'
   rss:
     url: /rss.xml # 站内 RSS 订阅地址
-    icon: ri:rss-line
+    icon: lucide:rss
     color: '#ff6600'
   # -------------------------------------------------------------------------
   # 以下是更多可选的社交平台配置示例，取消注释并修改即可启用：
@@ -365,40 +365,40 @@ navigation:
   - name: 首页 # 菜单显示名称（nameKey 不存在时的回退文本）
     nameKey: nav.home # i18n 翻译 key
     path: / # 链接路径
-    icon: ri:home-heart-fill # 图标
+    icon: lucide:house-heart # 图标
   # - name: 书摘
   #   path: /reading
   - name: 周刊
     nameKey: nav.weekly
     path: /weekly
-    icon: ri:newspaper-line
+    icon: lucide:newspaper
   # Optional explicit Moments position. When omitted, enabled Moments is inserted after Archives.
   # - feature: moments
-  #   icon: ri:chat-smile-3-fill
+  #   icon: lucide:message-circle
   - name: 文章 # 有子菜单时，path 可省略
     nameKey: nav.posts
-    icon: ri:quill-pen-ai-fill
+    icon: lucide:pen-tool
     children: # 子菜单列表
       - name: 分类
         nameKey: nav.categories
         path: /categories
-        icon: ri:grid-fill
+        icon: lucide:layout-grid
       - name: 标签
         nameKey: nav.tags
         path: /tags
-        icon: fa6-solid:tags
+        icon: lucide:tags
       - name: 归档
         nameKey: nav.archives
         path: /archives
-        icon: ri:archive-2-fill
+        icon: lucide:archive
   - name: 友链
     nameKey: nav.friends
     path: /friends
-    icon: ri:links-line
+    icon: lucide:link-2
   - name: 关于
     nameKey: nav.about
     path: /about
-    icon: fa6-regular:circle-user
+    icon: lucide:circle-user-round
   # - name: 歌单
   #   nameKey: nav.music
   #   path: /music
