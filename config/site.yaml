@@ -53,13 +53,6 @@ i18n:
       label: 中文
     - code: en
       label: English
-    # 内容保留在 src/content/blog/<locale>/，但不再生成路由
-    - code: ja
-      label: 日本語
-      enabled: false
-    - code: ko
-      label: 한국어
-      enabled: false
 
 # =============================================================================
 # Category Map

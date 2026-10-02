@@ -12,8 +12,8 @@ import { Icon } from '@iconify/react';
 import { openModal } from '@store/modal';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-function getFontConfig(locale: string) {
-  const fontFamily = locale === 'ja' ? 'Gen Jyuu Gothic P' : '寒蝉全圆体';
+function getFontConfig() {
+  const fontFamily = '寒蝉全圆体';
   return `
 theme
   base
@@ -30,7 +30,7 @@ interface InfographicToolbarProps {
 }
 
 export function InfographicToolbar({ preElement }: InfographicToolbarProps) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const isDark = useIsDarkTheme();
   const [isSourceView, setIsSourceView] = useState(false);
   const instanceRef = useRef<unknown>(null);
@@ -93,7 +93,7 @@ export function InfographicToolbar({ preElement }: InfographicToolbarProps) {
           theme: isDark ? 'dark' : 'default',
         });
 
-        infographic.render(`${source}\n${getFontConfig(locale)}`);
+        infographic.render(`${source}\n${getFontConfig()}`);
         instanceRef.current = infographic;
       } catch (error) {
         console.error('Failed to render infographic:', error);
@@ -104,7 +104,7 @@ export function InfographicToolbar({ preElement }: InfographicToolbarProps) {
     }
 
     render();
-  }, [isDark, source, locale, preElement, destroyInstance]);
+  }, [isDark, source, preElement, destroyInstance]);
 
   const handleFullscreen = useCallback(() => {
     openModal('diagramFullscreen', { diagramType: 'infographic', svg: containerRef.current?.innerHTML || '', source });

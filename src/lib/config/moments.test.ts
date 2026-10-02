@@ -11,7 +11,7 @@ const FIRST_ID = '550e8400-e29b-41d4-a716-446655440000';
 const SECOND_ID = '018f3f7a-2b1c-7def-8abc-1234567890ab';
 const context: MomentsValidationContext = {
   reservedRoutes: ['about', 'archives', 'api', 'music', 'rss', 'rss.xml'],
-  localeCodes: ['zh', 'en', 'ja'],
+  localeCodes: ['zh', 'en'],
   seriesSlugs: ['weekly'],
 };
 
@@ -24,7 +24,7 @@ test('normalizes an absent config to a disabled, safe default', () => {
     ogImage: undefined,
     pathAliases: [],
     channels: [],
-    channelSlugBlocklist: ['about', 'archives', 'api', 'music', 'rss', 'rss.xml', 'zh', 'en', 'ja', 'weekly', 'search'],
+    channelSlugBlocklist: ['about', 'archives', 'api', 'music', 'rss', 'rss.xml', 'zh', 'en', 'weekly', 'search'],
   });
 });
 
