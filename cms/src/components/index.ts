@@ -16,4 +16,5 @@ export { FrontmatterEditor, type FrontmatterEditorRef } from './FrontmatterEdito
 export { MarkdownPreview } from './MarkdownPreview';
 export { PostEditor } from './PostEditor';
 export { PostTable } from './PostTable';
+export { PublishDialog } from './PublishDialog';
 export { RecentUpdates } from './RecentUpdates';

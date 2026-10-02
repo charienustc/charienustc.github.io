@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { CategoryMappingDialog } from '@/components/CategoryMappingDialog';
 import type { FrontmatterEditorRef } from '@/components/FrontmatterEditor';
+import { PublishDialog } from '@/components/PublishDialog';
 import { blocksToMarkdown, markdownToBlocks, postEditorSchema } from '@/components/post-editor/editor';
 import { PostEditorCanvas } from '@/components/post-editor/PostEditorCanvas';
 import { PostEditorHeader } from '@/components/post-editor/PostEditorHeader';
@@ -19,7 +20,7 @@ import { PostEditorSidebar, type SidebarTab } from '@/components/post-editor/Pos
 import { SidebarResizeHandle } from '@/components/post-editor/SidebarResizeHandle';
 import { useSidebarResize } from '@/components/post-editor/useSidebarResize';
 import { Button } from '@/components/ui/button';
-import { useEditorHeadings } from '@/hooks';
+import { useEditorHeadings, useGitPublish } from '@/hooks';
 import { readPost, writePost } from '@/lib/api';
 import { detectNewCategories, getCategoryMap, setCategoryMap } from '@/lib/category';
 import { DEV_SERVER_URL } from '@/lib/config';
@@ -49,6 +50,12 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
   const [currentCategories, setCurrentCategories] = useState<string[]>([]);
   const [pendingCategoryMappings, setPendingCategoryMappings] = useState<Record<string, string>>({});
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+
+  // Publishing from inside the editor saves a trip back to the dashboard. The
+  // commit itself is the same call the dashboard makes, so the two entry points
+  // cannot drift.
+  const [isPublishOpen, setIsPublishOpen] = useState(false);
+  const git = useGitPublish();
 
   // BlockNote editor with code block language support
   const editor = useCreateBlockNote({ schema: postEditorSchema });
@@ -209,6 +216,12 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
     onClose();
   }, [hasUnsavedChanges, onClose]);
 
+  const handleOpenPublish = useCallback(() => {
+    setIsPublishOpen(true);
+    git.reset();
+    void git.refreshStatus();
+  }, [git]);
+
   const previewSlug =
     frontmatter.link ||
     postId
@@ -287,6 +300,7 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
         showSidebar={showSidebar}
         onClose={handleClose}
         onSave={handleSave}
+        onPublish={handleOpenPublish}
         onToggleSidebar={() => setShowSidebar(!showSidebar)}
       />
 
@@ -325,6 +339,19 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
         newCategories={pendingCategoryMappings}
         onConfirm={handleCategoryMappingConfirm}
         onCancel={() => setShowCategoryDialog(false)}
+      />
+
+      {/* One-click commit and push, pre-filled with this post's title */}
+      <PublishDialog
+        open={isPublishOpen}
+        onOpenChange={setIsPublishOpen}
+        suggestedDescription={frontmatter.title}
+        status={git.status}
+        isLoadingStatus={git.isLoadingStatus}
+        isPublishing={git.isPublishing}
+        error={git.error}
+        result={git.result}
+        onPublish={git.publish}
       />
     </div>
   );

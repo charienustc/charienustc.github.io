@@ -5,6 +5,7 @@
  */
 
 import { Icon } from '@iconify/react';
+import { useCallback, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Toaster } from 'sonner';
 import {
@@ -15,10 +16,11 @@ import {
   ErrorFallback,
   PostEditor,
   PostTable,
+  PublishDialog,
   RecentUpdates,
 } from '@/components';
 import { Button } from '@/components/ui/button';
-import { type StatusFilter, useDashboardState } from '@/hooks';
+import { type StatusFilter, useDashboardState, useGitPublish } from '@/hooks';
 import { MAX_CATEGORY_DISPLAY, MAX_RECENT_POSTS_DISPLAY } from '@/lib/paths';
 import { cn } from '@/lib/utils';
 
@@ -56,6 +58,18 @@ function AppContent() {
     handleEditorSaved,
   } = useDashboardState();
 
+  const [isPublishOpen, setIsPublishOpen] = useState(false);
+  const git = useGitPublish();
+
+  // Read the repository status lazily: only when the dialog is actually opened,
+  // so a dashboard visit does not shell out to git and the numbers cannot go
+  // stale while the page sits idle.
+  const handleOpenPublish = useCallback(() => {
+    setIsPublishOpen(true);
+    git.reset();
+    void git.refreshStatus();
+  }, [git]);
+
   // Show editor if editing
   if (editingPostId) {
     return <PostEditor postId={editingPostId} onClose={handleEditorClose} onSaved={handleEditorSaved} />;
@@ -81,6 +95,10 @@ function AppContent() {
                   className={cn('mr-1.5 size-4', isLoading && 'animate-spin')}
                 />
                 Refresh
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleOpenPublish}>
+                <Icon icon="ri:cloud-line" className="mr-1.5 size-4" />
+                Publish
               </Button>
               <Button size="sm" onClick={() => setIsCreateDialogOpen(true)}>
                 <Icon icon="ri:add-line" className="mr-1.5 size-4" />
@@ -243,6 +261,18 @@ function AppContent() {
 
       {/* Delete Post Confirmation */}
       <DeletePostDialog post={pendingDeletePost} onCancel={handleCancelDelete} onConfirm={handleConfirmDelete} />
+
+      {/* One-click commit and push */}
+      <PublishDialog
+        open={isPublishOpen}
+        onOpenChange={setIsPublishOpen}
+        status={git.status}
+        isLoadingStatus={git.isLoadingStatus}
+        isPublishing={git.isPublishing}
+        error={git.error}
+        result={git.result}
+        onPublish={git.publish}
+      />
     </>
   );
 }

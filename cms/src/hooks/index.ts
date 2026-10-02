@@ -12,3 +12,4 @@ export {
   useDashboardState,
 } from './useDashboardState';
 export { type EditorHeading, useEditorHeadings } from './useEditorHeadings';
+export { type UseGitPublishResult, useGitPublish } from './useGitPublish';

@@ -18,6 +18,8 @@ import { createServer as createViteServer } from 'vite';
 import {
   createHandler,
   deleteHandler,
+  gitCommitPushHandler,
+  gitStatusHandler,
   listHandler,
   ogCacheHandler,
   ogDataHandler,
@@ -101,6 +103,12 @@ async function main() {
   app.post('/api/cms/delete', deleteHandler);
   app.get('/api/cms/og-data', ogDataHandler);
   app.get('/api/cms/og-cache', ogCacheHandler);
+
+  // Git integration — powers the one-click publish button. These inherit the
+  // loopback-only guard above, which is the load-bearing control here: a CMS
+  // that can run `git push` must never be reachable from off-host.
+  app.get('/api/cms/git-status', gitStatusHandler);
+  app.post('/api/cms/git-commit-push', gitCommitPushHandler);
 
   // Config endpoint - returns project configuration for client use
   app.get('/api/cms/config', (c) => {

@@ -152,3 +152,31 @@ export interface DeletePostResponse {
   success: boolean;
   postId: string;
 }
+
+/**
+ * Repository state for the one-click publish dialog
+ */
+export interface GitStatusResponse {
+  /** Current branch name. */
+  branch: string;
+  /** Whether the branch has an upstream remote. */
+  hasUpstream: boolean;
+  /** Files reported by `git status --porcelain`. */
+  changedFiles: string[];
+  /** Commits present locally but not on the upstream. */
+  ahead: number;
+}
+
+/**
+ * Response from the commit-and-push API
+ */
+export interface GitCommitPushResponse {
+  /** Subject recorded in the commit. */
+  subject: string;
+  /** Whether a commit was created; false when only pre-existing commits were pushed. */
+  committed: boolean;
+  /** Whether the push succeeded. */
+  pushed: boolean;
+  /** `git show --stat` summary of the new commit, empty when nothing was committed. */
+  stat: string;
+}

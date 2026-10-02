@@ -11,6 +11,8 @@ interface PostEditorHeaderProps {
   showSidebar: boolean;
   onClose: () => void;
   onSave: () => void;
+  /** Opens the commit-and-push dialog without leaving the editor. */
+  onPublish: () => void;
   onToggleSidebar: () => void;
 }
 
@@ -23,6 +25,7 @@ export function PostEditorHeader({
   showSidebar,
   onClose,
   onSave,
+  onPublish,
   onToggleSidebar,
 }: PostEditorHeaderProps) {
   return (
@@ -76,6 +79,17 @@ export function PostEditorHeader({
               Save
             </>
           )}
+        </Button>
+        {/* Disabled while there are unsaved edits: publishing commits what is on
+            disk, so it would silently leave the open draft behind. */}
+        <Button
+          variant="outline"
+          onClick={onPublish}
+          disabled={hasUnsavedChanges}
+          title={hasUnsavedChanges ? '请先保存' : undefined}
+        >
+          <Icon icon="ri:cloud-line" className="mr-1.5 size-4" />
+          Publish
         </Button>
       </div>
     </header>

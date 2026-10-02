@@ -10,6 +10,8 @@ import type {
   CreatePostParams,
   CreatePostResponse,
   DeletePostResponse,
+  GitCommitPushResponse,
+  GitStatusResponse,
   ListPostsParams,
   ListPostsResponse,
   ReadPostResult,
@@ -311,4 +313,52 @@ export async function getCMSConfig(): Promise<CMSConfigResponse> {
   setCategoryMap(config.categoryMap);
 
   return config;
+}
+
+/**
+ * Reads the repository state for the publish dialog
+ *
+ * @returns Branch, changed files, and how many commits await pushing
+ * @throws Error if the request fails
+ */
+export async function fetchGitStatus(): Promise<GitStatusResponse> {
+  const response = await fetch('/api/cms/git-status');
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Failed to read git status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Lints, commits every working-tree change, and pushes
+ *
+ * The server runs the pre-commit lint check first, so a failure here means
+ * nothing was committed. A push failure leaves the commit in place locally.
+ *
+ * @param params - Conventional-commit type, optional scope, and description
+ * @returns What was committed and whether the push succeeded
+ * @throws Error carrying the git or lint output when the request fails
+ */
+export async function commitAndPush(params: {
+  type: string;
+  scope?: string;
+  description: string;
+}): Promise<GitCommitPushResponse> {
+  const response = await fetch('/api/cms/git-commit-push', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Failed to commit and push: ${response.status}`);
+  }
+
+  return response.json();
 }
