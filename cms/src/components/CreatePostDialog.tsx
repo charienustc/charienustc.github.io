@@ -12,13 +12,18 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { type CustomCategory, useCustomCategories } from '@/hooks/useCustomCategories';
+import { generateCategorySlug } from '@/lib/category';
+import { mergeCategoryOptions, previewCategoryPath, resolveCategory } from '@/lib/category-preview';
 import { type CreatePostFormData, createPostSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 interface CreatePostDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Category names seen in existing posts. Merged with `categoryMap` for the chips. */
   existingCategories: string[];
+  /** Configured `categoryMap` from `config/site.yaml`. Determines reuse vs. creation. */
+  categoryMap: Record<string, string>;
   onSuccess: (postId: string) => void;
 }
 
@@ -71,7 +76,7 @@ function CustomCategoryChip({
   );
 }
 
-export function CreatePostDialog({ open, onOpenChange, existingCategories, onSuccess }: CreatePostDialogProps) {
+export function CreatePostDialog({ open, onOpenChange, existingCategories, categoryMap, onSuccess }: CreatePostDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const selectedCategorySet = useMemo(() => new Set(selectedCategories), [selectedCategories]);
@@ -85,6 +90,37 @@ export function CreatePostDialog({ open, onOpenChange, existingCategories, onSuc
     resetCustomCategories,
     getCategoryMappings,
   } = useCustomCategories();
+
+  /**
+   * Chips offered for one-click selection.
+   *
+   * Configured categories lead, because those are the ones with a real URL and
+   * page already; names only seen in past posts follow so they are still one
+   * click away. Without the configured half this list goes empty the moment the
+   * blog has no posts — which is exactly when a writer most needs to know which
+   * category names are valid.
+   */
+  const categoryOptions = useMemo(
+    () => mergeCategoryOptions(categoryMap, existingCategories),
+    [categoryMap, existingCategories],
+  );
+
+  /**
+   * What the typed name would do if the post were created right now.
+   *
+   * Shown live so a typo is visible before submitting: an unmatched name is not
+   * an error, it silently creates a category *and* rewrites `config/site.yaml`.
+   */
+  const pendingCategory = useMemo(
+    () => resolveCategory(newCategoryInput, categoryMap, customCategories),
+    [newCategoryInput, categoryMap, customCategories],
+  );
+
+  /** Where the post file will land, mirroring the server's path generation. */
+  const categoryPath = useMemo(
+    () => previewCategoryPath(selectedCategories, categoryMap, customCategories, generateCategorySlug),
+    [selectedCategories, categoryMap, customCategories],
+  );
 
   const {
     register,
@@ -237,22 +273,39 @@ export function CreatePostDialog({ open, onOpenChange, existingCategories, onSuc
               </div>
             )}
 
-            {/* Existing categories */}
-            <div className="flex flex-wrap gap-2">
-              {existingCategories.slice(0, 12).map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => toggleCategory(cat)}
-                  className={cn(
-                    'rounded-full px-3 py-1 text-sm transition-colors',
-                    selectedCategorySet.has(cat) ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
-                  )}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
+            {/* Existing categories. Configured ones are marked, so it is clear
+                at a glance which names already have a page behind them. */}
+            {categoryOptions.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {categoryOptions.map((cat) => {
+                  const resolution = resolveCategory(cat, categoryMap, customCategories);
+                  const isConfigured = resolution?.kind === 'existing';
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => toggleCategory(cat)}
+                      title={isConfigured ? `已有分类 · ${resolution.slug}` : '文章里用过，但 config 里还没有映射'}
+                      className={cn(
+                        'flex items-center gap-1.5 rounded-full px-3 py-1 text-sm transition-colors',
+                        selectedCategorySet.has(cat) ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
+                      )}
+                    >
+                      {cat}
+                      {isConfigured && (
+                        <Icon
+                          icon="ri:price-tag-3-fill"
+                          className={cn(
+                            'size-3',
+                            selectedCategorySet.has(cat) ? 'text-primary-foreground/70' : 'text-muted-foreground',
+                          )}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Custom category input */}
             <div className="flex gap-2">
@@ -267,12 +320,56 @@ export function CreatePostDialog({ open, onOpenChange, existingCategories, onSuc
                   }
                 }}
                 placeholder="Add custom category..."
-                className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                className={cn(
+                  'flex-1 rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring',
+                  pendingCategory?.kind === 'new' ? 'border-amber-500/60' : 'border-input',
+                )}
               />
               <Button type="button" variant="outline" size="sm" onClick={handleAddCustomCategory}>
                 <Icon icon="ri:add-line" className="size-4" />
               </Button>
             </div>
+
+            {/* Live resolution of the typed name. Only a hint — creating a new
+                category is a legitimate thing to do, so it never blocks submit. */}
+            {pendingCategory && (
+              <p
+                className={cn(
+                  'flex items-start gap-1.5 text-xs',
+                  pendingCategory.kind === 'new' ? 'text-amber-600 dark:text-amber-500' : 'text-muted-foreground',
+                )}
+              >
+                <Icon
+                  icon={pendingCategory.kind === 'new' ? 'ri:add-circle-line' : 'ri:check-line'}
+                  className="mt-0.5 size-3.5 shrink-0"
+                />
+                {pendingCategory.kind === 'new' ? (
+                  <span>
+                    会新建分类「{pendingCategory.name}」（
+                    <code className="rounded bg-muted px-1 py-0.5 text-foreground">
+                      {generateCategorySlug(pendingCategory.name) || '无法生成 slug'}
+                    </code>
+                    ），并把这条映射写进 config/site.yaml。加进来之后点 slug 可以改。
+                  </span>
+                ) : (
+                  <span>
+                    已有分类，会归到{' '}
+                    <code className="rounded bg-muted px-1 py-0.5 text-foreground">{pendingCategory.slug}</code>
+                  </span>
+                )}
+              </p>
+            )}
+
+            {/* Where the file lands. Mirrors the server's path generation, so a
+                surprise here means a surprise on disk. */}
+            {categoryPath.resolutions.length > 0 && (
+              <p className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                <Icon icon="ri:folder-line" className="size-3.5 shrink-0" />
+                <span className="truncate">
+                  src/content/blog/{categoryPath.segments.join('/')}/<span className="text-foreground">你的标题.md</span>
+                </span>
+              </p>
+            )}
           </div>
 
           {/* Tags */}

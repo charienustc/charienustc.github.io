@@ -25,6 +25,9 @@ export interface UseDashboardStateResult {
   isLoading: boolean;
   error: string | null;
 
+  /** Configured `categoryMap` from `config/site.yaml`, keyed by display name. */
+  categoryMap: Record<string, string>;
+
   // Dialog state
   isCreateDialogOpen: boolean;
   setIsCreateDialogOpen: (open: boolean) => void;
@@ -69,6 +72,7 @@ export function useDashboardState(): UseDashboardStateResult {
 
   // Config state
   const [projectRoot, setProjectRoot] = useState<string>('');
+  const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
 
   // Filter state
   const [search, setSearch] = useState('');
@@ -105,10 +109,14 @@ export function useDashboardState(): UseDashboardStateResult {
     fetchData();
   }, [fetchData]);
 
-  // Fetch CMS config for project root (needed for editor URLs)
+  // Fetch CMS config for project root (needed for editor URLs) and the category
+  // map (needed by the Create dialog to tell an existing category from a new one)
   useEffect(() => {
     getCMSConfig()
-      .then((config) => setProjectRoot(config.projectRoot))
+      .then((config) => {
+        setProjectRoot(config.projectRoot);
+        setCategoryMap(config.categoryMap);
+      })
       .catch((err) => console.error('Failed to load CMS config:', err));
   }, []);
 
@@ -216,6 +224,7 @@ export function useDashboardState(): UseDashboardStateResult {
     data,
     isLoading,
     error,
+    categoryMap,
     isCreateDialogOpen,
     setIsCreateDialogOpen,
     editingPostId,

@@ -32,6 +32,7 @@ function AppContent() {
     data,
     isLoading,
     error,
+    categoryMap,
     isCreateDialogOpen,
     setIsCreateDialogOpen,
     editingPostId,
@@ -256,6 +257,7 @@ function AppContent() {
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         existingCategories={data?.categories || []}
+        categoryMap={categoryMap}
         onSuccess={handleCreatePostSuccess}
       />
 
