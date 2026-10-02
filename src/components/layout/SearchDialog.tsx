@@ -184,11 +184,14 @@ export function SearchTrigger({ className }: { className?: string }) {
     <button
       type="button"
       onClick={() => openModal('search')}
-      className={cn('cursor-pointer transition duration-300 hover:scale-125', className)}
+      className={cn(
+        'flex size-8 cursor-pointer items-center justify-center transition duration-300 hover:scale-125',
+        className,
+      )}
       aria-label={t('common.search')}
       title={title}
     >
-      <SearchIcon className="size-8" />
+      <SearchIcon className="size-6" />
     </button>
   );
 }

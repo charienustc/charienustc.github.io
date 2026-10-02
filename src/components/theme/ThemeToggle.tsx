@@ -104,7 +104,7 @@ export default function ThemeToggle({ className }: ThemeToggleProps) {
       type="button"
     >
       <span className="inline-flex size-8 items-center justify-center">
-        <Icon icon={isDark ? 'lucide:sun' : 'lucide:moon'} className="size-8" />
+        <Icon icon={isDark ? 'lucide:sun' : 'lucide:moon'} className="size-6" />
       </span>
     </button>
   );

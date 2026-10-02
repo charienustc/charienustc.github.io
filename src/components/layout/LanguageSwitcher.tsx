@@ -94,7 +94,7 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
       >
         {/* 图标数据异步加载，固定尺寸容器保证 SSR/加载前后几何不变，避免 popover 重定位 */}
         <span className="inline-flex size-8 items-center justify-center">
-          <Icon icon="lucide:languages" className="size-8" />
+          <Icon icon="lucide:languages" className="size-6" />
         </span>
       </button>
     </Popover>
