@@ -25,34 +25,38 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
   class={`shadow-text fixed tablet:backdrop-blur inset-x-0 top-0 z-30 gap-4 py-2.5 text-white select-none tablet:py-2 tablet:pl-3 tablet:pr-0 overflow-visible`}
   transition:name="site-header"
 >
-  <div
-    class={`header-inner mx-auto flex items-center justify-between tablet:w-full px-6 tablet:pl-10 tablet:pr-3 ${MAX_WIDTH.content}`}
-  >
+  <!-- `.header-inner` carries the horizontal padding and owns the positioning
+       context; `.header-content` is the flex row. They are kept separate so the
+       capsule (inset against the inner box) can extend past the content row to
+       the visual edge of the header. -->
+  <div class={`header-inner mx-auto tablet:w-full px-6 tablet:pl-10 tablet:pr-3 ${MAX_WIDTH.content}`}>
     <!-- Frosted pill behind the header content; `.with-background` reveals it on scroll -->
-    <span aria-hidden="true" class="header-capsule" />
-    <!-- Desktop: Always show logo -->
-    <a
-      transition:persist="page-header-avatar"
-      class="tablet:hidden -my-4 mr-4 flex cursor-pointer items-center justify-center gap-1 whitespace-nowrap"
-      href="/"
-      target="_self"
-      title={alternate || title}
-      aria-label={alternate || title}
-    >
-      {showLogo ? <LogoSvg className="h-8" /> : <p class="logo-text">{alternate || title}</p>}
-    </a>
-    <!-- Mobile: MobilePostHeader (shows heading on post pages, logo otherwise) -->
-    <div class="tablet:flex tablet:grow hidden items-center justify-center">
-      <MobilePostHeader
-        client:only="react"
-        isPostPage={isPostPage}
-        enableNumbering={tocNumbering}
-        logoElement={showLogo ? 'svg' : 'text'}
-        logoText={alternate || title}
-        logoSrc={logoSrc}
-      />
+    <div aria-hidden="true" class="header-capsule"></div>
+    <div class="header-content flex items-center justify-between">
+      <!-- Desktop: Always show logo -->
+      <a
+        transition:persist="page-header-avatar"
+        class="site-logo tablet:hidden -my-4 mr-4 flex cursor-pointer items-center justify-center gap-1 whitespace-nowrap"
+        href="/"
+        target="_self"
+        title={alternate || title}
+        aria-label={alternate || title}
+      >
+        {showLogo ? <LogoSvg className="h-8" /> : <p class="logo-text">{alternate || title}</p>}
+      </a>
+      <!-- Mobile: MobilePostHeader (shows heading on post pages, logo otherwise) -->
+      <div class="tablet:flex tablet:grow hidden items-center justify-center">
+        <MobilePostHeader
+          client:only="react"
+          isPostPage={isPostPage}
+          enableNumbering={tocNumbering}
+          logoElement={showLogo ? 'svg' : 'text'}
+          logoText={alternate || title}
+          logoSrc={logoSrc}
+        />
+      </div>
+      <Navigator client:load currentPath={Astro.url.pathname} locale={locale} />
     </div>
-    <Navigator client:load currentPath={Astro.url.pathname} locale={locale} />
   </div>
   {christmasConfig.enabled && christmasConfig.features.christmasCoverDecoration && <ChristmasLights />}
   {christmasConfig.enabled && <ChristmasOrnamentToggle client:only="react" />}
