@@ -44,6 +44,7 @@ interface PostTableProps {
   onToggleSticky?: (postId: string) => void;
   onEdit?: (postId: string) => void;
   onOpenInEditor?: (postId: string) => void;
+  onDelete?: (post: PostListItem) => void;
 }
 
 export function PostTable({
@@ -55,6 +56,7 @@ export function PostTable({
   onToggleSticky,
   onEdit,
   onOpenInEditor,
+  onDelete,
 }: PostTableProps) {
   if (posts.length === 0) {
     return (
@@ -178,6 +180,16 @@ export function PostTable({
                     >
                       <Icon icon={post.draft ? 'ri:check-line' : 'ri:draft-line'} className="size-4" />
                     </button>
+                    {onDelete && (
+                      <button
+                        type="button"
+                        onClick={() => onDelete(post)}
+                        className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        title="Delete post"
+                      >
+                        <Icon icon="ri:delete-bin-line" className="size-4" />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

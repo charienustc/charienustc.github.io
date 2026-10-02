@@ -9,6 +9,7 @@ import type {
   BlogSchema,
   CreatePostParams,
   CreatePostResponse,
+  DeletePostResponse,
   ListPostsParams,
   ListPostsResponse,
   ReadPostResult,
@@ -246,6 +247,29 @@ export async function toggleSticky(postId: string): Promise<ToggleStickyResponse
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.error || `Failed to toggle sticky: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Deletes a blog post
+ *
+ * @param postId - The post ID (file path)
+ * @returns The deleted post ID
+ */
+export async function deletePost(postId: string): Promise<DeletePostResponse> {
+  const response = await fetch('/api/cms/delete', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ postId }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Failed to delete post: ${response.status}`);
   }
 
   return response.json();

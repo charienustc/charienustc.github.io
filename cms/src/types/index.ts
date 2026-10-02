@@ -144,3 +144,11 @@ export interface ToggleStickyResponse {
   success: boolean;
   sticky: boolean;
 }
+
+/**
+ * Response from delete post API
+ */
+export interface DeletePostResponse {
+  success: boolean;
+  postId: string;
+}

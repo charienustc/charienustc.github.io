@@ -17,6 +17,7 @@ import { createServer as createViteServer } from 'vite';
 
 import {
   createHandler,
+  deleteHandler,
   listHandler,
   ogCacheHandler,
   ogDataHandler,
@@ -97,6 +98,7 @@ async function main() {
   app.post('/api/cms/create', createHandler);
   app.post('/api/cms/toggle-draft', toggleDraftHandler);
   app.post('/api/cms/toggle-sticky', toggleStickyHandler);
+  app.post('/api/cms/delete', deleteHandler);
   app.get('/api/cms/og-data', ogDataHandler);
   app.get('/api/cms/og-cache', ogCacheHandler);
 

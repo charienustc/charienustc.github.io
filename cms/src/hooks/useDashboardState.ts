@@ -6,9 +6,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { getCMSConfig, listPosts, toggleDraft, toggleSticky } from '@/lib/api';
+import { deletePost, getCMSConfig, listPosts, toggleDraft, toggleSticky } from '@/lib/api';
 import { buildEditorUrl, buildFilePath, getDefaultEditor } from '@/lib/editor-url';
-import type { ListPostsResponse } from '@/types';
+import type { ListPostsResponse, PostListItem } from '@/types';
 
 export type Tab = 'overview' | 'posts';
 export type StatusFilter = 'all' | 'draft' | 'published';
@@ -29,6 +29,7 @@ export interface UseDashboardStateResult {
   isCreateDialogOpen: boolean;
   setIsCreateDialogOpen: (open: boolean) => void;
   editingPostId: string | null;
+  pendingDeletePost: PostListItem | null;
 
   // Filter state
   search: string;
@@ -45,6 +46,9 @@ export interface UseDashboardStateResult {
   handleSort: (field: SortField) => void;
   handleToggleDraft: (postId: string) => Promise<void>;
   handleToggleSticky: (postId: string) => Promise<void>;
+  handleRequestDelete: (post: PostListItem) => void;
+  handleCancelDelete: () => void;
+  handleConfirmDelete: () => Promise<void>;
   handleCreatePostSuccess: (postId: string) => void;
   handleEditPost: (postId: string) => void;
   handleOpenInEditor: (postId: string) => void;
@@ -61,6 +65,7 @@ export function useDashboardState(): UseDashboardStateResult {
   // Dialog/Editor state
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [pendingDeletePost, setPendingDeletePost] = useState<PostListItem | null>(null);
 
   // Config state
   const [projectRoot, setProjectRoot] = useState<string>('');
@@ -145,6 +150,30 @@ export function useDashboardState(): UseDashboardStateResult {
     [fetchData],
   );
 
+  const handleRequestDelete = useCallback((post: PostListItem) => {
+    setPendingDeletePost(post);
+  }, []);
+
+  const handleCancelDelete = useCallback(() => {
+    setPendingDeletePost(null);
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!pendingDeletePost) return;
+
+    const post = pendingDeletePost;
+    try {
+      await deletePost(post.id);
+      toast.success(`Deleted "${post.title}"`);
+      setPendingDeletePost(null);
+      // Close the editor if it happened to be showing the deleted post
+      setEditingPostId((current) => (current === post.id ? null : current));
+      fetchData();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete post');
+    }
+  }, [pendingDeletePost, fetchData]);
+
   const handleCreatePostSuccess = useCallback(
     (postId: string) => {
       toast.success('Post created successfully');
@@ -190,6 +219,7 @@ export function useDashboardState(): UseDashboardStateResult {
     isCreateDialogOpen,
     setIsCreateDialogOpen,
     editingPostId,
+    pendingDeletePost,
     search,
     setSearch,
     category,
@@ -202,6 +232,9 @@ export function useDashboardState(): UseDashboardStateResult {
     handleSort,
     handleToggleDraft,
     handleToggleSticky,
+    handleRequestDelete,
+    handleCancelDelete,
+    handleConfirmDelete,
     handleCreatePostSuccess,
     handleEditPost,
     handleOpenInEditor,

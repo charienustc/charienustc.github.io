@@ -3,6 +3,7 @@
  */
 
 export { createHandler } from './create';
+export { deleteHandler } from './delete';
 export { listHandler } from './list';
 export { ogCacheHandler, ogDataHandler } from './og-data';
 export { readHandler } from './read';

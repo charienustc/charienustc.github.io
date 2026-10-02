@@ -11,6 +11,7 @@ import {
   CategoryStats,
   CreatePostDialog,
   DashboardStats,
+  DeletePostDialog,
   ErrorFallback,
   PostEditor,
   PostTable,
@@ -32,6 +33,7 @@ function AppContent() {
     isCreateDialogOpen,
     setIsCreateDialogOpen,
     editingPostId,
+    pendingDeletePost,
     search,
     setSearch,
     category,
@@ -44,6 +46,9 @@ function AppContent() {
     handleSort,
     handleToggleDraft,
     handleToggleSticky,
+    handleRequestDelete,
+    handleCancelDelete,
+    handleConfirmDelete,
     handleCreatePostSuccess,
     handleEditPost,
     handleOpenInEditor,
@@ -218,6 +223,7 @@ function AppContent() {
                       onToggleSticky={handleToggleSticky}
                       onEdit={handleEditPost}
                       onOpenInEditor={handleOpenInEditor}
+                      onDelete={handleRequestDelete}
                     />
                   </div>
                 )}
@@ -234,6 +240,9 @@ function AppContent() {
         existingCategories={data?.categories || []}
         onSuccess={handleCreatePostSuccess}
       />
+
+      {/* Delete Post Confirmation */}
+      <DeletePostDialog post={pendingDeletePost} onCancel={handleCancelDelete} onConfirm={handleConfirmDelete} />
     </>
   );
 }
