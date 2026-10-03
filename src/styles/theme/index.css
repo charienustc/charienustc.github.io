@@ -5,6 +5,16 @@
   --gradient-pink: linear-gradient(279deg, #6cb8f0 0%, #2e86c1 100%);
   --gradient-header: linear-gradient(-225deg, #e6f4fd 0, #dbeafe 100%);
 
+  /* The one monospace stack for the whole site.
+
+     Every code surface — blocks, inline spans, `kbd`, and Tailwind's
+     `font-mono` utility — reads this, so the code voice stays consistent
+     instead of drifting between three near-identical stacks. Consolas leads
+     because it is the best hinting available on Windows; the rest carry macOS,
+     Linux and mobile. */
+  --font-mono:
+    Consolas, "Cascadia Mono", "SF Mono", Menlo, Monaco, "DejaVu Sans Mono", "Liberation Mono", ui-monospace, monospace;
+
   /* Shared easing curves. Colour-independent, so they live on :root only —
      these mirror the shoka/motion vocabulary the rest of the theme uses. */
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
