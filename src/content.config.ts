@@ -1,5 +1,5 @@
 import { defineCollection } from 'astro:content';
-import { BLOG_CONTENT_GLOB_PATTERN } from '@lib/content/glob';
+import { BLOG_CONTENT_GLOB_PATTERN, MOMENTS_CONTENT_GLOB_PATTERN } from '@lib/content/glob';
 import { parseDateInSiteTimezone, reinterpretUtcAsTimezone } from '@lib/date';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
@@ -59,6 +59,20 @@ const blogCollection = defineCollection({
   }) satisfies z.ZodType<BlogSchema, BlogSchemaInput>,
 });
 
+const momentsCollection = defineCollection({
+  loader: glob({ pattern: MOMENTS_CONTENT_GLOB_PATTERN, base: './src/content/moments' }),
+  schema: z.object({
+    // No `title`: a moment's body is its content. That is the whole difference
+    // between a moment and a post, and it is why moments need their own
+    // collection instead of living in `blog`, whose schema requires a title.
+    date: dateInSiteTimezone,
+    // Same convention as posts: visible in dev, hidden from a production build.
+    draft: z.boolean().optional(),
+    tags: z.array(z.string()).optional(),
+  }),
+});
+
 export const collections = {
   blog: blogCollection,
+  moments: momentsCollection,
 };

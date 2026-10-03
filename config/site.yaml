@@ -395,6 +395,10 @@ navigation:
     nameKey: nav.friends
     path: /friends
     icon: lucide:link-2
+  - name: 碎碎念
+    nameKey: nav.moments
+    path: /moments
+    icon: lucide:message-circle
   - name: 关于
     nameKey: nav.about
     path: /about

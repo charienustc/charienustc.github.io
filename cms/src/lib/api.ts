@@ -7,13 +7,17 @@
 import { format, isValid, parse, parseISO } from 'date-fns';
 import type {
   BlogSchema,
+  CreateMomentParams,
+  CreateMomentResponse,
   CreatePostParams,
   CreatePostResponse,
   DeletePostResponse,
   GitCommitPushResponse,
   GitStatusResponse,
+  ListMomentsResponse,
   ListPostsParams,
   ListPostsResponse,
+  ReadMomentResponse,
   ReadPostResult,
   ToggleDraftResponse,
   ToggleStickyResponse,
@@ -360,5 +364,76 @@ export async function commitAndPush(params: {
     throw new Error(errorData.error || `Failed to commit and push: ${response.status}`);
   }
 
+  return response.json();
+}
+
+/**
+ * Lists the moments ("碎碎念") feed
+ *
+ * @returns Every moment, newest first, with counts and the tag vocabulary
+ * @throws Error if the request fails
+ */
+export async function listMoments(): Promise<ListMomentsResponse> {
+  const response = await fetch('/api/cms/moments');
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Failed to list moments: ${response.status}`);
+  }
+  return response.json();
+}
+
+/**
+ * Reads one moment for editing
+ *
+ * @param momentId - Filename relative to the moments directory
+ * @returns The body, date, and tags
+ * @throws Error if the moment is missing or unreadable
+ */
+export async function readMoment(momentId: string): Promise<ReadMomentResponse> {
+  const response = await fetch(`/api/cms/moments/read?momentId=${encodeURIComponent(momentId)}`);
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Failed to read moment: ${response.status}`);
+  }
+  return response.json();
+}
+
+/**
+ * Writes a new moment
+ *
+ * @param params - Body, and optional date, tags, and draft flag
+ * @returns The generated filename
+ * @throws Error if the write is rejected
+ */
+export async function createMoment(params: CreateMomentParams): Promise<CreateMomentResponse> {
+  const response = await fetch('/api/cms/moments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Failed to create moment: ${response.status}`);
+  }
+  return response.json();
+}
+
+/**
+ * Deletes a moment, retaining it under `backups/deleted/`
+ *
+ * @param momentId - Filename relative to the moments directory
+ * @returns Where the copy was retained
+ * @throws Error if the delete is rejected
+ */
+export async function deleteMoment(momentId: string): Promise<{ success: boolean; retainedPath?: string }> {
+  const response = await fetch('/api/cms/moments/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ momentId }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Failed to delete moment: ${response.status}`);
+  }
   return response.json();
 }

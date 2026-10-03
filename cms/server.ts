@@ -17,13 +17,17 @@ import { createServer as createViteServer } from 'vite';
 
 import {
   createHandler,
+  createMomentHandler,
   deleteHandler,
+  deleteMomentHandler,
   gitCommitPushHandler,
   gitStatusHandler,
   listHandler,
+  listMomentsHandler,
   ogCacheHandler,
   ogDataHandler,
   readHandler,
+  readMomentHandler,
   toggleDraftHandler,
   toggleStickyHandler,
   writeHandler,
@@ -103,6 +107,13 @@ async function main() {
   app.post('/api/cms/delete', deleteHandler);
   app.get('/api/cms/og-data', ogDataHandler);
   app.get('/api/cms/og-cache', ogCacheHandler);
+
+  // Moments ("碎碎念") — a separate small collection sharing the delete
+  // retention path but nothing else.
+  app.get('/api/cms/moments', listMomentsHandler);
+  app.post('/api/cms/moments', createMomentHandler);
+  app.get('/api/cms/moments/read', readMomentHandler);
+  app.post('/api/cms/moments/delete', deleteMomentHandler);
 
   // Git integration — powers the one-click publish button. These inherit the
   // loopback-only guard above, which is the load-bearing control here: a CMS

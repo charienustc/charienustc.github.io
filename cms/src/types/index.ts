@@ -185,3 +185,61 @@ export interface GitCommitPushResponse {
   /** `git show --stat` summary of the new commit, empty when nothing was committed. */
   stat: string;
 }
+
+/**
+ * One moment ("碎碎念") as the dashboard lists it.
+ *
+ * No title field: a moment's body is its content, and the list shows a preview
+ * of that body instead of a heading.
+ */
+export interface MomentListItem {
+  /** Filename relative to the moments directory, e.g. `2026-10-03-153000.md` */
+  id: string;
+  /** Raw frontmatter date string as written in the file */
+  date: string;
+  draft: boolean;
+  tags: string[];
+  /** Opening text of the body, for the list preview */
+  preview: string;
+  /** Body length in characters, so the composer can show how long it is */
+  length: number;
+}
+
+/**
+ * Response from the list moments API
+ */
+export interface ListMomentsResponse {
+  moments: MomentListItem[];
+  total: number;
+  draft: number;
+  published: number;
+  tags: string[];
+}
+
+/**
+ * Parameters accepted by the create moment API
+ */
+export interface CreateMomentParams {
+  body: string;
+  date?: string;
+  tags?: string[];
+  draft?: boolean;
+}
+
+/**
+ * Response from the create moment API
+ */
+export interface CreateMomentResponse {
+  success: boolean;
+  momentId: string;
+}
+
+/**
+ * Response from the read moment API
+ */
+export interface ReadMomentResponse {
+  id: string;
+  body: string;
+  date: string;
+  tags: string[];
+}

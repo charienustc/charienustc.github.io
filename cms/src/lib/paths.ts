@@ -7,6 +7,16 @@
 /** Content directory relative to project root */
 export const CONTENT_DIR = 'src/content/blog';
 
+/**
+ * Moments ("碎碎念") directory relative to project root.
+ *
+ * Deliberately a sibling constant rather than a parameter threaded through the
+ * post handlers: the two collections have different shapes (moments have no
+ * title, no categories, no per-item route), and sharing a code path would mean
+ * either bending one to fit the other or branching on every field.
+ */
+export const MOMENTS_DIR = 'src/content/moments';
+
 /** Config file path relative to project root */
 export const CONFIG_PATH = 'config/site.yaml';
 

@@ -10,7 +10,7 @@ import { deletePost, getCMSConfig, listPosts, toggleDraft, toggleSticky } from '
 import { buildEditorUrl, buildFilePath, getDefaultEditor } from '@/lib/editor-url';
 import type { ListPostsResponse, PostListItem } from '@/types';
 
-export type Tab = 'overview' | 'posts';
+export type Tab = 'overview' | 'posts' | 'moments';
 export type StatusFilter = 'all' | 'draft' | 'published';
 export type SortField = 'date' | 'updated' | 'title';
 export type SortOrder = 'asc' | 'desc';

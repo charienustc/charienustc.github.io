@@ -14,13 +14,15 @@ import {
   DashboardStats,
   DeletePostDialog,
   ErrorFallback,
+  MomentComposer,
+  MomentList,
   PostEditor,
   PostTable,
   PublishDialog,
   RecentUpdates,
 } from '@/components';
 import { Button } from '@/components/ui/button';
-import { type StatusFilter, useDashboardState, useGitPublish } from '@/hooks';
+import { type StatusFilter, useDashboardState, useGitPublish, useMomentsState } from '@/hooks';
 import { MAX_CATEGORY_DISPLAY, MAX_RECENT_POSTS_DISPLAY } from '@/lib/paths';
 import { cn } from '@/lib/utils';
 
@@ -60,7 +62,9 @@ function AppContent() {
   } = useDashboardState();
 
   const [isPublishOpen, setIsPublishOpen] = useState(false);
+  const [isComposerOpen, setIsComposerOpen] = useState(false);
   const git = useGitPublish();
+  const moments = useMomentsState(activeTab === 'moments');
 
   // Read the repository status lazily: only when the dialog is actually opened,
   // so a dashboard visit does not shell out to git and the numbers cannot go
@@ -113,7 +117,7 @@ function AppContent() {
         <div className="border-border border-b bg-card">
           <div className="mx-auto max-w-7xl px-6">
             <div className="flex gap-4">
-              {(['overview', 'posts'] as const).map((tab) => (
+              {(['overview', 'posts', 'moments'] as const).map((tab) => (
                 <button
                   key={tab}
                   type="button"
@@ -147,6 +151,28 @@ function AppContent() {
                   Retry
                 </Button>
               </div>
+            ) : activeTab === 'moments' ? (
+              // Rendered outside the post `data` gate: the moments feed is an
+              // independent API, so a post failure must not hide it.
+              moments.isLoading && !moments.data ? (
+                <div className="flex h-64 items-center justify-center">
+                  <Icon icon="ri:loader-4-line" className="size-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : moments.error ? (
+                <div className="flex h-64 flex-col items-center justify-center gap-4">
+                  <Icon icon="ri:error-warning-line" className="size-12 text-destructive" />
+                  <p className="text-destructive">{moments.error}</p>
+                  <Button variant="outline" onClick={moments.refresh}>
+                    Retry
+                  </Button>
+                </div>
+              ) : (
+                <MomentList
+                  moments={moments.data?.moments ?? []}
+                  onChanged={moments.refresh}
+                  onCompose={() => setIsComposerOpen(true)}
+                />
+              )
             ) : data ? (
               <>
                 {activeTab === 'overview' && (
@@ -275,6 +301,9 @@ function AppContent() {
         result={git.result}
         onPublish={git.publish}
       />
+
+      {/* Write a moment */}
+      <MomentComposer open={isComposerOpen} onOpenChange={setIsComposerOpen} onSuccess={moments.refresh} />
     </>
   );
 }

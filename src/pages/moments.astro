@@ -1,0 +1,97 @@
+---
+/**
+ * Moments ("碎碎念") feed.
+ *
+ * A single chronological stream of short-form entries. There are deliberately no
+ * per-moment pages, search, or RSS: the entire feature is this one page, which
+ * is what keeps it static and dependency-free.
+ *
+ * Entries are not titled. The body is the content, so the feed renders it
+ * directly rather than inventing a heading.
+ */
+import { getCollection, render } from 'astro:content';
+import CustomContent from '@components/common/CustomContent.astro';
+import HomeSider from '@components/layout/HomeSider.astro';
+import Cover from '@components/ui/cover/Cover.astro';
+import { CONTENT_PADDING } from '@constants/layout';
+import { siteConfig } from '@constants/site-config';
+import Layout from '@layouts/Layout.astro';
+import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { groupMomentsByYear, selectVisibleMoments } from '@lib/content/moments';
+import { displayDate } from '@lib/date';
+import { defaultLocale, t } from '@/i18n';
+
+interface Props {
+  locale?: string;
+}
+
+const { locale = defaultLocale } = Astro.props;
+
+const all = await getCollection('moments');
+const visible = selectVisibleMoments(all, import.meta.env.PROD);
+const years = groupMomentsByYear(visible);
+
+// Render every visible moment up front. The feed has no pagination, so the
+// bundle of rendered entries *is* the page.
+const rendered = await Promise.all(
+  years.map(async (group) => ({
+    year: group.year,
+    entries: await Promise.all(group.moments.map(async (moment) => ({ moment, Content: (await render(moment)).Content }))),
+  })),
+);
+
+const title = t(locale, 'nav.moments');
+---
+
+<Layout locale={locale} title={`${title} | ${siteConfig.title}`} description={t(locale, 'moments.description')}>
+  <TwoColumnLayout>
+    <Cover slot="cover" title={title} />
+    <HomeSider slot="sider" />
+    <div class={`shadow-box bg-gradient-start mx-0 flex w-full flex-col ${CONTENT_PADDING.standard}`}>
+      <h2 class="shoka-decoration-circle group relative h-19 px-6 py-5 text-2xl/9 font-bold md:text-xl/9">
+        <span class="text-muted-foreground text-lg md:text-base">{title}</span>
+        <span class="text-muted-foreground ml-2 text-base md:text-sm">
+          {t(locale, 'moments.total', { count: visible.length })}
+        </span>
+      </h2>
+
+      {
+        visible.length === 0 ? (
+          <p class="text-muted-foreground px-6 py-8">{t(locale, 'moments.empty')}</p>
+        ) : (
+          <div class="flex flex-col gap-6 md:gap-7">
+            {rendered.map((group) => (
+              <section class="flex flex-col gap-4">
+                <h3 class="text-muted-foreground text-lg font-bold md:text-base">{group.year}</h3>
+                <div class="flex flex-col gap-4 md:gap-5">
+                  {group.entries.map(({ moment, Content }) => (
+                    <article class="shoka-decoration-circle group relative px-6">
+                      <time
+                        datetime={moment.data.date.toISOString()}
+                        class="text-muted-foreground block text-xs"
+                      >
+                        {displayDate.date(moment.data.date)}
+                      </time>
+                      <div class="mt-1 text-base/8 md:text-sm/8">
+                        <CustomContent Content={Content} />
+                      </div>
+                      {moment.data.tags && moment.data.tags.length > 0 && (
+                        <ul class="mt-2 flex flex-wrap gap-2">
+                          {moment.data.tags.map((tag) => (
+                            <li class="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
+                              #{tag}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </TwoColumnLayout>
+</Layout>

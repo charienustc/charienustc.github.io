@@ -393,7 +393,9 @@ export const uiStrings: UIStrings = {
   // ── Moments ────────────────────────────────────────────────
   'nav.moments': 'Moments',
   'moments.title': 'Moments',
-  'moments.description': 'Short updates collected from public channels',
+  'moments.description': 'Short notes written as they come',
+  'moments.total': '{count} total',
+  'moments.empty': 'No moments yet',
   'moments.channels': 'Moment channels',
   'moments.search': 'Search Moments',
   'moments.searchForm': 'Search Moment entries',

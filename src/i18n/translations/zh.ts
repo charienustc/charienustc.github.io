@@ -391,7 +391,9 @@ export const uiStrings = {
   // ── Moments ────────────────────────────────────────────────
   'nav.moments': '碎碎念',
   'moments.title': '碎碎念',
-  'moments.description': '记录频道中的日常消息',
+  'moments.description': '随手记下的短内容',
+  'moments.total': '共 {count} 条',
+  'moments.empty': '还没有碎碎念',
   'moments.channels': '碎碎念频道',
   'moments.search': '搜索碎碎念',
   'moments.searchForm': '搜索碎碎念内容',

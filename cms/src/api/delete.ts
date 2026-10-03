@@ -8,15 +8,14 @@
  * This is a local safety net, not an undo stack: `backups/` is gitignored, so
  * the deletion still appears as a deletion in `git status`, and nothing here
  * manages the retained copies afterwards.
+ *
+ * The mechanics live in `deleteWithRetention`, shared with the moments handler.
  */
 
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import type { Context } from 'hono';
 import { z } from 'zod';
-import { retentionPath } from '@/lib/deleted-posts';
+import { deleteWithRetention } from '@/lib/delete-with-retention';
 import { CONTENT_DIR } from '@/lib/paths';
-import { hasValidMarkdownExtension, isPathSafe } from '@/lib/validation';
 import type { DeletePostResponse } from '@/types';
 
 /** Zod schema for delete post request validation */
@@ -35,80 +34,37 @@ const deletePostRequestSchema = z.object({
  * Response:
  * {
  *   success: boolean,
- *   postId: string
+ *   postId: string,
+ *   retainedPath?: string
  * }
  */
 export async function deleteHandler(c: Context) {
   const projectRoot = c.get('projectRoot') as string;
 
   try {
-    const rawBody = await c.req.json();
-    const parseResult = deletePostRequestSchema.safeParse(rawBody);
-
+    const parseResult = deletePostRequestSchema.safeParse(await c.req.json());
     if (!parseResult.success) {
-      const errorMessage = parseResult.error.errors.map((e) => e.message).join(', ');
-      return c.json({ error: errorMessage }, 400);
+      return c.json({ error: parseResult.error.errors.map((e) => e.message).join(', ') }, 400);
     }
 
     const { postId } = parseResult.data;
+    const outcome = await deleteWithRetention({
+      projectRoot,
+      contentDir: CONTENT_DIR,
+      id: postId,
+      now: new Date(),
+    });
 
-    // Validate path safety
-    if (!isPathSafe(postId)) {
-      return c.json({ error: 'Invalid postId' }, 400);
-    }
-
-    // Ensure the file has .md or .mdx extension
-    if (!hasValidMarkdownExtension(postId)) {
-      return c.json({ error: 'Invalid file extension' }, 400);
-    }
-
-    const filePath = path.join(projectRoot, CONTENT_DIR, postId);
-    const contentRoot = path.join(projectRoot, CONTENT_DIR);
-
-    // Defence in depth: isPathSafe only rejects '..' and absolute paths after
-    // normalisation. Resolve both sides and confirm the target really sits
-    // inside the content directory before unlinking anything.
-    const [resolvedFile, resolvedRoot] = await Promise.all([
-      fs.realpath(filePath).catch(() => path.resolve(filePath)),
-      fs.realpath(contentRoot).catch(() => path.resolve(contentRoot)),
-    ]);
-    const relative = path.relative(resolvedRoot, resolvedFile);
-    if (relative === '' || relative.startsWith('..') || path.isAbsolute(relative)) {
-      return c.json({ error: 'Invalid postId' }, 400);
-    }
-
-    // Confirm the target exists and is a regular file, not a directory or symlink
-    const stat = await fs.lstat(resolvedFile);
-    if (!stat.isFile()) {
-      return c.json({ error: 'Not a file' }, 400);
-    }
-
-    // Retain rather than remove. `postId` is used to rebuild the directory
-    // structure under the retention root, so it is re-validated for containment
-    // there — the check above bounds the source, this bounds the destination.
-    const destination = retentionPath(projectRoot, postId, new Date());
-    if (destination === null) {
-      return c.json({ error: 'Invalid postId' }, 400);
-    }
-
-    await fs.mkdir(path.dirname(destination), { recursive: true });
-
-    // `rename` is atomic within a volume but fails across one, so fall back to
-    // copy-then-remove. The copy runs first and is verified before the original
-    // is touched, so a failure mid-way leaves the post in place rather than
-    // losing it from both locations.
-    try {
-      await fs.rename(resolvedFile, destination);
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'EXDEV') throw error;
-      await fs.copyFile(resolvedFile, destination);
-      await fs.unlink(resolvedFile);
+    if (!outcome.ok) {
+      // The id is echoed back rather than the generic word "id", so the error
+      // reads the same as it did before the shared helper was introduced.
+      return c.json({ error: outcome.error.replace(/\bid\b/g, 'postId') }, outcome.status);
     }
 
     const response: DeletePostResponse = {
       success: true,
       postId,
-      retainedPath: path.relative(projectRoot, destination),
+      retainedPath: outcome.retainedPath,
     };
 
     return c.json(response);
