@@ -6,18 +6,57 @@
 .note-block {
   position: relative;
   margin: 1.5em 0;
-  padding: 1em 1em 1em 2.5em;
-  border-left: 4px solid hsl(var(--shoka-default));
-  border-radius: 0 8px 8px 0;
+  /* `2.5em + 3px` reproduces the original text column exactly. The removed
+     `border-left: 4px` used to contribute 4px of inset before the padding, and
+     the stripe is now painted inside the box, so 4px of the old gutter has to
+     come back through the padding. */
+  padding: 1em 1em 1em calc(2.5em + 3px);
+  /* No border: the stripe is ::after, so nothing pins the corners square and
+     all four can round. */
+  border-radius: 12px;
   background: hsl(var(--shoka-default) / 0.06);
+}
+
+/* Gutter between the stripe and the text column, with the icon centred in it.
+   Shared by the React mount and the emoji fallback so the two cannot drift —
+   a mismatch makes the icon jump once React hydrates.
+
+   The offset is a plain length, not a `calc()` involving `em`. A custom
+   property is inherited as an unresolved token, so an `em` inside it would be
+   evaluated against whichever element consumes it — the icon's own font-size
+   is 1.25em, so the gutter would be measured on the wrong scale and the icon
+   would sit off-centre. The gutter is `calc(2.5em + 3px) - 4px = 39px` at the
+   body type scale; `(39 - 20) / 2 + 4 = 13.5px`. */
+.note-block {
+  --note-stripe-width: 4px;
+  --note-icon-size: 20px;
+  --note-icon-left: 13.5px;
+}
+
+/* The type stripe, inset so it follows the rounded left edge instead of
+   squaring it off. Kept as a pseudo-element rather than a border. */
+.note-block::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--note-stripe-width);
+  border-radius: 12px 0 0 12px;
+  background: hsl(var(--shoka-default));
 }
 
 .note-block::before {
   position: absolute;
-  left: 0.6em;
+  /* Must match .note-icon-mount's box exactly: this emoji shows before React
+     hydrates, and any mismatch makes the icon jump on load. */
+  left: var(--note-icon-left);
   top: 1em;
-  font-size: 1.1em;
+  width: var(--note-icon-size);
+  font-size: 1.25em;
   line-height: 1;
+  text-align: center;
+  z-index: 1;
 }
 
 /* Icon content for each style */
@@ -40,26 +79,36 @@
   content: "🚫";
 }
 
-/* Style variants */
+/* Style variants — `::after` paints the stripe, the block paints the tint. */
 .note-block.note-primary {
-  border-left-color: hsl(var(--primary));
   background: hsl(var(--primary) / 0.06);
 }
+.note-block.note-primary::after {
+  background: hsl(var(--primary));
+}
 .note-block.note-info {
-  border-left-color: hsl(var(--shoka-info));
   background: hsl(var(--shoka-info) / 0.06);
 }
+.note-block.note-info::after {
+  background: hsl(var(--shoka-info));
+}
 .note-block.note-success {
-  border-left-color: hsl(var(--shoka-success));
   background: hsl(var(--shoka-success) / 0.06);
 }
+.note-block.note-success::after {
+  background: hsl(var(--shoka-success));
+}
 .note-block.note-warning {
-  border-left-color: hsl(var(--shoka-warning));
   background: hsl(var(--shoka-warning) / 0.06);
 }
+.note-block.note-warning::after {
+  background: hsl(var(--shoka-warning));
+}
 .note-block.note-danger {
-  border-left-color: hsl(var(--shoka-danger));
   background: hsl(var(--shoka-danger) / 0.06);
+}
+.note-block.note-danger::after {
+  background: hsl(var(--shoka-danger));
 }
 
 /* React enhanced — hide emoji fallback */
@@ -67,16 +116,20 @@
   display: none;
 }
 
-/* React icon mount point (matches original ::before position) */
+/* Icon centred in the gutter between the stripe and the text column.
+   Both the gutter width (`calc(2.5em + 3px) - 4px` of stripe) and the icon box
+   are absolute, so the two gaps stay equal at any type scale. */
 .note-icon-mount {
   position: absolute;
-  left: 0.35em;
+  left: var(--note-icon-left);
   top: 0.7em;
+  width: var(--note-icon-size);
+  height: var(--note-icon-size);
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5em;
+  font-size: 1.25em;
 }
 
 /* no-icon variant */
