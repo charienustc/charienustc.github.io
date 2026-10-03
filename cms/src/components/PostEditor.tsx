@@ -19,6 +19,7 @@ import { PostEditorHeader } from '@/components/post-editor/PostEditorHeader';
 import { PostEditorSidebar, type SidebarTab } from '@/components/post-editor/PostEditorSidebar';
 import { SidebarResizeHandle } from '@/components/post-editor/SidebarResizeHandle';
 import { useSidebarResize } from '@/components/post-editor/useSidebarResize';
+import { UnsavedChangesDialog } from '@/components/UnsavedChangesDialog';
 import { Button } from '@/components/ui/button';
 import { useEditorHeadings, useGitPublish } from '@/hooks';
 import { readPost, writePost } from '@/lib/api';
@@ -37,6 +38,16 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  /**
+   * Set when the user chose "save and close".
+   *
+   * The close cannot be chained onto `handleSave` directly: that call may stop
+   * to ask about new categories instead of saving, and even when it does save it
+   * is asynchronous. Waiting for `hasUnsavedChanges` to clear covers both paths
+   * and fires only once the write has actually landed.
+   */
+  const [closeAfterSave, setCloseAfterSave] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>('frontmatter');
 
@@ -61,6 +72,16 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
   const editor = useCreateBlockNote({ schema: postEditorSchema });
   const initialContentLoaded = useRef(false);
   const initialFrontmatterLoaded = useRef(false);
+  /**
+   * The editor content as it was loaded, serialized.
+   *
+   * Used to decide whether a change is real. BlockNote fires `onChange` while
+   * `markdownToBlocks` writes, and again on a later tick as it normalizes what
+   * it received — after loading has visibly finished. No timing flag reliably
+   * brackets that, so the question is answered by comparing content instead:
+   * a change identical to what was loaded is not an edit.
+   */
+  const loadedContent = useRef<string | null>(null);
 
   const headings = useEditorHeadings(editor);
 
@@ -78,6 +99,9 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
         // Load content into editor
         if (data.content && editor) {
           await markdownToBlocks(editor, data.content);
+          // Snapshot what the editor now holds, so later onChange events can be
+          // compared against it rather than against a timer.
+          loadedContent.current = await blocksToMarkdown(editor);
           initialContentLoaded.current = true;
         }
       } catch (err) {
@@ -95,10 +119,16 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
     if (!editor) return;
 
     const unsubscribe = editor.onChange(() => {
-      // Only mark as changed after initial content is loaded
-      if (initialContentLoaded.current) {
-        setHasUnsavedChanges(true);
-      }
+      if (!initialContentLoaded.current) return;
+
+      // BlockNote keeps firing after load settles, so compare against the
+      // loaded snapshot: an event that still serializes to what was loaded is
+      // the editor settling, not the user typing.
+      void blocksToMarkdown(editor).then((current) => {
+        if (loadedContent.current !== null && current !== loadedContent.current) {
+          setHasUnsavedChanges(true);
+        }
+      });
     });
 
     return unsubscribe;
@@ -107,7 +137,10 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
   // Handle frontmatter changes
   const handleFrontmatterChange = useCallback((fm: BlogSchema) => {
     setFrontmatter(fm);
-    // Only mark as changed after initial frontmatter is loaded
+    // Only mark as changed after the initial frontmatter is loaded, and not
+    // while the post is still being read in.
+    // Only comparing content is unreliable for frontmatter (the sidebar echoes
+    // its own defaults on mount), so this relies on the load having finished.
     if (initialFrontmatterLoaded.current) {
       setHasUnsavedChanges(true);
     }
@@ -207,11 +240,19 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
+  // Close once a "save and close" request has actually been written.
+  useEffect(() => {
+    if (closeAfterSave && !hasUnsavedChanges && !isSaving) {
+      setCloseAfterSave(false);
+      onClose();
+    }
+  }, [closeAfterSave, hasUnsavedChanges, isSaving, onClose]);
+
   // Handle close with unsaved changes check
   const handleClose = useCallback(() => {
     if (hasUnsavedChanges) {
-      const confirmed = window.confirm('You have unsaved changes. Are you sure you want to close?');
-      if (!confirmed) return;
+      setShowUnsavedDialog(true);
+      return;
     }
     onClose();
   }, [hasUnsavedChanges, onClose]);
@@ -331,6 +372,22 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
           />
         )}
       </div>
+
+      {/* Unsaved changes guard, replacing a native window.confirm */}
+      <UnsavedChangesDialog
+        open={showUnsavedDialog}
+        isSaving={isSaving}
+        onCancel={() => setShowUnsavedDialog(false)}
+        onDiscard={() => {
+          setShowUnsavedDialog(false);
+          onClose();
+        }}
+        onSaveAndClose={() => {
+          setShowUnsavedDialog(false);
+          setCloseAfterSave(true);
+          void handleSave();
+        }}
+      />
 
       {/* Category Mapping Dialog */}
       <CategoryMappingDialog

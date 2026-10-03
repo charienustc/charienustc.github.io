@@ -4,6 +4,54 @@ import path from 'node:path';
 
 import { PROJECT_ROOT } from '../constants';
 
+/**
+ * Run tar with the platform's required flags.
+ *
+ * `--force-local` is added on Windows only. GNU tar parses `C:\path` as an
+ * rsync-style `host:path` and fails with "Cannot connect to C: resolve failed",
+ * so every archive path here — all absolute — is unusable without it. On POSIX
+ * the flag is accepted but meaningless, and adding it unconditionally would
+ * mean shipping a Windows workaround into the Linux path; it is also absent
+ * from BSD tar, which would break macOS.
+ *
+ * Every tar invocation goes through here so the flag cannot be forgotten at one
+ * call site and silently reintroduce the failure.
+ *
+ * @param args - tar arguments, without the leading flags
+ * @param options - spawn options; `cwd` replaces any directory the command
+ *   would otherwise name with `-C` (see below)
+ * @returns The spawnSync result
+ */
+function runTar(args: string[], options: { encoding?: BufferEncoding; stdio?: 'pipe'; cwd?: string } = {}) {
+  const platformFlags = process.platform === 'win32' ? ['--force-local'] : [];
+  return spawnSync('tar', [...platformFlags, ...args], {
+    cwd: PROJECT_ROOT,
+    ...options,
+  });
+}
+
+/**
+ * Point tar at a directory by changing into it rather than with `-C`.
+ *
+ * On Windows, GNU tar 1.35 mangles an absolute `-C` path: it partially doubles
+ * the backslashes and then reports `Cannot open: No such file or directory` for
+ * a directory that demonstrably exists. The failure is silent from the caller's
+ * side — a create or extract just returns a non-zero status — so it reads as a
+ * corrupt archive rather than a path problem.
+ *
+ * Passing the directory as the child's working directory avoids tar's
+ * path-rewriting entirely, and behaves the same on POSIX. Verified against the
+ * same archive: `-C` fails, `cwd` succeeds.
+ *
+ * @param dir - Directory tar should treat as its working directory
+ * @param args - Remaining tar arguments
+ * @param options - Extra spawn options
+ * @returns The spawnSync result
+ */
+function runTarIn(dir: string, args: string[], options: { encoding?: BufferEncoding; stdio?: 'pipe' } = {}) {
+  return runTar(args, { ...options, cwd: dir });
+}
+
 function validateTarEntries(entries: string[], archivePath: string): void {
   for (const entry of entries) {
     if (!entry) {
@@ -31,10 +79,7 @@ function validateTarEntries(entries: string[], archivePath: string): void {
 }
 
 function validateTarEntryTypes(archivePath: string, entryCount: number): void {
-  const result = spawnSync('tar', ['-tvzf', archivePath], {
-    encoding: 'utf-8',
-    cwd: PROJECT_ROOT,
-  });
+  const result = runTar(['-tvzf', archivePath], { encoding: 'utf-8' });
   if (result.status !== 0) {
     throw new Error(`tar verbose list failed: ${result.stderr?.toString() || 'unknown error'}`);
   }
@@ -53,10 +98,7 @@ function validateTarEntryTypes(archivePath: string, entryCount: number): void {
 }
 
 function listTarEntries(archivePath: string): string[] {
-  const result = spawnSync('tar', ['-tzf', archivePath], {
-    encoding: 'utf-8',
-    cwd: PROJECT_ROOT,
-  });
+  const result = runTar(['-tzf', archivePath], { encoding: 'utf-8' });
   if (result.status !== 0) {
     throw new Error(`tar list failed: ${result.stderr?.toString() || 'unknown error'}`);
   }
@@ -70,13 +112,19 @@ function listTarEntries(archivePath: string): string[] {
  * 从 tar.gz 中提取 manifest.json 内容（不解压整个文件）
  */
 export function tarExtractManifest(archivePath: string): string | null {
-  const result = spawnSync('tar', ['-xzf', archivePath, '-O', 'manifest.json'], {
-    encoding: 'utf-8',
-    cwd: PROJECT_ROOT,
-    stdio: ['pipe', 'pipe', 'pipe'],
-  });
-  if (result.status === 0 && result.stdout) {
-    return result.stdout;
+  // Archives are created with `-C <dir> .`, so entries are stored as
+  // `./manifest.json`. Asking for the bare name only works on GNU tar builds
+  // that leniently match the leading `./`; others report "Not found in archive"
+  // and the manifest silently disappears. Try the path as actually stored
+  // first, and keep the bare form as a fallback for archives made elsewhere.
+  for (const entry of ['./manifest.json', 'manifest.json']) {
+    const result = runTar(['-xzf', archivePath, '-O', entry], {
+      encoding: 'utf-8',
+      stdio: 'pipe',
+    });
+    if (result.status === 0 && result.stdout) {
+      return result.stdout;
+    }
   }
   return null;
 }
@@ -96,9 +144,8 @@ export function tarCreate(archivePath: string, sourceDir: string): void {
   fs.closeSync(archiveHandle);
   fs.chmodSync(archivePath, 0o600);
 
-  const result = spawnSync('tar', ['-czf', archivePath, '-C', sourceDir, '.'], {
-    cwd: PROJECT_ROOT,
-  });
+  // The source directory goes through cwd rather than -C: see runTarIn.
+  const result = runTarIn(sourceDir, ['-czf', archivePath, '.']);
   if (result.status !== 0) {
     fs.rmSync(archivePath, { force: true });
     throw new Error(`tar create failed: ${result.stderr?.toString() || 'unknown error'}`);
@@ -111,9 +158,8 @@ export function tarCreate(archivePath: string, sourceDir: string): void {
  */
 export function tarExtract(archivePath: string, destDir: string): void {
   listTarEntries(archivePath);
-  const result = spawnSync('tar', ['-xzf', archivePath, '-C', destDir], {
-    cwd: PROJECT_ROOT,
-  });
+  // The destination goes through cwd rather than -C: see runTarIn.
+  const result = runTarIn(destDir, ['-xzf', archivePath]);
   if (result.status !== 0) {
     throw new Error(`tar extract failed: ${result.stderr?.toString() || 'unknown error'}`);
   }

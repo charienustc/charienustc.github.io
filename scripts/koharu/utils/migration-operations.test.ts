@@ -12,6 +12,17 @@ import { BACKUP_ITEMS, BACKUP_SCHEMA_VERSION, createWorkspace, type KoharuWorksp
 import { applyContentMigration, planContentMigration, runContentMigration } from './migration-operations';
 import { getRestorePreview, restoreBackup } from './restore-operations';
 import { tarCreate } from './tar';
+import { canCreateSymlinks, canSetFileMode, SKIP_REASON } from './test-capabilities';
+
+/**
+ * Normalise a path to forward slashes for comparison.
+ *
+ * `globSync` and `path.relative` return the platform's separator, so on Windows
+ * they yield `note\visible.mdx`. That is correct behaviour, not a bug — the
+ * expectations below are written the POSIX way for readability, so they are
+ * normalised rather than the product code being bent to match one platform.
+ */
+const posix = (value: string) => value.replaceAll('\\', '/');
 
 function writeSiteConfig(root: string, enableSlugTransliteration = false): string {
   const configPath = path.join(root, 'config/site.yaml');
@@ -73,7 +84,7 @@ test('blog content glob excludes underscore-prefixed files and directories', () 
       nodir: true,
     }).toSorted();
 
-    assert.deepEqual(matches, ['normal.md', 'note/visible.mdx']);
+    assert.deepEqual(matches.map(posix), ['normal.md', 'note/visible.mdx']);
     assert.equal(isBlogContentFile('normal.md'), true);
     assert.equal(isBlogContentFile('note/visible.mdx'), true);
     assert.equal(isBlogContentFile('_draft.md'), false);
@@ -101,7 +112,7 @@ test('content migration preserves URLs and is idempotent', () => {
     assert.equal(first.changes.length, 5);
     assert.equal(first.unchangedFiles, 2);
     assert.deepEqual(first.errors, []);
-    assert.equal(first.changes.find((change) => change.file.endsWith('/en/note/paired.md'))?.link, 'custom-paired');
+    assert.equal(first.changes.find((change) => posix(change.file).endsWith('/en/note/paired.md'))?.link, 'custom-paired');
 
     applyContentMigration(first);
 
@@ -177,7 +188,7 @@ test('generated links preserve Astro legacy path slugs', () => {
 
     assert.deepEqual(plan.errors, []);
     assert.deepEqual(
-      plan.changes.map(({ sourcePath, link }) => [path.relative(contentDir, sourcePath), link]),
+      plan.changes.map(({ sourcePath, link }) => [posix(path.relative(contentDir, sourcePath)), link]),
       [
         ['Camel Case.md', 'camel-case'],
         ['Foo Bar/index.md', 'foo-bar'],
@@ -313,7 +324,10 @@ test('content migration ignores underscore paths and their duplicate links', () 
   }
 });
 
-test('content migration rejects symlinks without writing their external targets', () => {
+test('content migration rejects symlinks without writing their external targets', (t) => {
+  // The subject IS a symlink, so without the capability there is nothing to assert.
+  if (!canCreateSymlinks()) return t.skip(SKIP_REASON.symlink);
+
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-symlink-content-'));
   const external = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-symlink-external-'));
   try {
@@ -481,7 +495,7 @@ test('atomic migration writes preserve the source file mode', () => {
 
     runContentMigration({ contentDir, siteConfigPath: configPath });
 
-    assert.equal(fs.statSync(pendingFile).mode & 0o777, 0o640);
+    if (canSetFileMode()) assert.equal(fs.statSync(pendingFile).mode & 0o777, 0o640);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -666,7 +680,10 @@ test('restore previews report the migration errors that fail a non-interactive r
   }
 });
 
-test('restore rejects symlinked targets without deleting external files', () => {
+test('restore rejects symlinked targets without deleting external files', (t) => {
+  // The subject IS a symlink, so without the capability there is nothing to assert.
+  if (!canCreateSymlinks()) return t.skip(SKIP_REASON.symlink);
+
   const workspace = createTestWorkspace('koharu-restore-symlink-target-');
   const root = workspace.root;
   const external = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-symlink-external-'));

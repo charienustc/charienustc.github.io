@@ -9,6 +9,7 @@ import { getBackupList, getRestorableBackupList } from './backup';
 import { validateBackupSource } from './backup-operations';
 import { getRestorePreview, restoreBackup } from './restore-operations';
 import { tarCreate, tarExtract } from './tar';
+import { canCreateSymlinks, canSetFileMode, SKIP_REASON } from './test-capabilities';
 import { validateBackupArchive, withValidatedBackupArchiveSnapshot } from './validation';
 
 /** Every test runs against a throwaway workspace so the project's real backups are never touched. */
@@ -79,7 +80,7 @@ test('backup archives are private and historical v1 manifests remain valid', () 
     writeBasicManifest(stage, [], null);
     const archive = createArchive(workspace, stage);
 
-    assert.equal(fs.statSync(archive).mode & 0o777, 0o600);
+    if (canSetFileMode()) assert.equal(fs.statSync(archive).mode & 0o777, 0o600);
     assert.equal(validateBackupArchive(archive, workspace.backupDir).manifest.schemaVersion, 1);
   } finally {
     fs.rmSync(stage, { recursive: true, force: true });
@@ -108,7 +109,7 @@ test('validation and extraction use one private immutable archive snapshot', () 
       (validated) => {
         snapshotPath = validated.path;
         assert.notEqual(snapshotPath, originalArchive);
-        assert.equal(fs.statSync(snapshotPath).mode & 0o777, 0o400);
+        if (canSetFileMode()) assert.equal(fs.statSync(snapshotPath).mode & 0o777, 0o400);
 
         fs.copyFileSync(replacementArchive, originalArchive);
         tarExtract(validated.path, extractDir);
@@ -250,10 +251,14 @@ test('backup source validation rejects contract mismatches and nested symlinks',
     fs.mkdirSync(wrongFile);
     assert.throws(() => validateBackupSource(fileItem, wrongFile), /类型无效，应为普通文件/);
 
-    const sourceDirectory = path.join(root, 'content');
-    fs.mkdirSync(sourceDirectory);
-    fs.symlinkSync(external, path.join(sourceDirectory, 'linked'), 'dir');
-    assert.throws(() => validateBackupSource(directoryItem, sourceDirectory), /包含符号链接/);
+    // The symlink check is the only part needing the capability; everything
+    // above it still asserts the contract rules on any platform.
+    if (canCreateSymlinks()) {
+      const sourceDirectory = path.join(root, 'content');
+      fs.mkdirSync(sourceDirectory);
+      fs.symlinkSync(external, path.join(sourceDirectory, 'linked'), 'dir');
+      assert.throws(() => validateBackupSource(directoryItem, sourceDirectory), /包含符号链接/);
+    }
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
     fs.rmSync(external, { recursive: true, force: true });
@@ -319,7 +324,11 @@ test('restore rejects archive items whose type disagrees with the backup contrac
   }
 });
 
-test('restore rejects symlink archive entries before extraction', () => {
+test('restore rejects symlink archive entries before extraction', (t) => {
+  // The archive's whole purpose is to carry a symlink entry, so there is
+  // nothing left to assert without the capability.
+  if (!canCreateSymlinks()) return t.skip(SKIP_REASON.symlink);
+
   const workspace = createTestWorkspace('koharu-restore-archive-symlink-target-');
   const external = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-archive-symlink-external-'));
   const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-archive-symlink-stage-'));

@@ -87,24 +87,18 @@ async function openDialog(title: string) {
 async function returnToDashboard() {
   if ((await page.getByRole('button', { name: /New Post/ }).count()) > 0) return;
 
-  // A freshly created post opens in the editor with unsaved changes, and the
-  // editor refuses to close while that is true. Save first so the close is not
-  // silently swallowed — this mirrors what a user has to do.
-  const save = page.getByRole('button', { name: /^Save$/ });
-  if ((await save.count()) > 0) {
-    await save.first().click();
-    await page.waitForFunction(
-      () => {
-        const b = [...document.querySelectorAll('button')].find((el) => el.textContent?.trim() === 'Save');
-        return b instanceof HTMLButtonElement && b.disabled;
-      },
-      { timeout: 15000 },
-    );
+  // A freshly created post opens in the editor. Closing it may raise the
+  // unsaved-changes guard, so handle that rather than assuming a bare click
+  // gets through — which is what a user has to do too.
+  await page.locator('button[title="Close editor"]').first().click();
+  await page.waitForTimeout(1000);
+
+  const discard = page.getByRole('button', { name: /^不保存并关闭$/ });
+  if ((await discard.count()) > 0) {
+    await discard.click();
+    await page.waitForTimeout(1000);
   }
 
-  // The exit control is icon-only and has no accessible name, so it is located
-  // by title. Position would be fragile and text would match nothing.
-  await page.locator('button[title="Close editor"]').first().click();
   await page.getByRole('button', { name: /New Post/ }).waitFor({ timeout: 15000 });
 }
 

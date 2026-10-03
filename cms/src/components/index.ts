@@ -20,3 +20,4 @@ export { PostEditor } from './PostEditor';
 export { PostTable } from './PostTable';
 export { PublishDialog } from './PublishDialog';
 export { RecentUpdates } from './RecentUpdates';
+export { UnsavedChangesDialog } from './UnsavedChangesDialog';

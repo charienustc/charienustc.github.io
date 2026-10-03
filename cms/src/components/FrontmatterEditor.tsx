@@ -279,8 +279,15 @@ export const FrontmatterEditor = forwardRef<FrontmatterEditorRef, FrontmatterEdi
 
   // Watch for changes and notify parent
   useEffect(() => {
-    const subscription = watch((values) => {
+    const subscription = watch((values, { name }) => {
       const fm = formDataToFrontmatter(values as FrontmatterFormData);
+
+      // `react-hook-form` emits once on subscribe with `name` undefined to hand
+      // back the initial values. Forwarding that as a change made the editor
+      // report unsaved edits the moment it opened, before the user touched
+      // anything — which is why closing it always prompted.
+      if (name === undefined) return;
+
       onChange(fm);
 
       // Notify about categories change for new category detection
