@@ -207,22 +207,28 @@ H~2~O 和 E = mc^2^
 
 效果：[默认]{.label .default} [主要]{.label .primary} [信息]{.label .info} [成功]{.label .success} [警告]{.label .warning} [危险]{.label .danger}
 
-## 五、提示块 
+## 五、提示块
 
 语法：`:::样式` 开头，单独一行 `:::` 结尾。
 
 :::danger
 **这里有个坑**
+
 开头的 `:::样式` 后面**只能跟 `no-icon`**，不能写标题。
 
-`:::warning 我的标题` 这种写法会**整个失败**——渲染成一段普通文字，`:::` 原样露出来，而且不报错。想要标题就写进正文里：
+`:::warning 我的标题` 这种写法会**整个失败**——渲染成一段普通文字，`:::` 原样露出来，而且不报错。想要标题就把标题写进正文，像下面这样。
+:::
 
 ```markdown
 :::warning
 **我的标题**
 正文内容。
 :::
-```plain
+```
+
+:::warning
+**我的标题**
+正文内容。
 :::
 
 可用样式：`default`、`primary`、`info`、`success`、`warning`、`danger`。
