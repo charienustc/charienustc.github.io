@@ -31,6 +31,8 @@
   --note-stripe-width: 4px;
   --note-icon-size: 20px;
   --note-icon-left: 13.5px;
+  /* Centres the icon on the first line of text; see .note-icon-mount. */
+  --note-icon-top: 20.4px;
 }
 
 /* The type stripe, inset so it follows the rounded left edge instead of
@@ -51,7 +53,7 @@
   /* Must match .note-icon-mount's box exactly: this emoji shows before React
      hydrates, and any mismatch makes the icon jump on load. */
   left: var(--note-icon-left);
-  top: 1em;
+  top: var(--note-icon-top);
   width: var(--note-icon-size);
   font-size: 1.25em;
   line-height: 1;
@@ -116,13 +118,18 @@
   display: none;
 }
 
-/* Icon centred in the gutter between the stripe and the text column.
-   Both the gutter width (`calc(2.5em + 3px) - 4px` of stripe) and the icon box
-   are absolute, so the two gaps stay equal at any type scale. */
+/* Icon centred in the gutter between the stripe and the text column, and on
+   the first line's centreline.
+
+   `top` is a length on purpose. It was `0.7em`, which resolved against this
+   element's own 20px font-size (14px) while the emoji fallback's `1em`
+   resolved against the block's 16px — the two icons sat 2px apart and both
+   rode 6px above the text. The target is the first line's centre:
+   `padding-top (16) + line-height / 2 (14.4) = 30.4`, less half the icon box. */
 .note-icon-mount {
   position: absolute;
   left: var(--note-icon-left);
-  top: 0.7em;
+  top: var(--note-icon-top);
   width: var(--note-icon-size);
   height: var(--note-icon-size);
   line-height: 1;
