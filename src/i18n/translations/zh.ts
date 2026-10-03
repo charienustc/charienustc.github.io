@@ -113,7 +113,7 @@ export const uiStrings = {
   'friends.previewTitle': '配置预览',
   'friends.copyConfig': '复制配置',
   'friends.copiedConfig': '已复制!',
-  'friends.hint': '提示: 复制上方配置，发送到邮箱即可，邮箱在左边呦~',
+  'friends.hint': '提示: 复制上方配置后，直接在下方评论区留言，或发送到左侧栏的邮箱都可以~',
 
   // ── Code Block ──────────────────────────────────────────────
   'code.copy': '复制代码',
