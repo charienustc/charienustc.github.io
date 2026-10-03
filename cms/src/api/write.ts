@@ -13,6 +13,7 @@ import yaml from 'js-yaml';
 import { z } from 'zod';
 import { addCategoryMappings } from '@/lib/config';
 import { serializeFrontmatter } from '@/lib/frontmatter';
+import { normalizeEscapedLineBreaks } from '@/lib/markdown-normalize';
 import { CONTENT_DIR } from '@/lib/paths';
 import { hasValidMarkdownExtension, isPathSafe } from '@/lib/validation';
 import type { BlogSchema } from '@/types';
@@ -96,9 +97,16 @@ export async function writeHandler(c: Context) {
     // Serialize frontmatter for YAML
     const serializedFrontmatter = serializeFrontmatter(processedFrontmatter as unknown as BlogSchema);
 
+    // Repair the editor's escaped line breaks before writing. BlockNote's
+    // markdown serializer writes an in-paragraph hard break as a trailing
+    // backslash, and re-reading the file turns that back into a hard break — so
+    // without this every save adds another layer of backslashes to the post.
+    // See `lib/markdown-normalize.ts` for the full account.
+    const normalizedContent = normalizeEscapedLineBreaks(content);
+
     // Generate the file content with gray-matter using custom YAML engine
     // flowLevel: 2 ensures nested arrays use flow style [a, b] instead of block style
-    const fileContent = matter.stringify(content, serializedFrontmatter, {
+    const fileContent = matter.stringify(normalizedContent, serializedFrontmatter, {
       engines: {
         yaml: {
           parse: (input: string) => yaml.load(input) as object,
