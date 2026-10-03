@@ -4,6 +4,7 @@ title: "About"
 coverTitle: "关于我"
 date: 2025-01-03 01:01:33
 description: "关于我，以及这个站点。"
+comments: false
 ---
 
 ## 你好，我是 Charien
