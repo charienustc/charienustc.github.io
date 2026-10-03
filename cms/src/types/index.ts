@@ -151,6 +151,11 @@ export interface ToggleStickyResponse {
 export interface DeletePostResponse {
   success: boolean;
   postId: string;
+  /**
+   * Where the post was retained, relative to the project root. Absent only if
+   * the server skipped retention, which it currently never does.
+   */
+  retainedPath?: string;
 }
 
 /**

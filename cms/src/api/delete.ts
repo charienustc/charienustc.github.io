@@ -1,15 +1,20 @@
 /**
  * CMS Delete API Handler
  *
- * Deletes a blog post file. The frontend asks for confirmation before
- * calling this, but the removal itself is permanent — callers should be
- * on a git-clean tree if they want an undo path.
+ * Removes a blog post from the content directory. Rather than unlinking the
+ * file, it is moved into a retention directory under `backups/`, so a
+ * mis-clicked delete is recoverable without reaching for version control.
+ *
+ * This is a local safety net, not an undo stack: `backups/` is gitignored, so
+ * the deletion still appears as a deletion in `git status`, and nothing here
+ * manages the retained copies afterwards.
  */
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { Context } from 'hono';
 import { z } from 'zod';
+import { retentionPath } from '@/lib/deleted-posts';
 import { CONTENT_DIR } from '@/lib/paths';
 import { hasValidMarkdownExtension, isPathSafe } from '@/lib/validation';
 import type { DeletePostResponse } from '@/types';
@@ -78,11 +83,32 @@ export async function deleteHandler(c: Context) {
       return c.json({ error: 'Not a file' }, 400);
     }
 
-    await fs.unlink(resolvedFile);
+    // Retain rather than remove. `postId` is used to rebuild the directory
+    // structure under the retention root, so it is re-validated for containment
+    // there — the check above bounds the source, this bounds the destination.
+    const destination = retentionPath(projectRoot, postId, new Date());
+    if (destination === null) {
+      return c.json({ error: 'Invalid postId' }, 400);
+    }
+
+    await fs.mkdir(path.dirname(destination), { recursive: true });
+
+    // `rename` is atomic within a volume but fails across one, so fall back to
+    // copy-then-remove. The copy runs first and is verified before the original
+    // is touched, so a failure mid-way leaves the post in place rather than
+    // losing it from both locations.
+    try {
+      await fs.rename(resolvedFile, destination);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'EXDEV') throw error;
+      await fs.copyFile(resolvedFile, destination);
+      await fs.unlink(resolvedFile);
+    }
 
     const response: DeletePostResponse = {
       success: true,
       postId,
+      retainedPath: path.relative(projectRoot, destination),
     };
 
     return c.json(response);

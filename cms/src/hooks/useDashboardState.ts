@@ -171,8 +171,13 @@ export function useDashboardState(): UseDashboardStateResult {
 
     const post = pendingDeletePost;
     try {
-      await deletePost(post.id);
-      toast.success(`Deleted "${post.title}"`);
+      const result = await deletePost(post.id);
+      // Name the retained copy so it can be found again. Without this the toast
+      // would claim a safe deletion while giving no way to act on it.
+      toast.success(`已删除「${post.title}」`, {
+        description: result.retainedPath ? `副本保留在 ${result.retainedPath}` : undefined,
+        duration: 8000,
+      });
       setPendingDeletePost(null);
       // Close the editor if it happened to be showing the deleted post
       setEditingPostId((current) => (current === post.id ? null : current));
