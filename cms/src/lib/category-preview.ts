@@ -110,3 +110,26 @@ export function mergeCategoryOptions(configured: Record<string, string>, usedInP
   }
   return [...configuredNames, ...extra];
 }
+
+/**
+ * The categories a submission would create, for the confirmation step.
+ *
+ * Creating a category is not an error, but it has two lasting consequences the
+ * writer cannot see from the form: a new mapping is written into
+ * `config/site.yaml`, and a real category page is minted at the new slug. That
+ * is what makes it worth confirming exactly once, at submit.
+ *
+ * Reusing an existing category has neither consequence, so it is deliberately
+ * absent from this list — confirming every post would train the writer to click
+ * through the dialog without reading it.
+ *
+ * @param resolutions - Category resolutions from `previewCategoryPath`
+ * @param slugFor - Generator used to name the slug a new category will take
+ * @returns Names and slugs of the categories that do not exist yet
+ */
+export function categoriesToCreate(
+  resolutions: CategoryResolution[],
+  slugFor: (name: string) => string,
+): Array<{ name: string; slug: string }> {
+  return resolutions.filter((r) => r.kind === 'new').map((r) => ({ name: r.name, slug: r.slug || slugFor(r.name) }));
+}

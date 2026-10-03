@@ -12,7 +12,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import type { CustomCategory } from '@/hooks/useCustomCategories';
-import { mergeCategoryOptions, previewCategoryPath, resolveCategory } from './category-preview';
+import { categoriesToCreate, mergeCategoryOptions, previewCategoryPath, resolveCategory } from './category-preview';
 
 const CATEGORY_MAP = { 示例: 'sample', 随笔: 'life', 笔记: 'note', 周刊: 'weekly', 探索: 'explore' };
 
@@ -104,4 +104,66 @@ test('mergeCategoryOptions survives an empty blog', () => {
   // left the list blank once every post was deleted, so the names that were
   // still valid were the ones no longer shown.
   assert.deepEqual(mergeCategoryOptions(CATEGORY_MAP, []), Object.keys(CATEGORY_MAP));
+});
+
+// The real generator, matching what the component passes in: a hand-rolled
+// ASCII-only stub would drop CJK names to an empty slug and hide the behaviour
+// these tests exist to pin.
+import { generateCategorySlug as slugFor } from './category';
+
+test('categoriesToCreate lists only the categories that do not exist yet', () => {
+  // The whole point of the confirmation: reusing an existing category has no
+  // side effect and must not be gated, or every post becomes a two-step.
+  const resolutions = [
+    { kind: 'existing' as const, name: '随笔', slug: 'life' },
+    { kind: 'new' as const, name: '算法', slug: '' },
+  ];
+  assert.deepEqual(categoriesToCreate(resolutions, slugFor), [{ name: '算法', slug: slugFor('算法') }]);
+});
+
+test('categoriesToCreate returns nothing when every category already exists', () => {
+  const resolutions = [
+    { kind: 'existing' as const, name: '随笔', slug: 'life' },
+    { kind: 'existing' as const, name: '笔记', slug: 'note' },
+  ];
+  assert.deepEqual(categoriesToCreate(resolutions, slugFor), []);
+});
+
+test('categoriesToCreate returns nothing for an empty selection', () => {
+  // A post with no categories sits at the content root and creates nothing.
+  assert.deepEqual(categoriesToCreate([], slugFor), []);
+});
+
+test('categoriesToCreate uses the user-edited slug when there is one', () => {
+  // The chip lets the slug be edited before submit; the confirmation must show
+  // the value that will actually be written, not a regenerated one.
+  const resolutions = [{ kind: 'new' as const, name: '算法', slug: 'my-custom-slug' }];
+  assert.deepEqual(categoriesToCreate(resolutions, slugFor), [{ name: '算法', slug: 'my-custom-slug' }]);
+  assert.notEqual(slugFor('算法'), 'my-custom-slug', 'the edit must be what differs from the generated value');
+});
+
+test('categoriesToCreate falls back to the generator for a slug-less new category', () => {
+  // A name typed but not yet added has no slug; the server will generate one,
+  // so the confirmation shows the same value rather than an empty string.
+  const resolutions = [{ kind: 'new' as const, name: 'react-hooks', slug: '' }];
+  assert.deepEqual(categoriesToCreate(resolutions, slugFor), [{ name: 'react-hooks', slug: 'react-hooks' }]);
+});
+
+test('categoriesToCreate preserves the selection order', () => {
+  // The list is read top-down against the chips the user just picked.
+  const resolutions = [
+    { kind: 'new' as const, name: '第一个', slug: 'a' },
+    { kind: 'new' as const, name: '第二个', slug: 'b' },
+  ];
+  assert.deepEqual(
+    categoriesToCreate(resolutions, slugFor).map((c) => c.name),
+    ['第一个', '第二个'],
+  );
+});
+
+test('categoriesToCreate does not mutate its input', () => {
+  const resolutions = [{ kind: 'new' as const, name: 'x', slug: '' }];
+  const snapshot = JSON.parse(JSON.stringify(resolutions));
+  categoriesToCreate(resolutions, slugFor);
+  assert.deepEqual(JSON.parse(JSON.stringify(resolutions)), snapshot);
 });
