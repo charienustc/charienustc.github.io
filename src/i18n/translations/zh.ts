@@ -394,6 +394,7 @@ export const uiStrings = {
   'moments.description': '随手记下的短内容',
   'moments.total': '共 {count} 条',
   'moments.empty': '还没有碎碎念',
+  'moments.updatedAt': '改于 {date}',
   'moments.channels': '碎碎念频道',
   'moments.search': '搜索碎碎念',
   'moments.searchForm': '搜索碎碎念内容',

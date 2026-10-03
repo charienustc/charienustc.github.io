@@ -2,9 +2,9 @@
  * Moment List
  *
  * The dashboard's moments ("碎碎念") tab: the feed as the site will render it,
- * each entry with a delete action. Read-only otherwise — editing a moment is
- * meant to be a rare enough operation that opening the file is fine, and
- * skipping an inline editor keeps this component small.
+ * each entry with edit and delete actions. Editing hands off to the composer
+ * rather than editing in place, so there is exactly one place that writes a
+ * moment and the version-retention rule cannot be bypassed.
  */
 
 import { Icon } from '@iconify/react';
@@ -18,9 +18,11 @@ interface MomentListProps {
   moments: MomentListItem[];
   onChanged: () => void;
   onCompose: () => void;
+  /** Hand a moment to the composer for editing */
+  onEdit: (momentId: string) => void;
 }
 
-export function MomentList({ moments, onChanged, onCompose }: MomentListProps) {
+export function MomentList({ moments, onChanged, onCompose, onEdit }: MomentListProps) {
   const [pendingDelete, setPendingDelete] = useState<MomentListItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -81,6 +83,7 @@ export function MomentList({ moments, onChanged, onCompose }: MomentListProps) {
                       草稿
                     </span>
                   )}
+                  {moment.updated && <span className="rounded bg-primary/10 px-1.5 py-0.5 font-medium text-primary">已改</span>}
                   <span className="font-mono opacity-60">{moment.id}</span>
                 </div>
                 <p className="mt-1.5 text-sm leading-relaxed">{moment.preview || '(空)'}</p>
@@ -95,16 +98,27 @@ export function MomentList({ moments, onChanged, onCompose }: MomentListProps) {
                 )}
               </div>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                title="Delete moment"
-                aria-label={`删除 ${moment.id}`}
-                onClick={() => setPendingDelete(moment)}
-                className="shrink-0 text-destructive hover:text-destructive"
-              >
-                <Icon icon="ri:delete-bin-line" className="size-4" />
-              </Button>
+              <div className="flex shrink-0 items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  title="Edit moment"
+                  aria-label={`编辑 ${moment.id}`}
+                  onClick={() => onEdit(moment.id)}
+                >
+                  <Icon icon="ri:edit-line" className="size-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  title="Delete moment"
+                  aria-label={`删除 ${moment.id}`}
+                  onClick={() => setPendingDelete(moment)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Icon icon="ri:delete-bin-line" className="size-4" />
+                </Button>
+              </div>
             </div>
           </li>
         ))}

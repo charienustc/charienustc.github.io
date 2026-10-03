@@ -21,6 +21,8 @@ import type {
   ReadPostResult,
   ToggleDraftResponse,
   ToggleStickyResponse,
+  UpdateMomentParams,
+  UpdateMomentResponse,
 } from '@/types';
 import { setCategoryMap } from './category';
 
@@ -434,6 +436,26 @@ export async function deleteMoment(momentId: string): Promise<{ success: boolean
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.error || `Failed to delete moment: ${response.status}`);
+  }
+  return response.json();
+}
+
+/**
+ * Rewrites an existing moment, retaining the previous revision
+ *
+ * @param params - The moment id plus the fields to write
+ * @returns Where the previous revision was kept
+ * @throws Error if the update is rejected
+ */
+export async function updateMoment(params: UpdateMomentParams): Promise<UpdateMomentResponse> {
+  const response = await fetch('/api/cms/moments/update', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Failed to update moment: ${response.status}`);
   }
   return response.json();
 }

@@ -72,6 +72,70 @@ test('trims surrounding whitespace from the body', () => {
   assert.ok(out.endsWith('\n\n正文\n'), JSON.stringify(out));
 });
 
+test('omits the updated field for a moment that has never been edited', () => {
+  // Writing `updated` equal to `date` on creation would render a redundant
+  // "edited" marker on every entry.
+  const out = serializeMoment({ body: '正文', date });
+  assert.ok(!out.includes('updated:'), out);
+});
+
+test('writes the updated field when the moment has been edited', () => {
+  const out = serializeMoment({ body: '正文', date, updated: new Date(2026, 9, 5, 9, 0, 0) });
+  assert.ok(out.includes('updated: 2026-10-05 09:00:00'), out);
+});
+
+test('keeps date and updated as separate lines', () => {
+  const out = serializeMoment({ body: '正文', date, updated: new Date(2026, 9, 5, 9, 0, 0) });
+  assert.ok(out.includes('date: 2026-10-03 15:30:00'), out);
+  assert.ok(out.indexOf('date:') < out.indexOf('updated:'), 'date must come first');
+});
+
+test('round-trips the updated field so a second edit does not erase it', () => {
+  // Without this, saving an already-edited moment twice would drop the record
+  // that it had ever been edited.
+  const first = serializeMoment({ body: '正文', date, updated: new Date(2026, 9, 5, 9, 0, 0) });
+  const parsed = parseMomentFrontmatter(first);
+  assert.ok(parsed);
+  assert.equal(parsed.updated, '2026-10-05 09:00:00');
+  assert.equal(parsed.date, '2026-10-03 15:30:00');
+});
+
+test('parses updated as undefined when absent', () => {
+  const parsed = parseMomentFrontmatter('---\ndate: 2026-10-03 15:30:00\n---\n\n正文\n');
+  assert.ok(parsed);
+  assert.equal(parsed.updated, undefined);
+});
+
+test('round-trips draft so an edit does not un-draft a moment', () => {
+  const out = serializeMoment({ body: '正文', date, draft: true });
+  const parsed = parseMomentFrontmatter(out);
+  assert.ok(parsed);
+  assert.equal(parsed.draft, true);
+});
+
+test('parses draft as false when absent', () => {
+  const parsed = parseMomentFrontmatter('---\ndate: 2026-10-03 15:30:00\n---\n\n正文\n');
+  assert.ok(parsed);
+  assert.equal(parsed.draft, false);
+});
+
+test('an edit preserves date, updated, draft and tags together', () => {
+  const out = serializeMoment({
+    body: '改过的正文',
+    date,
+    updated: new Date(2026, 9, 5, 9, 0, 0),
+    draft: true,
+    tags: ['日常'],
+  });
+  const parsed = parseMomentFrontmatter(out);
+  assert.ok(parsed);
+  assert.equal(parsed.date, '2026-10-03 15:30:00');
+  assert.equal(parsed.updated, '2026-10-05 09:00:00');
+  assert.equal(parsed.draft, true);
+  assert.deepEqual(parsed.tags, ['日常']);
+  assert.equal(extractMomentBody(out), '改过的正文');
+});
+
 test('does not add a title field', () => {
   // A moment deliberately has no title; this is the feature's core trade-off.
   const out = serializeMoment({ body: '正文', date });

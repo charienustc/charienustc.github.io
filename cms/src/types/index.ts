@@ -197,6 +197,8 @@ export interface MomentListItem {
   id: string;
   /** Raw frontmatter date string as written in the file */
   date: string;
+  /** Last-edit time, absent until the moment has been edited */
+  updated?: string;
   draft: boolean;
   tags: string[];
   /** Opening text of the body, for the list preview */
@@ -241,5 +243,27 @@ export interface ReadMomentResponse {
   id: string;
   body: string;
   date: string;
+  updated?: string;
+  draft: boolean;
   tags: string[];
+}
+
+/**
+ * Parameters accepted by the update moment API
+ */
+export interface UpdateMomentParams {
+  momentId: string;
+  body: string;
+  tags?: string[];
+  draft?: boolean;
+}
+
+/**
+ * Response from the update moment API
+ */
+export interface UpdateMomentResponse {
+  success: boolean;
+  momentId: string;
+  /** Where the previous revision was retained, relative to the project root. */
+  versionPath?: string;
 }

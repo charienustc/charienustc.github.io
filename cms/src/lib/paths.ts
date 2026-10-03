@@ -32,6 +32,17 @@ export const CONFIG_PATH = 'config/site.yaml';
  */
 export const DELETED_POSTS_DIR = 'backups/deleted';
 
+/**
+ * Directory holding the previous revision of an edited moment.
+ *
+ * Separate from `DELETED_POSTS_DIR` on purpose. Editing is a routine,
+ * expected action while deletion is not, so versions accumulate much faster;
+ * mixing them would make the deleted bin stop reading as "these were removed
+ * by mistake". Sits under `backups/` for the same reason: gitignored, local,
+ * and never touched by `pnpm koharu clean` (which only removes `*.tar.gz`).
+ */
+export const MOMENT_VERSIONS_DIR = 'backups/versions';
+
 /** Suffix marking a file as a retained copy rather than a live post. */
 export const DELETED_POST_SUFFIX = '.deleted';
 

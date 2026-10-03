@@ -396,6 +396,7 @@ export const uiStrings: UIStrings = {
   'moments.description': 'Short notes written as they come',
   'moments.total': '{count} total',
   'moments.empty': 'No moments yet',
+  'moments.updatedAt': 'edited {date}',
   'moments.channels': 'Moment channels',
   'moments.search': 'Search Moments',
   'moments.searchForm': 'Search Moment entries',

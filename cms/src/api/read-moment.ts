@@ -53,6 +53,8 @@ export async function readMomentHandler(c: Context) {
       id: momentId,
       body: extractMomentBody(raw),
       date: frontmatter.date,
+      updated: frontmatter.updated,
+      draft: frontmatter.draft,
       tags: frontmatter.tags,
     };
 

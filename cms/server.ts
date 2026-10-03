@@ -30,6 +30,7 @@ import {
   readMomentHandler,
   toggleDraftHandler,
   toggleStickyHandler,
+  updateMomentHandler,
   writeHandler,
 } from './src/api';
 import { setCategoryMap } from './src/lib/category';
@@ -114,6 +115,7 @@ async function main() {
   app.post('/api/cms/moments', createMomentHandler);
   app.get('/api/cms/moments/read', readMomentHandler);
   app.post('/api/cms/moments/delete', deleteMomentHandler);
+  app.post('/api/cms/moments/update', updateMomentHandler);
 
   // Git integration — powers the one-click publish button. These inherit the
   // loopback-only guard above, which is the load-bearing control here: a CMS

@@ -17,7 +17,7 @@ import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { groupMomentsByYear, selectVisibleMoments } from '@lib/content/moments';
+import { groupMomentsByYear, selectVisibleMoments, shouldShowUpdated } from '@lib/content/moments';
 import { displayDate } from '@lib/date';
 import { defaultLocale, t } from '@/i18n';
 
@@ -66,12 +66,14 @@ const title = t(locale, 'nav.moments');
                 <div class="flex flex-col gap-4 md:gap-5">
                   {group.entries.map(({ moment, Content }) => (
                     <article class="shoka-decoration-circle group relative px-6">
-                      <time
-                        datetime={moment.data.date.toISOString()}
-                        class="text-muted-foreground block text-xs"
-                      >
-                        {displayDate.date(moment.data.date)}
-                      </time>
+                      <div class="flex flex-wrap items-center gap-2 text-muted-foreground text-xs">
+                        <time datetime={moment.data.date.toISOString()}>{displayDate.date(moment.data.date)}</time>
+                        {shouldShowUpdated(moment.data.date, moment.data.updated) && moment.data.updated && (
+                          <span class="opacity-70">
+                            · {t(locale, 'moments.updatedAt', { date: displayDate.date(moment.data.updated) })}
+                          </span>
+                        )}
+                      </div>
                       <div class="mt-1 text-base/8 md:text-sm/8">
                         <CustomContent Content={Content} />
                       </div>

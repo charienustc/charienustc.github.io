@@ -66,6 +66,10 @@ const momentsCollection = defineCollection({
     // between a moment and a post, and it is why moments need their own
     // collection instead of living in `blog`, whose schema requires a title.
     date: dateInSiteTimezone,
+    // Set only when the moment has been edited. Separate from `date` so an edit
+    // never changes when the moment reads as having been written, and never
+    // affects its position in the feed.
+    updated: dateInSiteTimezone.optional(),
     // Same convention as posts: visible in dev, hidden from a production build.
     draft: z.boolean().optional(),
     tags: z.array(z.string()).optional(),

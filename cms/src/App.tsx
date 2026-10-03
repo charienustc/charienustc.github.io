@@ -63,6 +63,7 @@ function AppContent() {
 
   const [isPublishOpen, setIsPublishOpen] = useState(false);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
+  const [editingMomentId, setEditingMomentId] = useState<string | null>(null);
   const git = useGitPublish();
   const moments = useMomentsState(activeTab === 'moments');
 
@@ -170,7 +171,14 @@ function AppContent() {
                 <MomentList
                   moments={moments.data?.moments ?? []}
                   onChanged={moments.refresh}
-                  onCompose={() => setIsComposerOpen(true)}
+                  onCompose={() => {
+                    setEditingMomentId(null);
+                    setIsComposerOpen(true);
+                  }}
+                  onEdit={(momentId) => {
+                    setEditingMomentId(momentId);
+                    setIsComposerOpen(true);
+                  }}
                 />
               )
             ) : data ? (
@@ -303,7 +311,15 @@ function AppContent() {
       />
 
       {/* Write a moment */}
-      <MomentComposer open={isComposerOpen} onOpenChange={setIsComposerOpen} onSuccess={moments.refresh} />
+      <MomentComposer
+        open={isComposerOpen}
+        onOpenChange={(next) => {
+          setIsComposerOpen(next);
+          if (!next) setEditingMomentId(null);
+        }}
+        onSuccess={moments.refresh}
+        editingMomentId={editingMomentId}
+      />
     </>
   );
 }

@@ -14,6 +14,15 @@
 export interface MomentFrontmatter {
   /** Publication time, newest-first in the feed */
   date: Date;
+  /**
+   * When the moment was last edited.
+   *
+   * Absent for a moment that has never been edited, which is the common case.
+   * Deliberately separate from `date`: `date` answers "when was this written",
+   * and editing a moment does not change that. It also must never affect
+   * ordering, or an edit would silently move an entry up the feed.
+   */
+  updated?: Date;
   /** Hidden in a production build, same convention as posts */
   draft?: boolean;
   /** Optional free-form tags rendered as chips */
@@ -139,4 +148,26 @@ export function groupMomentsByYear<T extends MomentRecord>(moments: T[]): Array<
  */
 export function countVisibleMoments(moments: MomentRecord[], isProduction: boolean): number {
   return selectVisibleMoments(moments, isProduction).length;
+}
+
+/**
+ * Decide whether a moment should show an "edited" marker.
+ *
+ * The marker is suppressed unless there is something to say. A moment that has
+ * never been edited has no `updated` at all, and one edited within the same
+ * second as it was written would display an "edited" note identical to its own
+ * timestamp — noise that trains the reader to ignore the marker.
+ *
+ * Compares timestamps rather than stringifying the dates: frontmatter arrives
+ * through a schema that can hand back either a `Date` or something the schema
+ * coerced, and comparing via `getTime()` works for both without a format
+ * assumption.
+ *
+ * @param date - The moment's publication time
+ * @param updated - The moment's last-edit time, if it has ever been edited
+ * @returns True when the feed should show an "edited" marker
+ */
+export function shouldShowUpdated(date: Date, updated: Date | undefined): boolean {
+  if (!updated) return false;
+  return updated.getTime() > date.getTime();
 }

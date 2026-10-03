@@ -11,11 +11,11 @@
  */
 
 import { Icon } from '@iconify/react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { createMoment } from '@/lib/api';
+import { createMoment, readMoment, updateMoment } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 interface MomentComposerProps {
@@ -24,6 +24,14 @@ interface MomentComposerProps {
   onOpenChange: (open: boolean) => void;
   /** Called after a successful write, so the list can refresh */
   onSuccess: () => void;
+  /**
+   * Id of the moment being edited, or null to write a new one.
+   *
+   * One component serves both modes because the two differ only in where the
+   * fields come from and which endpoint they go to; splitting them would
+   * duplicate the textarea, tag parsing, and length counter.
+   */
+  editingMomentId?: string | null;
 }
 
 /** Parse a comma- or space-separated tag string into a de-duplicated list. */
@@ -40,30 +48,80 @@ function parseTags(input: string): string[] {
   return tags;
 }
 
-export function MomentComposer({ open, onOpenChange, onSuccess }: MomentComposerProps) {
+export function MomentComposer({ open, onOpenChange, onSuccess, editingMomentId = null }: MomentComposerProps) {
   const [body, setBody] = useState('');
   const [tagInput, setTagInput] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
+  const isEditing = editingMomentId !== null;
   const tags = parseTags(tagInput);
-  const canSubmit = body.trim().length > 0 && !isSaving;
+  const canSubmit = body.trim().length > 0 && !isSaving && !isLoading;
 
   const reset = useCallback(() => {
     setBody('');
     setTagInput('');
+    setLoadError(null);
   }, []);
+
+  // Load the existing moment when opening in edit mode. Keyed on the id as well
+  // as `open`, so switching straight from one moment to another refetches
+  // instead of showing the previous one's text.
+  useEffect(() => {
+    if (!open || !editingMomentId) return;
+
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(null);
+
+    readMoment(editingMomentId)
+      .then((moment) => {
+        if (cancelled) return;
+        setBody(moment.body);
+        setTagInput(moment.tags.join(' '));
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setLoadError(error instanceof Error ? error.message : String(error));
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, editingMomentId]);
+
+  // Clear the fields when the dialog closes, so reopening never shows a stale
+  // draft from the previous session.
+  useEffect(() => {
+    if (!open) reset();
+  }, [open, reset]);
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
     setIsSaving(true);
     try {
-      const result = await createMoment({ body: body.trim(), tags: tags.length > 0 ? tags : undefined });
-      toast.success('碎碎念已写入', { description: result.momentId, duration: 6000 });
+      if (editingMomentId) {
+        const result = await updateMoment({
+          momentId: editingMomentId,
+          body: body.trim(),
+          tags: tags.length > 0 ? tags : undefined,
+        });
+        toast.success('已保存', {
+          description: result.versionPath ? `旧版保留在 ${result.versionPath}` : undefined,
+          duration: 8000,
+        });
+      } else {
+        const result = await createMoment({ body: body.trim(), tags: tags.length > 0 ? tags : undefined });
+        toast.success('碎碎念已写入', { description: result.momentId, duration: 6000 });
+      }
       reset();
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      toast.error('写入失败', {
+      toast.error(isEditing ? '保存失败' : '写入失败', {
         description: error instanceof Error ? error.message : String(error),
       });
     } finally {
@@ -81,22 +139,36 @@ export function MomentComposer({ open, onOpenChange, onSuccess }: MomentComposer
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Icon icon="ri:chat-smile-3-line" className="size-5" />
-            写一条碎碎念
+            <Icon icon={isEditing ? 'ri:edit-line' : 'ri:chat-smile-3-line'} className="size-5" />
+            {isEditing ? '编辑碎碎念' : '写一条碎碎念'}
           </DialogTitle>
-          <DialogDescription>没有标题——正文就是内容。支持 Markdown，正文里的换行会原样保留。</DialogDescription>
+          <DialogDescription>
+            {isEditing
+              ? '发布日期不变，只会更新「最后修改」。保存前旧版会留一份到 backups/versions/。'
+              : '没有标题——正文就是内容。支持 Markdown，正文里的换行会原样保留。'}
+          </DialogDescription>
         </DialogHeader>
+
+        {loadError && (
+          <div className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm">
+            <Icon icon="ri:error-warning-line" className="mt-0.5 size-4 shrink-0 text-destructive" />
+            <span>读取失败：{loadError}</span>
+          </div>
+        )}
 
         <div className="space-y-3">
           <textarea
             aria-label="碎碎念正文"
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="随便写点什么…"
+            // Editing disables the field until the existing text has loaded, so
+            // typing cannot race the fetch and get overwritten by it.
+            disabled={isLoading}
+            placeholder={isLoading ? '读取中…' : '随便写点什么…'}
             rows={8}
             // eslint-disable-next-line jsx-a11y/no-autofocus -- the dialog exists to be typed in
             autoFocus
-            className="w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
           />
 
           <div className="flex flex-wrap items-center gap-3">
@@ -134,8 +206,8 @@ export function MomentComposer({ open, onOpenChange, onSuccess }: MomentComposer
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!canSubmit}>
-            {isSaving ? 'Saving…' : 'Publish'}
+          <Button onClick={handleSubmit} disabled={!canSubmit || Boolean(loadError)}>
+            {isSaving ? 'Saving…' : isEditing ? 'Save' : 'Publish'}
           </Button>
         </DialogFooter>
       </DialogContent>

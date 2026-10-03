@@ -9,7 +9,14 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { countVisibleMoments, groupMomentsByYear, momentFileName, momentSlugHint, selectVisibleMoments } from './moments';
+import {
+  countVisibleMoments,
+  groupMomentsByYear,
+  momentFileName,
+  momentSlugHint,
+  selectVisibleMoments,
+  shouldShowUpdated,
+} from './moments';
 
 const at = (iso: string, extra: Record<string, unknown> = {}) => ({
   id: `src/content/moments/${iso}.md`,
@@ -152,4 +159,40 @@ test('counts only the moments that would be published', () => {
   const moments = [at('2026-10-03T10:00:00', { draft: true }), at('2026-10-02T10:00:00'), at('2026-10-01T10:00:00')];
   assert.equal(countVisibleMoments(moments, true), 2);
   assert.equal(countVisibleMoments(moments, false), 3);
+});
+
+test('hides the edited marker for a moment that has never been edited', () => {
+  assert.equal(shouldShowUpdated(new Date('2026-10-03T10:00:00'), undefined), false);
+});
+
+test('shows the edited marker when the edit came later', () => {
+  assert.equal(shouldShowUpdated(new Date('2026-10-03T10:00:00'), new Date('2026-10-05T09:00:00')), true);
+});
+
+test('hides the edited marker when the timestamps are identical', () => {
+  // A same-second edit would render an "edited" note equal to the date itself,
+  // which is pure noise.
+  const same = new Date('2026-10-03T10:00:00');
+  assert.equal(shouldShowUpdated(same, new Date(same.getTime())), false);
+});
+
+test('hides the edited marker when updated predates the date', () => {
+  // Should not happen, but a hand-edited file could contain it, and showing
+  // "edited before written" would be nonsense.
+  assert.equal(shouldShowUpdated(new Date('2026-10-03T10:00:00'), new Date('2026-10-01T10:00:00')), false);
+});
+
+test('an edit does not change a moment ordering position', () => {
+  // `updated` must never participate in sorting: editing an old moment should
+  // not float it to the top of the feed.
+  const older = at('2026-01-01T00:00:00', { updated: new Date('2026-10-03T12:00:00') });
+  const newer = at('2026-10-03T00:00:00');
+  const ids = selectVisibleMoments([older, newer], true).map((m) => m.id);
+  assert.equal(ids[0], newer.id, 'the edited old moment must stay below the newer one');
+});
+
+test('an edit does not move a moment between year groups', () => {
+  const edited = at('2025-06-01T00:00:00', { updated: new Date('2026-10-03T12:00:00') });
+  const groups = groupMomentsByYear([edited]);
+  assert.equal(groups[0].year, 2025);
 });

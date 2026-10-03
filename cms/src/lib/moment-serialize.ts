@@ -16,6 +16,12 @@ export interface MomentInput {
   body: string;
   /** Publication time; defaults to "now" at the call site, not here */
   date: Date;
+  /**
+   * Last-edit time. Written only when the moment has actually been edited, so
+   * a freshly created moment carries no `updated` field at all rather than one
+   * duplicating its own `date`.
+   */
+  updated?: Date;
   /** Hidden from a production build, same convention as posts */
   draft?: boolean;
   /** Optional tags rendered as chips in the feed */
@@ -66,6 +72,8 @@ export function formatMomentDate(date: Date): string {
 export function serializeMoment(input: MomentInput): string {
   const lines: string[] = ['---', `date: ${formatMomentDate(input.date)}`];
 
+  if (input.updated) lines.push(`updated: ${formatMomentDate(input.updated)}`);
+
   // Only ever written as `true`. A `draft: false` line would be noise that the
   // content collection treats identically to an absent field.
   if (input.draft) lines.push('draft: true');
@@ -91,13 +99,17 @@ export function serializeMoment(input: MomentInput): string {
  * @param raw - Full file contents
  * @returns The date line and tag list as written, or null when unparseable
  */
-export function parseMomentFrontmatter(raw: string): { date: string; tags: string[] } | null {
+export function parseMomentFrontmatter(raw: string): { date: string; updated?: string; draft: boolean; tags: string[] } | null {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) return null;
 
   const block = match[1] ?? '';
   const dateLine = block.match(/^date:\s*(.+)$/m);
   if (!dateLine) return null;
+
+  // `updated` must survive an edit round trip, or saving a moment a second time
+  // would silently erase the fact that it had ever been edited.
+  const updatedLine = block.match(/^updated:\s*(.+)$/m);
 
   const tags: string[] = [];
   const tagBlock = block.match(/^tags:\s*\n((?:\s*-\s*.+\n?)*)/m);
@@ -111,7 +123,12 @@ export function parseMomentFrontmatter(raw: string): { date: string; tags: strin
     }
   }
 
-  return { date: unquoteScalar((dateLine[1] ?? '').trim()), tags };
+  return {
+    date: unquoteScalar((dateLine[1] ?? '').trim()),
+    updated: updatedLine ? unquoteScalar((updatedLine[1] ?? '').trim()) : undefined,
+    draft: /^draft:\s*true\s*$/m.test(block),
+    tags,
+  };
 }
 
 /**

@@ -53,7 +53,8 @@ async function parseMomentFile(relPath: string, contentDir: string): Promise<Mom
   return {
     id: normalisedId,
     date: frontmatter.date,
-    draft: /^draft:\s*true\s*$/m.test(raw),
+    updated: frontmatter.updated,
+    draft: frontmatter.draft,
     tags: frontmatter.tags,
     preview,
     length: body.length,

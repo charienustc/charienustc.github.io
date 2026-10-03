@@ -14,3 +14,4 @@ export { deleteMomentHandler, readMomentHandler } from './read-moment';
 export { toggleDraftHandler } from './toggle-draft';
 export { toggleStickyHandler } from './toggle-sticky';
 export { writeHandler } from './write';
+export { updateMomentHandler } from './write-moment';
