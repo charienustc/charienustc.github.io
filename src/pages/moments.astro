@@ -63,9 +63,20 @@ const title = t(locale, 'nav.moments');
             {rendered.map((group) => (
               <section class="flex flex-col gap-4">
                 <h3 class="text-muted-foreground text-lg font-bold md:text-base">{group.year}</h3>
+                {/* Separator on `article + article` rather than Tailwind's
+                    `divide-y`: the divide utility only paints through its own
+                    `--tw-divide-*` variable chain, which an opacity modifier
+                    like `divide-border/60` does not reliably populate here, so
+                    the class rendered with a zero-width border.
+
+                    Restricting it to `[&+&]` means the rule exists only
+                    *between* two entries — nothing above the first or below
+                    the last. The extra top padding gives the line air on both
+                    sides; a divider that touches the text reads as an underline
+                    rather than a break. */}
                 <div class="flex flex-col gap-4 md:gap-5">
                   {group.entries.map(({ moment, Content }) => (
-                    <article class="shoka-decoration-circle group relative px-6">
+                    <article class="shoka-decoration-circle group relative px-6 pt-4 first:pt-0 md:pt-5 md:first:pt-0 [&+&]:border-border/60 [&+&]:border-t">
                       <div class="flex flex-wrap items-center gap-2 text-muted-foreground text-xs">
                         <time datetime={moment.data.date.toISOString()}>{displayDate.date(moment.data.date)}</time>
                         {shouldShowUpdated(moment.data.date, moment.data.updated) && moment.data.updated && (

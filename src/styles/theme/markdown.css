@@ -469,17 +469,26 @@
 /* ========== Markdown 图片占位符和加载样式 ========== */
 
 /* 图片容器 */
-.prose .markdown-image-wrapper {
+.custom-content .markdown-image-wrapper {
   position: relative;
   display: block;
   margin: 1.5rem auto;
   overflow: hidden;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   background-color: hsl(var(--muted));
+
+  /* The ring sits on the wrapper rather than the <img> so it traces the rounded
+     box, and it survives the hover scale below — the image grows inside the
+     frame instead of the frame growing with it. Two hairlines: an opaque inner
+     edge that reads as the frame, plus the outer shadow for lift. */
+  border: 1px solid hsl(var(--border));
+  box-shadow:
+    0 1px 2px hsl(var(--foreground) / 0.04),
+    0 0.25rem 1rem hsl(var(--foreground) / 0.06);
 }
 
 /* Image styles — default 4:3 placeholder aspect ratio */
-.prose .markdown-image {
+.custom-content .markdown-image {
   display: block;
   width: 100%;
   height: auto;
@@ -490,21 +499,40 @@
 
   /* 淡入动画 */
   opacity: 0;
-  transition: opacity 0.3s ease-in-out;
+  transition:
+    opacity 0.3s ease-in-out,
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* 加载时的背景色 */
   background-color: hsl(var(--muted));
 }
 
 /* 图片加载完成状态 - 使用实际尺寸，限制最大高度 */
-.prose .markdown-image.loaded {
+.custom-content .markdown-image.loaded {
   opacity: 1;
   aspect-ratio: auto;
   max-height: 70vh;
 }
 
+/* Hover 时轻微放大。缩放裁剪由 wrapper 的 overflow:hidden 收口，所以
+   圆角不会在动画过程中露出直角。1.02 是刻意的克制值：碎碎念里图片紧挨
+   正文，幅度再大就会盖到相邻文字上。 */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .custom-content .markdown-image-wrapper:hover .markdown-image.loaded {
+    transform: scale(1.02);
+  }
+}
+
+/* 单张图片不铺满整行。碎碎念的正文栏有 896px 宽，横图拉满会显得笨重，
+   且把正文挤成一个很长的窄条；收到八成半宽后图片读起来更像配图。
+   横排图组里的 wrapper 是 flex 子项，宽度由 .markdown-image-row 的规则接管，
+   这里必须排除掉，否则 max-width 会和 flex 分摊打架、把整组图压窄。 */
+.custom-content .markdown-image-wrapper:not(.markdown-image-row > *) {
+  max-width: 85%;
+}
+
 /* 全屏按钮样式 */
-.prose .markdown-image-fullscreen {
+.custom-content .markdown-image-fullscreen {
   position: absolute;
   bottom: 0.5rem;
   right: 0.5rem;
@@ -528,23 +556,23 @@
     transform 0.1s ease;
 }
 
-.prose .markdown-image-fullscreen:hover {
+.custom-content .markdown-image-fullscreen:hover {
   background: hsl(var(--accent));
   color: hsl(var(--accent-foreground));
 }
 
-.prose .markdown-image-fullscreen:active {
+.custom-content .markdown-image-fullscreen:active {
   transform: scale(0.95);
 }
 
 /* 悬停时显示按钮 */
-.prose .markdown-image-wrapper:hover .markdown-image-fullscreen {
+.custom-content .markdown-image-wrapper:hover .markdown-image-fullscreen {
   opacity: 1;
 }
 
 /* Image caption */
 /* Hide caption before image loads but preserve space to reduce CLS */
-.prose .markdown-image-caption {
+.custom-content .markdown-image-caption {
   visibility: hidden;
   margin-top: 0;
   padding: 0.375rem 0.5rem;
@@ -554,39 +582,39 @@
   text-align: center;
 }
 
-.prose .markdown-image.loaded ~ .markdown-image-caption {
+.custom-content .markdown-image.loaded ~ .markdown-image-caption {
   visibility: visible;
 }
 
 /* ========== Portrait image centering ========== */
 
-.prose .markdown-image-wrapper.portrait {
+.custom-content .markdown-image-wrapper.portrait {
   width: fit-content;
   max-width: 100%;
 }
 
-.prose .markdown-image-wrapper.portrait .markdown-image.loaded {
+.custom-content .markdown-image-wrapper.portrait .markdown-image.loaded {
   width: auto;
   max-width: 100%;
 }
 
 /* ========== 竖图并排显示 ========== */
 
-.prose .markdown-image-row {
+.custom-content .markdown-image-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   margin: 1.5rem 0;
 }
 
-.prose .markdown-image-row .markdown-image-wrapper {
+.custom-content .markdown-image-row .markdown-image-wrapper {
   flex: 1;
   margin: 0;
   min-width: 0;
   width: auto;
 }
 
-.prose .markdown-image-row .markdown-image.loaded {
+.custom-content .markdown-image-row .markdown-image.loaded {
   width: 100%;
   height: auto;
   max-height: 60vh;
@@ -595,19 +623,19 @@
 
 /* Portrait specificity override: portrait rule (0,5,0) sets width:auto which
    beats the row rule (0,4,0) above. This (0,6,0) selector restores width:100%. */
-.prose .markdown-image-row .markdown-image-wrapper.portrait .markdown-image.loaded {
+.custom-content .markdown-image-row .markdown-image-wrapper.portrait .markdown-image.loaded {
   width: 100%;
 }
 
 /* Lightbox is now React-based (ImageLightbox.tsx), styles handled by Tailwind */
 
 /* 图片加载失败状态 - 隐藏损坏图片 */
-.prose .markdown-image.error {
+.custom-content .markdown-image.error {
   display: none;
 }
 
 /* 图片加载失败占位符 */
-.prose .markdown-image-error {
+.custom-content .markdown-image-error {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -619,7 +647,7 @@
 }
 
 /* 错误图标 */
-.prose .markdown-image-error-icon {
+.custom-content .markdown-image-error-icon {
   display: block;
   width: 3rem;
   height: 3rem;
@@ -635,7 +663,7 @@
 }
 
 /* 错误文字 */
-.prose .markdown-image-error-text {
+.custom-content .markdown-image-error-text {
   font-size: 0.875rem;
   opacity: 0.7;
 }
