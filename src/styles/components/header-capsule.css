@@ -87,17 +87,19 @@
 /* ---------------------------------------------------------------------------
    Decorative capsule around the header content, revealed on scroll.
 
-   The capsule deliberately carries NO `backdrop-filter`. Putting one here does
-   not work: an absolutely-positioned, negatively-stacked child of the header
-   samples its own stacking context as the backdrop rather than the page, so the
-   blur silently renders as a flat tint. That was verified by cloning the exact
-   same styles into `<body>`, where the blur works — the only difference is
-   where the element sits in the tree.
+   The capsule carries NO `backdrop-filter`, because a blur anywhere inside this
+   header does not render. Verified: with the surface fully transparent and
+   `backdrop-filter: blur(40px)`, scrolled text behind the header stayed sharp;
+   the identical styles on a `body` child blurred normally. The failure follows
+   the container, not the CSS — a real element at `z-index: 0` behind the content
+   failed the same way the negatively-stacked `::before` did, and every ancestor
+   is free of `filter` / `transform` / `contain` / `will-change`, so the cause is
+   not an accidental backdrop root either. It is left unexplained rather than
+   guessed at again.
 
-   The glass therefore lives on `#site-header::before` (see utils.css, which owns
-   the `with-background` surface): a direct pseudo-element of the header, which
-   blurs the page reliably. This capsule only draws the border, shadow and tint
-   that give that surface its shape.
+   The header surface is therefore solid; see the `with-background` utility in
+   global/utils.css. This capsule only draws the border, shadow and tint that
+   give that surface its shape.
    --------------------------------------------------------------------------- */
 .header-inner {
   position: relative;

@@ -32,21 +32,22 @@
     color: currentColor;
     @apply border-border text-foreground border-b;
 
-    /* Gaussian-blur header surface, replacing the gradient past the scroll
-       threshold. The surface stays translucent so scrolled content actually
-       passes under it — that is what makes the backdrop-filter read as a
-       gaussian blur instead of a flat panel. `saturate` keeps the smeared
-       colours from washing out.
-       `bg-none` is required because the base `::before` paints `background-image`
-       (bg-gradient-header), which would otherwise sit on top of the new colour.
+    /* Opaque header surface, replacing the gradient once scrolled.
 
-       This is the ONLY glass surface in the header. `.header-capsule` draws the
-       rounded border and shadow on top of it but must not declare its own
-       `backdrop-filter` — an absolutely-positioned, negatively-stacked child of
-       the header blurs its own stacking context instead of the page, so the
-       effect silently does nothing there. See components/header-capsule.css. */
+       This was a translucent glass panel with a `backdrop-filter`, which never
+       actually blurred anything: the property computed to `blur(16px)` and no
+       pixel changed. Measured with the surface fully transparent and the blur
+       pushed to 40px, scrolled text stayed sharp — while the identical styles on
+       a `body` child blurred normally, so the failure is specific to this fixed
+       container and not to how the rule was written. Rather than keep a filter
+       that does nothing, the surface is now solid, which is what the 45% tint
+       was approximating anyway (that tint was only legible *because* it sat on
+       top of the blur it never got).
+
+       `bg-none` is required because the base `::before` paints `background-image`
+       (bg-gradient-header), which would otherwise sit on top of the new colour. */
     &::before {
-      @apply bg-none bg-background/45 opacity-100 backdrop-blur-lg backdrop-saturate-150;
+      @apply bg-none bg-background opacity-100;
     }
 
     button,
