@@ -102,16 +102,26 @@
 .header-inner {
   position: relative;
   transition: translate 0.52s var(--ease-out-expo);
+  /* The capsule sits at `z-index: -1` and must not escape into the header's own
+     stacking context, where it would paint behind the header background instead
+     of behind the content row. */
+  isolation: isolate;
 }
 
 /* NOTE: the header's own `::before` is intentionally left visible here. An
    earlier revision faded it out so the capsule could be the only glass surface;
    that is what broke the effect, since the capsule cannot blur at all. */
 .header-capsule {
+  /* The capsule frames the *desktop* nav, so it is hidden wherever that nav is.
+     Below the `tablet` breakpoint the nav is `tablet:hidden` and `.header-inner`
+     already spans nearly the whole viewport, so the negative horizontal inset
+     below pushed the capsule past both screen edges — at 390px wide it measured
+     401px, a bare tinted bar cutting across the top of the page with nothing
+     inside it. Revealed again at 993px, one past `tablet: { max: 992px }`. */
+  display: none;
   position: absolute;
   inset: -0.375rem -1.25rem;
   z-index: -1;
-  display: block;
   border: 1px solid hsl(var(--primary) / 0.16);
   border-radius: 9999px;
   /* Tint only — no blur. Kept low so the header's blurred surface reads through. */
@@ -131,6 +141,16 @@
 #site-header.with-background .header-capsule {
   opacity: 1;
   scale: 1;
+}
+
+/* Only from the width where the desktop nav appears does the capsule have
+   content to frame. Kept as a separate rule rather than folded into the rule
+   above so the `display` decision is stated once, next to the geometry it
+   belongs to. 993px is one past Tailwind's `tablet: { max: 992px }`. */
+@media (min-width: 993px) {
+  #site-header.with-background .header-capsule {
+    display: block;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
