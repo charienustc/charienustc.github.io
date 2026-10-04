@@ -135,3 +135,23 @@
     animation: none;
   }
 }
+
+/* ============================================
+   文章卡片:跟随指针的高光
+   ============================================ */
+
+/* The gradient lives here rather than in JS so the server-rendered paint and
+   the hydrated one are identical. `useMotionTemplate` only reproduces its full
+   string after a motion value ticks, so a JS-authored gradient renders as a
+   malformed `radial-gradient(600px, …)` until the first pointer move.
+
+   The two custom properties are painted by the hook and carry the cursor
+   position as percentages. The `50%` fallbacks keep the highlight centred
+   before any pointer input, so the card never flashes an off-centre pool. */
+.magnetic-highlight {
+  background-image: radial-gradient(
+    600px circle at var(--magnetic-x, 50%) var(--magnetic-y, 50%),
+    rgba(255, 255, 255, 0.15),
+    transparent 40%
+  );
+}

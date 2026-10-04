@@ -6,7 +6,7 @@ import { shuffle } from 'es-toolkit';
 import type { BlogPost, PostCardData } from 'types/blog';
 import { getLocaleFromUrl, t } from '@/i18n';
 import Paginator from './Paginator.astro';
-import PostItemCard from './PostItemCard.astro';
+import PostItemCard from './PostItemCard';
 
 interface Props {
   posts?: PostCardData[];
@@ -55,7 +55,7 @@ function getLeftClip(index: number): boolean {
       <div class="flex flex-col gap-4">
         {posts.map((post, index) => (
           <PostItemCard
-            key={post.slug}
+            client:load
             data={post}
             showTags={!isSimple}
             leftClip={getLeftClip(index)}
