@@ -23,8 +23,12 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 <div
   id="site-header"
   class={`shadow-text fixed inset-x-0 top-0 z-30 gap-4 py-2.5 text-white select-none tablet:py-2 tablet:pl-3 tablet:pr-0 overflow-visible`}
-  transition:name="site-header"
 >
+  <!-- Do NOT reinstate `transition:name="site-header"` here: a view-transition
+       name makes Chromium render this subtree as an atomic capture group, which
+       silently disables every `backdrop-filter` inside it (verified 2026-10:
+       blur(20px) on an in-header element rendered nothing until the name was
+       removed; the theme transition already drops the name the same way). -->
   <!-- `.header-inner` carries the horizontal padding and owns the positioning
        context; `.header-content` is the flex row. They are kept separate so the
        capsule (inset against the inner box) can extend past the content row to

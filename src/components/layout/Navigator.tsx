@@ -169,7 +169,7 @@ function useNavIndicator<T extends HTMLElement>(activePath: string) {
 }
 
 const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale }: NavigatorProps) {
-  const { isBeyond, direction } = useScrollTrigger({
+  const { isBeyond, direction, scrollY } = useScrollTrigger({
     triggerDistance: 0.45,
     throttleMs: 80,
   });
@@ -184,9 +184,24 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
   const firstScrollRef = useRef(true);
 
   // Apply with-background class based on scroll position
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scrollY is not referenced inside — it re-runs the effect on every scroll tick so the live wave measurement re-evaluates; the wave boundary almost never coincides with an isBeyond flip
   useEffect(() => {
-    document.getElementById('site-header')?.classList.toggle('with-background', isBeyond);
-  }, [isBeyond]);
+    const header = document.getElementById('site-header');
+    // The glass surfaces must only appear once the header is off the cover's
+    // dark image. The cover element's own bottom is the wrong boundary: its
+    // last ~135px is `.wave-wrap`, a white wave blending into the body — the
+    // transparent state leaves white nav text unreadable on it, and the old
+    // 45vh fraction threshold fired even earlier, leaving white pills on the
+    // image itself. The wave's top edge is the real boundary: above it the
+    // header floats transparent over the image, at it the scrolled surface
+    // (pills + foreground text) takes over. Coverless pages keep the fraction.
+    const waveTop = document.querySelector('.wave-wrap')?.getBoundingClientRect().top;
+    const showSurface = waveTop != null ? waveTop <= (header?.offsetHeight ?? 56) : isBeyond;
+    header?.classList.toggle('with-background', showSurface);
+    // The hamburger lives outside #site-header (fixed sibling), so host rules
+    // scoped to the header cannot reach it — toggle its glass separately.
+    document.getElementById('mobile-menu-container')?.classList.toggle('with-background', showSurface);
+  }, [isBeyond, scrollY]);
 
   // Handle header visibility based on scroll
   useEffect(() => {

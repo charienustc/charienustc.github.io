@@ -85,21 +85,21 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Decorative capsule around the header content, revealed on scroll.
+   Decorative glass capsule around the header content, revealed on scroll.
 
-   The capsule carries NO `backdrop-filter`, because a blur anywhere inside this
-   header does not render. Verified: with the surface fully transparent and
-   `backdrop-filter: blur(40px)`, scrolled text behind the header stayed sharp;
-   the identical styles on a `body` child blurred normally. The failure follows
-   the container, not the CSS — a real element at `z-index: 0` behind the content
-   failed the same way the negatively-stacked `::before` did, and every ancestor
-   is free of `filter` / `transform` / `contain` / `will-change`, so the cause is
-   not an accidental backdrop root either. It is left unexplained rather than
-   guessed at again.
+   The blur ONLY works because `#site-header` carries no `view-transition-name`.
+   Astro's `transition:name="site-header"` (removed in Header.astro, 2026-10)
+   made Chromium paint the whole header subtree as an atomic capture group, and
+   every `backdrop-filter` inside it silently rendered nothing — text behind
+   blur(40px) stayed sharp while the identical styles on a `body` child blurred
+   normally. The failure followed the container, not the CSS: it was not
+   z-index, stacking, or an accidental backdrop root (every ancestor is free of
+   `filter` / `transform` / `contain` / `will-change`). Verified bidirectionally
+   by toggling only the name. `theme-transition.css` drops the same name during
+   theme switches for the same reason.
 
-   The header surface is therefore solid; see the `with-background` utility in
-   global/utils.css. This capsule only draws the border, shadow and tint that
-   give that surface its shape.
+   With the name gone, real frosted glass is back: a 78% tint over blur(16px)
+   saturate(1.5) — the recipe this design was ported from (blog.cosine.ren).
    --------------------------------------------------------------------------- */
 .header-inner {
   position: relative;
@@ -110,9 +110,6 @@
   isolation: isolate;
 }
 
-/* NOTE: the header's own `::before` is intentionally left visible here. An
-   earlier revision faded it out so the capsule could be the only glass surface;
-   that is what broke the effect, since the capsule cannot blur at all. */
 .header-capsule {
   /* The capsule frames the *desktop* nav, so it is hidden wherever that nav is.
      Below the `tablet` breakpoint the nav is `tablet:hidden` and `.header-inner`
@@ -126,10 +123,11 @@
   z-index: -1;
   border: 1px solid hsl(var(--primary) / 0.16);
   border-radius: 9999px;
-  /* Half-opaque, because the header no longer paints a surface of its own: this
-     capsule is the only thing standing between the nav labels and the content
-     scrolling underneath them, so it has to actually cover. */
-  background: color-mix(in oklab, var(--gradient-bg-start) 94%, transparent);
+  /* 78% tint + real blur: the blur does the covering now, so the tint can stay
+     light enough to read as glass rather than a solid slab. */
+  background: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
   box-shadow:
     0 0.75rem 2rem -1rem rgb(0 0 0 / 0.12),
     0 0.25rem 0.75rem -0.5rem rgb(0 0 0 / 0.08);
@@ -142,43 +140,77 @@
    Standalone round buttons for the icon controls on the right of the header.
 
    Each control gets its own circular surface instead of sharing the bar-wide
-   background the header used to paint. The surface has to be on the control's
-   own box, so it travels with the icon rather than with the header. Applied via
-   the className these components already forward.
+   background the header used to paint. The glass is a `::before` behind the
+   icon, shown and hidden by OPACITY — never by adding/removing the surface
+   itself. Fading `background-color` while `backdrop-filter` snaps off (it is
+   not transitioned) produced a flat white disc floating over the cover image
+   for the whole exit fade; fading the opacity of the whole glass layer takes
+   tint, blur and shadow out together, and opacity animates on the compositor.
    --------------------------------------------------------------------------- */
-#site-header.with-background .header-icon-button {
+.header-icon-button {
   /* Sized explicitly: the three controls otherwise self-size differently — two
      inherit 34px from their inner icon span's line box, search is exactly 32px —
      so the three circles came out mismatched. Fixing the box here makes them
      uniform without touching each component's own markup. */
+  position: relative;
+  /* Keeps the ::before's z-index: -1 inside the button instead of slipping
+     behind the header. */
+  isolation: isolate;
   inline-size: 2.25rem;
   block-size: 2.25rem;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  background-color: color-mix(in oklab, var(--gradient-bg-start) 94%, transparent);
-  box-shadow: 0 0.125rem 0.5rem -0.25rem rgb(0 0 0 / 0.18);
 }
 
+.header-icon-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-color: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  box-shadow: 0 0.125rem 0.5rem -0.25rem rgb(0 0 0 / 0.18);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#site-header.with-background .header-icon-button::before {
+  opacity: 1;
+}
+
+/* Asymmetric fade: the after-change transition wins, so entering
+   `.with-background` uses the slower curve and leaving it the quick one. */
 @media (prefers-reduced-motion: no-preference) {
-  #site-header.with-background .header-icon-button {
-    transition:
-      background-color 0.32s var(--ease-out-quart),
-      box-shadow 0.32s var(--ease-out-quart);
+  .header-icon-button::before {
+    transition: opacity 0.18s ease-in;
+  }
+
+  #site-header.with-background .header-icon-button::before {
+    transition: opacity 0.32s var(--ease-out-quart);
   }
 }
 
-#site-header.with-background .header-icon-button:hover {
-  background-color: color-mix(in oklab, var(--gradient-bg-start) 100%, transparent);
-}
-
-#site-header.with-background .header-inner {
-  translate: 0 0.375rem;
+#site-header.with-background .header-icon-button:hover::before {
+  background-color: color-mix(in oklab, var(--gradient-bg-start) 92%, transparent);
 }
 
 #site-header.with-background .header-capsule {
   opacity: 1;
   scale: 1;
+}
+
+/* Nudge the content row down inside the revealed capsule. Desktop-only: below
+   993px there is no capsule for it to centre within, and the drop instead left
+   the heading pill 6px lower than the hamburger (measured v-centres 34 vs 28).
+   `#site-header` is 56px tall on mobile, so its own centre is 28 — exactly where
+   the hamburger already sits. */
+@media (min-width: 993px) {
+  #site-header.with-background .header-inner {
+    translate: 0 0.375rem;
+  }
 }
 
 /* Only from the width where the desktop nav appears does the capsule have
@@ -222,5 +254,70 @@
     transition:
       color 0.32s var(--ease-out-quart),
       text-shadow 0.32s var(--ease-out-quart);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Mobile glass surfaces — the heading pill on post pages, and the hamburger.
+
+   Same recipe as the desktop surfaces. The heading pill only exists once a
+   heading is under the reading offset, i.e. the cover is already scrolled past,
+   so its glass can apply unconditionally. The hamburger, by contrast, is
+   visible over the cover image at the top of the page, where it must stay
+   transparent — its glass is gated on `.with-background`. `#mobile-menu-container`
+   is a sibling of `#site-header` (both fixed), so Navigator toggles the class
+   on it separately.
+   --------------------------------------------------------------------------- */
+.mobile-heading-capsule {
+  background-color: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
+  backdrop-filter: blur(12px) saturate(1.5);
+  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  box-shadow: 0 0.125rem 0.5rem -0.25rem rgb(0 0 0 / 0.18);
+}
+
+.mobile-heading-capsule:hover {
+  background-color: color-mix(in oklab, var(--gradient-bg-start) 92%, transparent);
+}
+
+/* Hamburger glass — same opacity-faded ::before pattern as the desktop icon
+   buttons (see the rationale above). The button keeps its own transparent box
+   so the icon stays visible in the unscrolled state. */
+#mobile-menu-container button {
+  position: relative;
+  isolation: isolate;
+  border-radius: 9999px;
+}
+
+#mobile-menu-container button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-color: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
+  backdrop-filter: blur(12px) saturate(1.5);
+  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  box-shadow: 0 0.125rem 0.5rem -0.25rem rgb(0 0 0 / 0.18);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#mobile-menu-container.with-background button::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-heading-capsule {
+    transition:
+      background-color 0.32s var(--ease-out-quart),
+      box-shadow 0.32s var(--ease-out-quart);
+  }
+
+  #mobile-menu-container button::before {
+    transition: opacity 0.18s ease-in;
+  }
+
+  #mobile-menu-container.with-background button::before {
+    transition: opacity 0.32s var(--ease-out-quart);
   }
 }
