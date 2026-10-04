@@ -303,47 +303,33 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Mobile logo glass — same opacity-faded ::before pattern as the icon buttons.
+   Mobile logo — fades out entirely once the header is scrolled.
 
-   On narrow screens there is no header-wide capsule, so without this pill the
-   gradient wordmark floats directly over whatever scrolls under the header —
-   unreadable on top of photos, and a jumble on top of body text (verified by
-   screenshots on home / weekly / moments / friends / archives, 2026-10).
-   Desktop is excluded: the full-width `.header-capsule` already covers the
-   logo there, and a second glass layer would double up.
+   On narrow screens there is no header-wide capsule, and giving the wordmark
+   its own glass pill made it a big white blob at the visual centre — worse
+   than the problem it solved (verified by screenshot, 2026-10). Instead the
+   logo simply leaves the scrolled header, exactly as post pages already hand
+   its slot to the heading capsule; the hamburger and icon buttons keep their
+   pills, so the header stays usable. It reappears with the transparent state
+   at the top of the page, where it floats over the cover as designed.
+   Desktop is untouched: the full-width `.header-capsule` covers the logo.
    --------------------------------------------------------------------------- */
 @media (max-width: 992px) {
-  .mobile-logo-link {
-    position: relative;
-    isolation: isolate;
-    border-radius: 9999px;
-  }
-
-  .mobile-logo-link::before {
-    content: "";
-    position: absolute;
-    inset: -0.375rem -0.75rem;
-    z-index: -1;
-    border-radius: inherit;
-    background-color: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
-    backdrop-filter: blur(12px) saturate(1.5);
-    box-shadow: 0 0.125rem 0.5rem -0.25rem rgb(0 0 0 / 0.18);
+  #site-header.with-background .mobile-logo-link {
     opacity: 0;
     pointer-events: none;
   }
-
-  #site-header.with-background .mobile-logo-link::before {
-    opacity: 1;
-  }
 }
 
+/* Asymmetric fade, same timing as the icon-button glass: quick exit when the
+   surface appears, slower return when the transparent state comes back. */
 @media (max-width: 992px) and (prefers-reduced-motion: no-preference) {
-  .mobile-logo-link::before {
-    transition: opacity 0.18s ease-in;
+  .mobile-logo-link {
+    transition: opacity 0.32s var(--ease-out-quart);
   }
 
-  #site-header.with-background .mobile-logo-link::before {
-    transition: opacity 0.32s var(--ease-out-quart);
+  #site-header.with-background .mobile-logo-link {
+    transition: opacity 0.18s ease-in;
   }
 }
 

@@ -35,10 +35,9 @@ interface MobilePostHeaderProps {
 const SCROLL_OFFSET_TOP = 80;
 
 function Logo({ logoElement, logoText, logoSrc }: Pick<MobilePostHeaderProps, 'logoElement' | 'logoText' | 'logoSrc'>) {
-  // `.mobile-logo-link` paints a glass pill behind the logo on mobile once the
-  // header is scrolled — without it the gradient wordmark sits directly on
-  // whatever image or text is passing underneath and becomes unreadable.
-  // Desktop is unaffected: the header capsule already covers the logo there.
+  // `.mobile-logo-link` fades the logo out of the scrolled mobile header —
+  // a naked wordmark over passing photos/text is unreadable, and a glass pill
+  // behind it looked worse. Desktop is unaffected (header capsule covers it).
   return (
     <a href="/" className="mobile-logo-link flex items-center gap-1">
       {logoElement === 'svg' && logoSrc ? (
