@@ -31,6 +31,7 @@ import {
   toggleDraftHandler,
   toggleStickyHandler,
   updateMomentHandler,
+  uploadImageHandler,
   writeHandler,
 } from './src/api';
 import { setCategoryMap } from './src/lib/category';
@@ -116,6 +117,11 @@ async function main() {
   app.get('/api/cms/moments/read', readMomentHandler);
   app.post('/api/cms/moments/delete', deleteMomentHandler);
   app.post('/api/cms/moments/update', updateMomentHandler);
+
+  // Image upload — used by the moments composer to insert a picture. Inherits
+  // the loopback-only guard above; it writes into `public/`, so it is the one
+  // endpoint whose input ends up shipped to the deployed site.
+  app.post('/api/cms/upload', uploadImageHandler);
 
   // Git integration — powers the one-click publish button. These inherit the
   // loopback-only guard above, which is the load-bearing control here: a CMS

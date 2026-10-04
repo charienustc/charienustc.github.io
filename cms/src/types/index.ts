@@ -267,3 +267,20 @@ export interface UpdateMomentResponse {
   /** Where the previous revision was retained, relative to the project root. */
   versionPath?: string;
 }
+
+/**
+ * Response from the image upload API.
+ *
+ * `markdown` is assembled server-side so the alt-text escaping that keeps the
+ * reference parseable lives in one place, next to the filename rules, rather
+ * than being re-derived by each caller.
+ */
+export interface UploadImageResponse {
+  success: boolean;
+  /** Site-absolute URL, e.g. `/img/moments/20261004-210509-cat.webp` */
+  url: string;
+  /** The name the file was stored under, after collision handling. */
+  fileName: string;
+  /** A ready-to-insert Markdown image reference. */
+  markdown: string;
+}

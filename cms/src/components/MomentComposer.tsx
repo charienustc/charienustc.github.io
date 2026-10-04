@@ -11,11 +11,11 @@
  */
 
 import { Icon } from '@iconify/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { createMoment, readMoment, updateMoment } from '@/lib/api';
+import { createMoment, readMoment, updateMoment, uploadImage } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 interface MomentComposerProps {
@@ -53,7 +53,12 @@ export function MomentComposer({ open, onOpenChange, onSuccess, editingMomentId 
   const [tagInput, setTagInput] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isEditing = editingMomentId !== null;
   const tags = parseTags(tagInput);
@@ -64,6 +69,63 @@ export function MomentComposer({ open, onOpenChange, onSuccess, editingMomentId 
     setTagInput('');
     setLoadError(null);
   }, []);
+
+  /**
+   * Insert text where the caret currently sits, rather than appending.
+   *
+   * A promise is returned so callers can await the state flush before deciding
+   * anything that depends on the new caret position.
+   */
+  const insertAtCursor = useCallback((text: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) {
+      // No ref yet (the dialog is still mounting): appending is the only thing
+      // that cannot lose the text, and this path is not reachable by typing.
+      setBody((current) => `${current}${text}`);
+      return;
+    }
+
+    const start = textarea.selectionStart ?? textarea.value.length;
+    const end = textarea.selectionEnd ?? start;
+    // Surround with newlines when the insertion point is mid-paragraph, so an
+    // image cannot end up glued to the end of a sentence.
+    const before = textarea.value.slice(0, start);
+    const needsLeadingBreak = before.length > 0 && !before.endsWith('\n');
+    const snippet = `${needsLeadingBreak ? '\n\n' : ''}${text}\n`;
+
+    setBody(`${before}${snippet}${textarea.value.slice(end)}`);
+
+    // Restore the caret after React has written the new value, otherwise the
+    // browser resets it to the end and the next keystroke lands in the wrong
+    // place.
+    const nextCaret = start + snippet.length;
+    requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.setSelectionRange(nextCaret, nextCaret);
+    });
+  }, []);
+
+  /** Upload one image and insert the resulting Markdown reference. */
+  const handleFile = useCallback(
+    async (file: File) => {
+      if (!file.type.startsWith('image/')) {
+        toast.error('只能插入图片', { description: file.type || file.name });
+        return;
+      }
+
+      setIsUploading(true);
+      try {
+        const result = await uploadImage(file, '');
+        insertAtCursor(result.markdown);
+        toast.success('图片已插入', { description: result.fileName, duration: 5000 });
+      } catch (error) {
+        toast.error('上传失败', { description: error instanceof Error ? error.message : String(error) });
+      } finally {
+        setIsUploading(false);
+      }
+    },
+    [insertAtCursor],
+  );
 
   // Load the existing moment when opening in edit mode. Keyed on the id as well
   // as `open`, so switching straight from one moment to another refetches
@@ -144,8 +206,8 @@ export function MomentComposer({ open, onOpenChange, onSuccess, editingMomentId 
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? '发布日期不变，只会更新「最后修改」。保存前旧版会留一份到 backups/versions/。'
-              : '没有标题——正文就是内容。支持 Markdown，正文里的换行会原样保留。'}
+              ? '发布日期不变，只会更新「最后修改」。保存前旧版会留一份到 backups/versions/。正文支持 Markdown、表情和图片。'
+              : '没有标题——正文就是内容。支持 Markdown，表情可以直接打，图片可以选、粘、拖。'}
           </DialogDescription>
         </DialogHeader>
 
@@ -158,6 +220,7 @@ export function MomentComposer({ open, onOpenChange, onSuccess, editingMomentId 
 
         <div className="space-y-3">
           <textarea
+            ref={textareaRef}
             aria-label="碎碎念正文"
             value={body}
             onChange={(e) => setBody(e.target.value)}
@@ -168,8 +231,65 @@ export function MomentComposer({ open, onOpenChange, onSuccess, editingMomentId 
             rows={8}
             // eslint-disable-next-line jsx-a11y/no-autofocus -- the dialog exists to be typed in
             autoFocus
-            className="w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
+            className={cn(
+              'w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60',
+              isDragging ? 'border-primary ring-2 ring-primary' : 'border-input',
+            )}
+            // Pasting a screenshot straight from the clipboard is the fastest
+            // path in, and the browser hands over a File blob we can post
+            // as-is. Falls through to the default when the clipboard holds text.
+            onPaste={(e) => {
+              const file = Array.from(e.clipboardData?.files ?? []).find((f) => f.type.startsWith('image/'));
+              if (!file) return;
+              e.preventDefault();
+              void handleFile(file);
+            }}
+            onDragOver={(e) => {
+              // Only claim the drop when files are actually being dragged, so
+              // dragging selected text still behaves normally.
+              if (!e.dataTransfer?.types.includes('Files')) return;
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => {
+              if (!e.dataTransfer?.types.includes('Files')) return;
+              e.preventDefault();
+              setIsDragging(false);
+              const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith('image/'));
+              if (file) void handleFile(file);
+            }}
           />
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isLoading || isUploading}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Icon
+                icon={isUploading ? 'ri:loader-4-line' : 'ri:image-add-line'}
+                className={cn('size-4', isUploading && 'animate-spin')}
+              />
+              {isUploading ? '上传中…' : '插入图片'}
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/gif,image/webp,image/avif"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                // Reset first: picking the same file twice in a row fires no
+                // change event unless the input is cleared.
+                e.target.value = '';
+                if (file) void handleFile(file);
+              }}
+            />
+            <span className="text-muted-foreground text-xs">也可以直接粘贴截图，或把图片拖进来</span>
+          </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative flex-1">

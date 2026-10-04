@@ -23,6 +23,7 @@ import type {
   ToggleStickyResponse,
   UpdateMomentParams,
   UpdateMomentResponse,
+  UploadImageResponse,
 } from '@/types';
 import { setCategoryMap } from './category';
 
@@ -456,6 +457,31 @@ export async function updateMoment(params: UpdateMomentParams): Promise<UpdateMo
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.error || `Failed to update moment: ${response.status}`);
+  }
+  return response.json();
+}
+
+/**
+ * Uploads an image and returns a Markdown reference for it.
+ *
+ * Sends multipart form data rather than a JSON payload with a data URL: a base64
+ * copy of a photo is roughly a third larger, and the server would then have to
+ * decode it back into the bytes it needs to inspect.
+ *
+ * @param file - The image file to upload
+ * @param alt - Alt text to use in the returned reference
+ * @returns The stored URL and a ready-to-insert Markdown reference
+ * @throws Error if the server rejects the file
+ */
+export async function uploadImage(file: File, alt = ''): Promise<UploadImageResponse> {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (alt) formData.append('alt', alt);
+
+  const response = await fetch('/api/cms/upload', { method: 'POST', body: formData });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Failed to upload image: ${response.status}`);
   }
   return response.json();
 }

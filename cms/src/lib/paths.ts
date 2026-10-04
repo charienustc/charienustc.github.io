@@ -17,6 +17,24 @@ export const CONTENT_DIR = 'src/content/blog';
  */
 export const MOMENTS_DIR = 'src/content/moments';
 
+/**
+ * Where images uploaded from the CMS composer are stored, relative to the
+ * project root.
+ *
+ * Under `public/` because that is what the static build copies verbatim and
+ * serves at the site root, so an uploaded image needs no import step and works
+ * the moment it is written. Kept in its own `moments/` folder rather than mixed
+ * into `public/img/`, which holds curated site art — uploads are numerous and
+ * disposable, and separating them keeps that distinction visible in a listing.
+ *
+ * Note this directory is tracked by git: every upload becomes part of the repo
+ * and the deployed site.
+ */
+export const MOMENT_UPLOADS_DIR = 'public/img/moments';
+
+/** URL prefix the upload directory is served under. */
+export const MOMENT_UPLOADS_PUBLIC_PATH = '/img/moments';
+
 /** Config file path relative to project root */
 export const CONFIG_PATH = 'config/site.yaml';
 

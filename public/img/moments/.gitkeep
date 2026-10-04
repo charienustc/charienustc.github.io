@@ -1,0 +1,6 @@
+# Keeps this directory in git.
+#
+# The CMS moments composer writes uploaded images here, and the static build
+# serves them from /img/moments/. The images themselves are committed — that is
+# what lets GitHub Pages serve them — so this file exists only so a fresh clone
+# already has the directory the upload endpoint writes into.
