@@ -244,11 +244,15 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
       </nav>
 
       <div className="ml-auto flex items-center gap-2">
-        <SearchTrigger />
+        {/* Each control paints its own round surface once the header is
+            scrolled; `.header-icon-button` owns that. It is applied here rather
+            than inside the components so the header's styling stays in one
+            place. */}
+        <SearchTrigger className="header-icon-button" />
         <div className="tablet:hidden flex-center">
-          <LanguageSwitcher locale={locale} />
+          <LanguageSwitcher locale={locale} className="header-icon-button" />
         </div>
-        <ThemeToggle />
+        <ThemeToggle className="header-icon-button" />
       </div>
     </div>
   );

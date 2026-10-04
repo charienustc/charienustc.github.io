@@ -30,24 +30,19 @@
 @utility with-background {
   &#site-header {
     color: currentColor;
-    @apply border-border text-foreground border-b;
+    @apply text-foreground;
 
-    /* Opaque header surface, replacing the gradient once scrolled.
+    /* No full-width surface behind the header. The elements that need to stay
+       readable over scrolled content now carry their own pill: the nav sits in
+       `.header-capsule`, each icon control in `.header-icon-button`. A bar
+       spanning the viewport would be redundant with those and, at 45% tint,
+       only legible because it sat on a blur that never rendered.
 
-       This was a translucent glass panel with a `backdrop-filter`, which never
-       actually blurred anything: the property computed to `blur(16px)` and no
-       pixel changed. Measured with the surface fully transparent and the blur
-       pushed to 40px, scrolled text stayed sharp — while the identical styles on
-       a `body` child blurred normally, so the failure is specific to this fixed
-       container and not to how the rule was written. Rather than keep a filter
-       that does nothing, the surface is now solid, which is what the 45% tint
-       was approximating anyway (that tint was only legible *because* it sat on
-       top of the blur it never got).
-
-       `bg-none` is required because the base `::before` paints `background-image`
-       (bg-gradient-header), which would otherwise sit on top of the new colour. */
+       `::before` is still cancelled because the base rule paints
+       `background-image` (bg-gradient-header), which is the *unscrolled*
+       look. */
     &::before {
-      @apply bg-none bg-background opacity-100;
+      @apply bg-none opacity-0;
     }
 
     button,

@@ -126,14 +126,50 @@
   z-index: -1;
   border: 1px solid hsl(var(--primary) / 0.16);
   border-radius: 9999px;
-  /* Tint only — no blur. Kept low so the header's blurred surface reads through. */
-  background: color-mix(in oklab, var(--gradient-bg-start) 42%, transparent);
+  /* Half-opaque, because the header no longer paints a surface of its own: this
+     capsule is the only thing standing between the nav labels and the content
+     scrolling underneath them, so it has to actually cover. */
+  background: color-mix(in oklab, var(--gradient-bg-start) 94%, transparent);
   box-shadow:
     0 0.75rem 2rem -1rem rgb(0 0 0 / 0.12),
     0 0.25rem 0.75rem -0.5rem rgb(0 0 0 / 0.08);
   opacity: 0;
   scale: 0.96 0.85;
   pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Standalone round buttons for the icon controls on the right of the header.
+
+   Each control gets its own circular surface instead of sharing the bar-wide
+   background the header used to paint. The surface has to be on the control's
+   own box, so it travels with the icon rather than with the header. Applied via
+   the className these components already forward.
+   --------------------------------------------------------------------------- */
+#site-header.with-background .header-icon-button {
+  /* Sized explicitly: the three controls otherwise self-size differently — two
+     inherit 34px from their inner icon span's line box, search is exactly 32px —
+     so the three circles came out mismatched. Fixing the box here makes them
+     uniform without touching each component's own markup. */
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: color-mix(in oklab, var(--gradient-bg-start) 94%, transparent);
+  box-shadow: 0 0.125rem 0.5rem -0.25rem rgb(0 0 0 / 0.18);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #site-header.with-background .header-icon-button {
+    transition:
+      background-color 0.32s var(--ease-out-quart),
+      box-shadow 0.32s var(--ease-out-quart);
+  }
+}
+
+#site-header.with-background .header-icon-button:hover {
+  background-color: color-mix(in oklab, var(--gradient-bg-start) 100%, transparent);
 }
 
 #site-header.with-background .header-inner {
