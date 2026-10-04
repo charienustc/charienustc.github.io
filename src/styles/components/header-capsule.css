@@ -302,6 +302,60 @@
   opacity: 1;
 }
 
+/* ---------------------------------------------------------------------------
+   Mobile logo glass — same opacity-faded ::before pattern as the icon buttons.
+
+   On narrow screens there is no header-wide capsule, so without this pill the
+   gradient wordmark floats directly over whatever scrolls under the header —
+   unreadable on top of photos, and a jumble on top of body text (verified by
+   screenshots on home / weekly / moments / friends / archives, 2026-10).
+   Desktop is excluded: the full-width `.header-capsule` already covers the
+   logo there, and a second glass layer would double up.
+   --------------------------------------------------------------------------- */
+@media (max-width: 992px) {
+  .mobile-logo-link {
+    position: relative;
+    isolation: isolate;
+    border-radius: 9999px;
+  }
+
+  .mobile-logo-link::before {
+    content: "";
+    position: absolute;
+    inset: -0.375rem -0.75rem;
+    z-index: -1;
+    border-radius: inherit;
+    background-color: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
+    backdrop-filter: blur(12px) saturate(1.5);
+    box-shadow: 0 0.125rem 0.5rem -0.25rem rgb(0 0 0 / 0.18);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #site-header.with-background .mobile-logo-link::before {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 992px) and (prefers-reduced-motion: no-preference) {
+  .mobile-logo-link::before {
+    transition: opacity 0.18s ease-in;
+  }
+
+  #site-header.with-background .mobile-logo-link::before {
+    transition: opacity 0.32s var(--ease-out-quart);
+  }
+}
+
+/* The browser default focus ring is near-black, which reads as a stray border
+   on the white glass. Restyle it in the theme primary — visible for keyboard
+   users, no longer mistaken for a rendering bug. */
+.mobile-heading-capsule:focus-visible,
+#mobile-menu-container button:focus-visible {
+  outline: 2px solid hsl(var(--primary) / 0.65);
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .mobile-heading-capsule {
     transition:
