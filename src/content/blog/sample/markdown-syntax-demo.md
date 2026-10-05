@@ -490,7 +490,7 @@ OG 数据缓存在 `.cache/og-data.json`，默认 30 天。该文件有意提交
 ```infographic
 infographic list-row-simple-horizontal-arrow
 data
-  lists
+  items
     - label 步骤一
     - label 步骤二
     - label 步骤三
@@ -500,13 +500,13 @@ data
 ```infographic
 infographic list-row-simple-horizontal-arrow
 data
-  lists
+  items
     - label 采集数据
     - label 清洗与标注
     - label 训练与评估
 ```
 
-第一行 `infographic` 后接模板名，之后是 YAML 风格的数据定义。**信息图不吃自动折叠**，超过 8 行也不会折叠。
+第一行 `infographic` 后接模板名，之后是 YAML 风格的数据定义。数据键必须是 `items`（可选 `title` / `desc`）——写错键名时 `@antv/infographic` 只会静默不渲染，不会报错。**信息图不吃自动折叠**，超过 8 行也不会折叠。
 
 ## 十四、练习题
 

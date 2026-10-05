@@ -93,8 +93,26 @@ export function InfographicToolbar({ preElement }: InfographicToolbarProps) {
           theme: isDark ? 'dark' : 'default',
         });
 
+        // `render()` reports syntax problems by emitting an `error` event and
+        // returning without painting — it does NOT throw, so the catch below
+        // never sees them and the block silently stays blank (an unknown data
+        // key, e.g. `lists` instead of `items`, is enough to trigger this).
+        // Capture them so a bad block degrades to its source instead of an
+        // empty box the author cannot diagnose.
+        const errors: string[] = [];
+        const emitter = (infographic as unknown as { emitter?: { on?: (e: string, cb: (p: unknown) => void) => void } })
+          .emitter;
+        emitter?.on?.('error', (payload) => {
+          const message = (payload as { message?: string })?.message ?? String(payload);
+          errors.push(message);
+        });
+
         infographic.render(`${source}\n${getFontConfig()}`);
         instanceRef.current = infographic;
+
+        if (errors.length > 0 || container.innerHTML.trim() === '') {
+          throw new Error(errors.join('; ') || 'Infographic rendered nothing');
+        }
       } catch (error) {
         console.error('Failed to render infographic:', error);
         // Show source code on error
