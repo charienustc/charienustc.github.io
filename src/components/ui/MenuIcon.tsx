@@ -70,16 +70,18 @@ const MenuIcon = ({ className, id }: MenuIconProps) => {
 
   return (
     <LazyMotionProvider>
-      <div className={cn('flex-center', className)} id={id} style={{ viewTransitionName: 'home-menu-icon' }}>
+      {/* No `viewTransitionName` here (removed 2026-10): a VT name makes
+          Chromium paint the subtree as an atomic capture group, which
+          silently disables the button's glass `backdrop-filter` — same
+          tradeoff already accepted for `#site-header`. The icon simply
+          crossfades with the page during transitions. */}
+      <div className={cn('flex-center', className)} id={id}>
         <button
           className="size-10 flex-center cursor-pointer select-none rounded-full text-shoka shadow-text transition-colors hover:text-primary/80"
           onClick={toggleDrawer}
           aria-label={isOpen ? '关闭菜单' : '打开菜单'}
           aria-expanded={isOpen}
           type="button"
-          style={{
-            viewTransitionName: 'menu-icon',
-          }}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -152,8 +152,8 @@
      so the three circles came out mismatched. Fixing the box here makes them
      uniform without touching each component's own markup. */
   position: relative;
-  /* Keeps the ::before's z-index: -1 inside the button instead of slipping
-     behind the header. */
+  /* Stacking-context anchor: scopes the glass pseudo (z-index: 0) to this
+     button so it can never layer into the header row behind it. */
   isolation: isolate;
   inline-size: 2.25rem;
   block-size: 2.25rem;
@@ -166,7 +166,11 @@
   content: "";
   position: absolute;
   inset: 0;
-  z-index: -1;
+  /* z-index: 0, NOT -1: a negative z-index silences `backdrop-filter` in
+     Chromium — the pseudo then samples only the parent background and the
+     glass renders as a flat tint (verified with a stripe probe, 2026-10).
+     The icons are lifted back above the glass via the `> *` rule below. */
+  z-index: 0;
   border-radius: inherit;
   /* Borderless frosted glass, same as `.header-capsule`: tint + blur + a soft
      shadow carry the disc; an outline ring was tried and rejected — the
@@ -176,6 +180,13 @@
   box-shadow: 0 0.125rem 0.5rem -0.25rem rgb(0 0 0 / 0.18);
   opacity: 0;
   pointer-events: none;
+}
+
+/* The glass pseudo now paints at z-index 0, above the button's inline
+   content — keep every direct-child icon on top of it. */
+.header-icon-button > * {
+  position: relative;
+  z-index: 1;
 }
 
 #site-header.with-background .header-icon-button::before {
@@ -291,13 +302,21 @@
   content: "";
   position: absolute;
   inset: 0;
-  z-index: -1;
+  /* z-index: 0 for the same reason as `.header-icon-button::before` — a
+     negative z-index would silence the backdrop-filter (flat tint). */
+  z-index: 0;
   border-radius: inherit;
   background-color: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
   backdrop-filter: blur(12px) saturate(1.5);
   box-shadow: 0 0.125rem 0.5rem -0.25rem rgb(0 0 0 / 0.18);
   opacity: 0;
   pointer-events: none;
+}
+
+/* Keep the hamburger strokes above the z-index-0 glass pseudo. */
+#mobile-menu-container button > * {
+  position: relative;
+  z-index: 1;
 }
 
 #mobile-menu-container.with-background button::before {
