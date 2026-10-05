@@ -42,20 +42,16 @@ export default function SearchDialog() {
     if (isOpen) closeModal();
   }, isOpen);
 
-  // Dispatch events for search component portal
+  // Ask SearchPortal to mount the search UI on open. There is no matching
+  // close event: the dialog is a Radix portal, so closing unmounts this whole
+  // subtree (container included) and SearchPortal simply rebuilds on next open.
   useEffect(() => {
-    if (isOpen) {
-      window.dispatchEvent(new CustomEvent('search-dialog-open'));
-      // Focus search input after animation
-      const focusTimer = setTimeout(() => {
-        const searchInput = document.querySelector('.pf-searchbox-input') as HTMLInputElement;
-        searchInput?.focus();
-      }, 150);
-
-      return () => clearTimeout(focusTimer);
-    } else {
-      window.dispatchEvent(new CustomEvent('search-dialog-close'));
-    }
+    if (!isOpen) return;
+    // Focus is owned by SearchPortal, which knows whether it had to create the
+    // search UI on this open (dynamic import + custom-element upgrade land a
+    // frame or two late) or could focus an element already present. A timer
+    // here would race that and fire before the element exists.
+    window.dispatchEvent(new CustomEvent('search-dialog-open'));
   }, [isOpen]);
 
   // Close before page navigation

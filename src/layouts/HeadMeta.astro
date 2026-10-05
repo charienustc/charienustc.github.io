@@ -37,7 +37,14 @@ const hreflangLinks = showLocaleAlternates
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
 <meta name="generator" content={Astro.generator} />
-{/* Async load rounded fonts (fix #113) */}
+{/* Rounded fonts, loaded off the critical path (fix #113).
+    `media="print"` + `onload` swap, NOT `rel=preload` + `onload`: a preload
+    hint raises the font sheet to high priority and pulls it back toward the
+    critical path. Measured on the production build, adding `rel=preload`
+    here made FCP *worse* (84ms -> 168ms) with the 558KB of shards still
+    starting before first paint, so the hint was removed. The sheet is 39KB
+    and the shards carry `font-display: swap`, so text paints in the
+    fallback stack first and re-renders when the rounded face arrives. */}
 <link rel="stylesheet" href="/fonts/ChillRoundFRegular/result.css" media="print" onload="this.setAttribute('media','all')" />
 <link rel="stylesheet" href="/fonts/ChillRoundFBold/result.css" media="print" onload="this.setAttribute('media','all')" />
 

@@ -1,5 +1,4 @@
 ---
-import LogoSvg from '@assets/svg/logo.svg?react';
 import logoSrc from '@assets/svg/logo.svg?url';
 import ChristmasLights from '@components/christmas/ChristmasLights.astro';
 import { ChristmasOrnamentToggle } from '@components/christmas/ChristmasOrnamentToggle';
@@ -46,7 +45,12 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
         title={alternate || title}
         aria-label={alternate || title}
       >
-        {showLogo ? <LogoSvg className="h-8" /> : <p class="logo-text">{alternate || title}</p>}
+        {/* Rendered as an `<img>` rather than the previous `?react` import:
+            inlining put the full 18.4KB path data into every page's HTML,
+            where the browser cannot cache or parallelise it. The mobile
+            header already used `<img src={logoSrc}>` for the same logo, so
+            this also removes the last divergence between the two. */}
+        {showLogo ? <img src={logoSrc} alt={alternate || title} class="h-8" height={32} /> : <p class="logo-text">{alternate || title}</p>}
       </a>
       <!-- Mobile: MobilePostHeader (shows heading on post pages, logo otherwise) -->
       <div class="tablet:flex tablet:grow hidden items-center justify-center">

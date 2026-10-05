@@ -1,113 +1,140 @@
 ---
-import Search from 'astro-pagefind/components/Search.astro';
-/**
- * SearchPortal Component
- *
- * Provides the Pagefind search UI that gets portal'd into SearchDialog.
- * Listens for search-dialog-open/close events to move the search component.
- *
- * TODO(i18n): Pagefind search result links are not locale-aware — they always
- * point to root-level URLs (e.g., /post/xxx) regardless of the current locale.
- * A future iteration could use custom result rendering to prepend locale prefix.
- */
 import { getHtmlLang, getLocaleFromUrl, t } from '@/i18n';
+
+/**
+ * SearchPortal — hosts the Pagefind search UI and lends it to the dialog.
+ *
+ * `@pagefind/component-ui` is a 152KB web-component bundle that registers
+ * `<pagefind-searchbox>` / `<pagefind-config>` as custom elements. Rendering
+ * `<Search>` here at build time put that bundle in every page's HTML as a
+ * module script, so the browser downloaded it before `load` — on a page whose
+ * search box only ever appears after an explicit click or Cmd/Ctrl+K.
+ *
+ * So the tag markup is built in `mountSearch()` and the import is dynamic:
+ * Vite splits `@pagefind/component-ui` into its own chunk that is requested
+ * the first time the dialog opens, never on a plain page view. The dialog's
+ * own `search-dialog-open` event, dispatched from SearchDialog when its store
+ * flips, is what triggers the mount, and focus happens once the elements have
+ * upgraded.
+ */
 
 const locale = getLocaleFromUrl(Astro.url.pathname);
 const lang = getHtmlLang(locale);
+
+const config = {
+  lang,
+  placeholder: t(locale, 'search.placeholder'),
+};
 ---
 
-<!-- Search Component - will be portal'd into dialog -->
-<div id="search-component-portal">
-  <div id="search-for-dialog">
-    <Search
-      className="pagefind-search"
-      configOptions={{ lang }}
-      searchboxOptions={{
-        placeholder: t(locale, 'search.placeholder'),
-        'hide-shortcut': true,
-        'show-keyboard-hints': 'false',
-      }}
-    />
-  </div>
+<!-- Host for the search UI. Empty until the dialog is opened for the first
+     time; `search-portal-config` carries the build-time i18n values across to
+     the client. -->
+<div
+  id="search-component-portal"
+  data-lang={config.lang}
+  data-placeholder={config.placeholder}
+  hidden
+>
 </div>
 
 <script>
-  function moveSearchToDialog() {
-    const dialogContainer = document.getElementById('search-dialog-container');
-    const searchPortal = document.getElementById('search-component-portal');
-    const searchComponent = document.getElementById('search-for-dialog');
+  /** The bundle import is the expensive part and only ever needs to happen
+      once per page load; the DOM is rebuilt whenever the dialog throws its
+      subtree away. */
+  let bundle = null;
 
-    if (!dialogContainer || !searchPortal || !searchComponent) return;
+  const readConfig = (host) => ({
+    lang: host.dataset.lang ?? 'zh-CN',
+    placeholder: host.dataset.placeholder ?? '',
+  });
 
-    // Check if search component is already in the dialog
-    if (dialogContainer.contains(searchComponent)) return;
+  /**
+   * Builds the same DOM the `Search.astro` component used to emit: a
+   * `<pagefind-config>` for the instance options and a `<pagefind-searchbox>`
+   * for the input. Both are custom elements, so they only become interactive
+   * once `@pagefind/component-ui` has run — which is exactly what the dynamic
+   * import below guarantees before the tags are inserted.
+   */
+  function buildSearch(host) {
+    const { lang, placeholder } = readConfig(host);
+    const wrapper = document.createElement('div');
+    wrapper.id = 'search-for-dialog';
+    wrapper.className = 'pagefind-search';
 
-    // Move search component to dialog
-    dialogContainer.appendChild(searchComponent);
+    const config = document.createElement('pagefind-config');
+    config.setAttribute('lang', lang);
+    config.setAttribute('bundle-path', '/pagefind/');
+
+    const searchbox = document.createElement('pagefind-searchbox');
+    searchbox.className = 'pagefind-search';
+    searchbox.setAttribute('placeholder', placeholder);
+    searchbox.setAttribute('hide-shortcut', 'true');
+    searchbox.setAttribute('show-keyboard-hints', 'false');
+
+    wrapper.append(config, searchbox);
+    return wrapper;
   }
 
-  function moveSearchBack() {
-    const searchComponent = document.getElementById('search-for-dialog');
-    const searchPortal = document.getElementById('search-component-portal');
+  function focusInput() {
+    document.querySelector('.pf-searchbox-input')?.focus();
+  }
 
-    if (!searchComponent || !searchPortal) return;
+  /**
+   * Ensures the search UI exists inside the dialog and resolves with it.
+   *
+   * The dialog is a Radix portal whose contents are unmounted while closed, so
+   * the element has to be (re)created on every open — never cached across
+   * closes. The module import, by contrast, is cached: re-importing resolves
+   * from the module registry without a second network request.
+   */
+  async function mountSearch() {
+    const host = document.getElementById('search-component-portal');
+    if (!host) return null;
 
-    // Move search component back to portal if it's not already there
-    if (!searchPortal.contains(searchComponent)) {
-      searchPortal.appendChild(searchComponent);
-    }
+    bundle ??= import('@pagefind/component-ui');
+    await bundle;
+
+    const existing = document.getElementById('search-for-dialog');
+    if (existing) return { search: existing, created: false };
+
+    // The dialog is a Radix portal whose contents unmount while closed, so
+    // the element is rebuilt here on each open rather than cached.
+    const dialog = document.getElementById('search-dialog-container');
+    if (!dialog) return null;
+    const search = buildSearch(host);
+    dialog.appendChild(search);
+    return { search, created: true };
   }
 
   function handleDialogOpen() {
-    // Small delay to ensure dialog container is rendered
-    requestAnimationFrame(() => {
-      moveSearchToDialog();
+    void mountSearch().then((result) => {
+      if (!result) return;
+      // A freshly created searchbox upgrades to a real `<input>` an upgrade
+      // (or two) later; an element that was already in the DOM focuses now.
+      if (result.created) {
+        requestAnimationFrame(() => requestAnimationFrame(() => focusInput()));
+      } else {
+        focusInput();
+      }
     });
   }
 
-  function handleDialogClose() {
-    // Move search back immediately before DOM is removed
-    moveSearchBack();
-  }
-
-  let initialized = false;
-
-  function initSearchPortal() {
-    if (initialized) return;
-    initialized = true;
-
-    window.addEventListener('search-dialog-open', handleDialogOpen);
-    window.addEventListener('search-dialog-close', handleDialogClose);
-  }
-
-  function cleanupSearchPortal() {
-    if (!initialized) return;
-
-    window.removeEventListener('search-dialog-open', handleDialogOpen);
-    window.removeEventListener('search-dialog-close', handleDialogClose);
-    initialized = false;
-  }
-
-  // Initialize immediately if DOM is ready
-  if (document.readyState !== 'loading') {
-    initSearchPortal();
-  }
-
-  document.addEventListener('astro:page-load', initSearchPortal);
-  document.addEventListener('astro:before-swap', cleanupSearchPortal);
+  // `astro:page-load` re-runs this module on every client-side navigation, and
+  // the listener lives on `window` (which survives the swap), so it must be
+  // removed before being re-added or each navigation stacks another copy.
+  window.removeEventListener('search-dialog-open', handleDialogOpen);
+  window.addEventListener('search-dialog-open', handleDialogOpen);
 </script>
 
 <style>
-  /* Hide the portal container */
+  /* Host stays out of layout; it is only a config carrier. */
   #search-component-portal {
     display: none;
-    position: absolute;
-    pointer-events: none;
-    visibility: hidden;
   }
 </style>
 <style is:global>
-  /* Ensure search is visible when in dialog */
+  /* The dialog is the surface, so the search UI is forced visible inside it. */
   #search-dialog-container #search-for-dialog {
     display: block !important;
     visibility: visible !important;
