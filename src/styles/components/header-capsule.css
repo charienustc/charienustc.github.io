@@ -121,10 +121,10 @@
   position: absolute;
   inset: -0.375rem -1.25rem;
   z-index: -1;
-  border: 1px solid hsl(var(--primary) / 0.16);
   border-radius: 9999px;
-  /* 78% tint + real blur: the blur does the covering now, so the tint can stay
-     light enough to read as glass rather than a solid slab. */
+  /* 78% tint + real blur, borderless: the blur does the covering, and the soft
+     shadow below stands in for an outline — the floating capsule state
+     deliberately carries no border ring (user decision, 2026-10). */
   background: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
   backdrop-filter: blur(16px) saturate(1.5);
   box-shadow:
@@ -168,11 +168,9 @@
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  /* Same glass surface as `.header-capsule`, border included: without the
-     primary-tinted ring the small discs carry no edge of their own, and over
-     the light scrolled content the 78% near-white tint melts into the page —
-     the circles were effectively invisible next to the capsule they copy. */
-  border: 1px solid hsl(var(--primary) / 0.16);
+  /* Borderless frosted glass, same as `.header-capsule`: tint + blur + a soft
+     shadow carry the disc; an outline ring was tried and rejected — the
+     floating capsule state reads cleaner with no border. */
   background-color: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
   backdrop-filter: blur(16px) saturate(1.5);
   box-shadow: 0 0.125rem 0.5rem -0.25rem rgb(0 0 0 / 0.18);
@@ -235,16 +233,9 @@
 }
 
 .dark .header-capsule {
-  border-color: hsl(var(--primary) / 0.22);
   box-shadow:
     0 0.75rem 2rem -1rem rgb(0 0 0 / 0.65),
     inset 0 1px rgb(255 255 255 / 0.04);
-}
-
-/* Same-material circles: the icon buttons' discs share the capsule's dark
-   border colour so they keep reading as glass next to it. */
-.dark .header-icon-button::before {
-  border-color: hsl(var(--primary) / 0.22);
 }
 
 /* The header no longer paints its own bottom border once the capsule is the
