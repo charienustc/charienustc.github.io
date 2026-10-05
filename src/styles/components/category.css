@@ -27,6 +27,63 @@
   }
 }
 
+/* --- 碎碎念时间流 (article.shoka-decoration-circle) ---
+
+   The shared rules above describe a *list row*: a fixed 62px connector and a dot
+   centred with `top: 50%`. That fits the archives and tag pages, where every row
+   is one line of text, but not this feed. A moment's article is as tall as its
+   body plus any images, so the two assumptions break in opposite directions: a
+   percentage `top` drops the dot into the middle of a tall photo, and a
+   pixel-height connector cannot reach the next entry.
+
+   Here the article owns both marks outright. The dot pins to the date line, and
+   the connector spans from that line to the bottom of the article, where the
+   parent's `gap` then carries the eye to the next dot. Sizing the connector off
+   the article rather than the viewport is what keeps it correct for a one-line
+   moment and a photo-heavy one alike.
+
+   `!important` is load-bearing: Tailwind emits the base `.shoka-decoration-circle`
+   rules at equal specificity but LATER in the cascade (runtime utility layer
+   after component styles), so without it the base `top: 50%` and fixed-height
+   connector would win over these overrides — that is exactly the "dot lands mid-
+   photo / connector floats short" rendering the user reported. */
+article.shoka-decoration-circle {
+  &::before {
+    /* Sits on the date line, which is the article's first child, so this offset
+       is the line's own half-height and does not depend on the body below it. */
+    top: 8px !important;
+    left: 0 !important;
+    transform: none !important;
+    @apply bg-primary size-2.5 border-none;
+  }
+
+  &::after {
+    /* Runs from the date line down to the article's bottom edge. */
+    top: 18px !important;
+    bottom: 0 !important;
+    left: 4px !important;
+    width: 2px !important;
+    height: auto !important;
+    @apply bg-primary/30;
+  }
+
+  /* The last entry has nothing below it, so its connector would dangle. */
+  &:last-child::after {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  article.shoka-decoration-circle {
+    &::before {
+      top: 8px !important;
+    }
+    &::after {
+      top: 18px !important;
+    }
+  }
+}
+
 h2.shoka-decoration-circle {
   &::before {
     left: -1px;
@@ -101,56 +158,6 @@ p.shoka-decoration-circle:hover {
     &::after {
       height: calc(100% - 24px);
       top: 24px;
-    }
-  }
-}
-
-/* --- 碎碎念时间流 (article.shoka-decoration-circle) ---
-
-   The shared rules above describe a *list row*: a fixed 54-62px connector and a
-   dot centred with `top: 50%`. That fits the archives and tag pages, where every
-   row is one line of text, but not this feed. A moment's article is as tall as
-   its body plus any images, so the two assumptions break in opposite directions:
-   a percentage `top` drops the dot into the middle of a tall photo, and a
-   pixel-height connector cannot reach the next entry.
-
-   Here the article owns both marks outright. The dot pins to the date line, and
-   the connector spans from that line to the bottom of the article, where the
-   parent's `gap` then carries the eye to the next dot. Sizing the connector off
-   the article rather than the viewport is what keeps it correct for a one-line
-   moment and a photo-heavy one alike. */
-article.shoka-decoration-circle {
-  &::before {
-    /* Sits on the date line, which is the article's first child, so this offset
-       is the line's own half-height and does not depend on the body below it. */
-    top: 8px;
-    left: 0;
-    @apply bg-primary size-2.5 border-none;
-  }
-
-  &::after {
-    /* Runs from the date line down to the article's bottom edge. */
-    top: 18px;
-    bottom: 0;
-    left: 4px;
-    width: 2px;
-    height: auto;
-    @apply bg-primary/30;
-  }
-
-  /* The last entry has nothing below it, so its connector would dangle. */
-  &:last-child::after {
-    @apply hidden;
-  }
-}
-
-@media (max-width: 768px) {
-  article.shoka-decoration-circle {
-    &::before {
-      top: 8px;
-    }
-    &::after {
-      top: 18px;
     }
   }
 }
