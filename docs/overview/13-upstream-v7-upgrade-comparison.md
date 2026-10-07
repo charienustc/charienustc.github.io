@@ -62,16 +62,16 @@ build: {
 
 | 编号 | 功能 / 变更 | 你的现状 | 涉及文件 | 冲突面 | 优先级 | 最终解决方案 |
 | --- | --- | --- | --- | --- | --- | --- |
-| B1 | 三档动效强度（灵动 / 克制 / 减弱）+ 系统 `prefers-reduced-motion` 优先 | 无 | `lib/motion-level.ts` 等 | 中 | P1 | 待做 |
+| B1 | 三档动效强度（灵动 / 克制 / 减弱）+ 系统 `prefers-reduced-motion` 优先 | 无 | `lib/motion-level.ts` 等 | 中 | P1 | ✅ 5907e24 |
 | **B2** | 滑动指示器上游实现 `useGlideIndicator` + `lib/glide.ts` | **自研** `nav-indicator` | `Navigator.tsx` / `DropdownNav.tsx` | **高·二选一** | P1 | **⛔ 不做**（保留自研） |
-| B3 | 丝线阅读目录：编号沿丝线排列，花瓣表示当前小节进度 | 旧 ToC | `lib/toc-ribbon.ts` + 14 文件 | 高 | P2 | 待做 |
-| B4 | 图表按内容自然尺寸呈现，支持拖拽与键盘缩放 | 无 | `lib/diagram-sizing.ts` | 低 | P1 | 待做 |
-| B5 | 图表全屏增强：滚轮 / 双指缩放、拖动平移、双击放大、键盘快捷键 | 旧全屏 | `lib/zoom-pan.ts` | 低 | P1 | 待做 |
-| B6 | 图表 PNG 导出（按当前主题；浏览器不支持时存 SVG） | 无 | `lib/diagram-export.ts` | 低 | P2 | 待做 |
-| B7 | 樱花视觉系统：头图樱花飘落 + 点击迸出花瓣 | 无 | `lib/sakura/`（3 文件） | 低 | P2 | 待做 |
-| B8 | 页面入场编排 + 滚动浮现 + 共享元素过渡 | 部分 | `lib/scroll-reveal.ts` 等 | 中 | P2 | 待做 |
-| B9 | 图标包按需打包 `BUNDLED_ICON_SETS` | 硬编码 4 套 | `lib/config/icon-sets.ts` | 小 | P3 | 待做 |
-| B10 | Shiki 主题抽常量 + 代码高亮改 **Catppuccin Latte / Mocha** | `github-light` / `github-dark` | `lib/markdown/shiki-themes.ts` | 小 | P2 | 待做 |
+| B3 | 丝线阅读目录：编号沿丝线排列，花瓣表示当前小节进度 | 旧 ToC | `lib/toc-ribbon.ts` + 14 文件 | 高 | P2 | ✅ eab30be |
+| B4 | 图表按内容自然尺寸呈现，支持拖拽与键盘缩放 | 无 | `lib/diagram-sizing.ts` | 低 | P1 | ✅ 36404f4 |
+| B5 | 图表全屏增强：滚轮 / 双指缩放、拖动平移、双击放大、键盘快捷键 | 旧全屏 | `lib/zoom-pan.ts` | 低 | P1 | ✅ 36404f4 |
+| B6 | 图表 PNG 导出（按当前主题；浏览器不支持时存 SVG） | 无 | `lib/diagram-export.ts` | 低 | P2 | ✅ 36404f4 |
+| B7 | 樱花视觉系统：头图樱花飘落 + 点击迸出花瓣 | 无 | `lib/sakura/`（3 文件） | 低 | P2 | ✅ 6324152 |
+| B8 | 页面入场编排 + 滚动浮现 + 共享元素过渡 | 部分 | `lib/scroll-reveal.ts` 等 | 中 | P2 | ✅ 9da22d3 |
+| B9 | 图标包按需打包 `BUNDLED_ICON_SETS` | 硬编码 4 套 | `lib/config/icon-sets.ts` | 小 | P3 | ✅ 49ee9a2（含 lucide 扩展） |
+| B10 | Shiki 主题抽常量 + 代码高亮改 **Catppuccin Latte / Mocha** | `github-light` / `github-dark` | `lib/markdown/shiki-themes.ts` | 小 | P2 | ✅ b0d7b87（常量已移植，主题保留 github 对，未切 Catppuccin） |
 
 ### 按上游版本看新特性
 
@@ -259,11 +259,11 @@ setMotionLevel('lively');
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | 先落地 **A1 + A2**（`astro.config.mjs` 两处小改） | 独立，不依赖 v7 | `astro.config.mjs` | 小 | **P0** | **✅ 已完成**（`1550b06` + `739b9df`） |
 | 2 | **A3 + A4**（markdown 解析层修复） | 独立 | `src/lib/markdown/` | 小 | P1 | **A3 ✅ 已做** `e3388db`；**A4 ✅ 已做** `9a20439` |
-| 3 | **B4 + B5 + B6**（图表能力） | 独立，纯增量 | 新 lib 模块 | 低 | P1 | 待做 |
+| 3 | **B4 + B5 + B6**（图表能力） | 独立，纯增量 | 新 lib 模块 | 低 | P1 | ✅ 36404f4 |
 | 4 | **B2**（替换自研指示器） | 需先确认视觉一致 | `Navigator.tsx` | 高 | P1 | 待做 |
 | 5 | **A5 + E5**（motion 升级到 12.43.0） | 需全站动效回归 | `package.json` | 中 | P1 | 待做 |
 | 6 | **D1 + D3**（低风险增量功能） | 独立 | friends / 面包屑 | 低 | P2 | **✅ D1** b9cb4be；**✅ D3** 0ec8045；**D2** 49ee9a2、**D5** 0225d16、**D6** a1b64b7 一并落地 |
-| 7 | **B1 + B7 + B8**（动效系统） | 会改变整站观感，最后做 | 多文件 | 中 | P2 | 待做 |
+| 7 | **B1 + B7 + B8**（动效系统） | 会改变整站观感，最后做 | 多文件 | 中 | P2 | ✅ 5907e24 / 6324152 / 9da22d3 |
 
 ### 复查 A1 是否已修复
 
