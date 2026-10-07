@@ -1,7 +1,7 @@
 ---
 import ColophonMeta from '@components/post/colophon/ColophonMeta.astro';
 import { Routes } from '@constants/router';
-import { createArticleStatsConfig, siteConfig } from '@constants/site-config';
+import { createArticleStatsConfig, motionConfig, siteConfig } from '@constants/site-config';
 import { colophonItemsAt } from '@lib/content/colophon';
 import { getPostColophon } from '@lib/content/post-colophon';
 import { getPostReadingTime } from '@lib/content/posts';
@@ -13,6 +13,7 @@ import type { BlogPost } from 'types/blog';
 import UmamiPVSpan from '@/components/umami/UmamiPVSpan';
 import { MAX_WIDTH } from '@/constants/layout';
 import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
+import SakuraPetals from './SakuraPetals.astro';
 import WaveSvg from './wave';
 
 export interface CoverProps {
@@ -50,6 +51,7 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
   ]}
 >
   <div class="absolute inset-0 h-full bg-black/40"></div>
+  {motionConfig.heroPetals && <SakuraPetals />}
   <div
     class:list={[
       'absolute inset-0 flex flex-col items-center justify-center px-5 text-white',
