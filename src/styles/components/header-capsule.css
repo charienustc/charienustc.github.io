@@ -10,6 +10,70 @@
  * pink-tinted shadow that would clash with the blue theme here.
  */
 
+/* ---------------------------------------------------------------------------
+   Header chrome motion (aligned with upstream v7 header.css).
+
+   - Reveal settles slowly, hide accelerates away: the base transition is a long
+     ease-out-expo; the hidden class swaps duration/timing to a short ease-in.
+     (Unlayered rules override the `transition-transform duration-300` the base
+     stylesheet applies to `#site-header`.)
+   - On desktop the hidden header must clear the capsule, which pokes 0.375rem
+     above the bar, so it slides a further 1.5rem out of view.
+   - Text and icons turn together with the capsule: the content row transitions
+     its own `color` (a change arriving through inheritance would snap), and the
+     interactive children carry the text-shadow flip.
+   --------------------------------------------------------------------------- */
+#site-header {
+  transition: translate 480ms var(--ease-out-expo);
+}
+
+#site-header.-translate-y-full {
+  transition-duration: 260ms;
+  transition-timing-function: var(--ease-in-quart);
+}
+
+.header-content {
+  transition: color 320ms var(--ease-out-quart);
+}
+
+/* A theme switch reveals the new colors from a snapshot, which must not catch
+   the text mid-transition. */
+html.theme-transition .header-content {
+  transition: none;
+}
+
+#site-header :is(nav a, nav button, .site-logo) {
+  transition: text-shadow 320ms var(--ease-out-quart);
+}
+
+/* Set in both states (upstream parity): inheriting would chase the content's
+   own color transition. */
+#site-header nav [aria-current="page"] {
+  color: #fff;
+}
+
+@media (min-width: 993px) {
+  #site-header.-translate-y-full {
+    translate: 0 calc(-100% - 1.5rem);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Site logo hover — the gentle lift/tilt the upstream theme gives its wordmark.
+   --------------------------------------------------------------------------- */
+.site-logo :is(svg, img) {
+  transition:
+    scale 420ms var(--ease-out-expo),
+    rotate 420ms var(--ease-out-expo);
+}
+
+@media (hover: hover) {
+  .site-logo:hover :is(svg, img) {
+    scale: 1.06;
+    rotate: -3deg;
+  }
+}
+
 /* Typed so they interpolate. An unregistered custom property is a token
    substitution, not a number, so transitioning it would jump rather than
    tween. */
@@ -87,19 +151,21 @@
 /* ---------------------------------------------------------------------------
    Decorative glass capsule around the header content, revealed on scroll.
 
-   The blur ONLY works because `#site-header` carries no `view-transition-name`.
-   Astro's `transition:name="site-header"` (removed in Header.astro, 2026-10)
-   made Chromium paint the whole header subtree as an atomic capture group, and
-   every `backdrop-filter` inside it silently rendered nothing — text behind
-   blur(40px) stayed sharp while the identical styles on a `body` child blurred
-   normally. The failure followed the container, not the CSS: it was not
-   z-index, stacking, or an accidental backdrop root (every ancestor is free of
-   `filter` / `transform` / `contain` / `will-change`). Verified bidirectionally
-   by toggling only the name. `theme-transition.css` drops the same name during
-   theme switches for the same reason.
+   Naming history (the backdrop-filter trap, verified 2026-10): a named element
+   is a backdrop root, so ANY `view-transition-name` on an ANCESTOR silences the
+   backdrop-filter of everything inside it (the blur then samples only up to the
+   named box and renders as a flat tint). That is why `transition:name` was
+   removed from `#site-header`, and why the header and `.header-content` stay
+   unnamed: local child glass (the `.header-icon-button` discs, the mobile
+   heading pill) must keep sampling the page behind the header.
 
-   With the name gone, real frosted glass is back: a 78% tint over blur(16px)
-   saturate(1.5) — the recipe this design was ported from (blog.cosine.ren).
+   The capsule itself IS named on desktop (`site-header-capsule`, below). An
+   element's OWN backdrop-filter survives being named (upstream runs exactly
+   this), so the capsule keeps real frosted glass — blur(16px) saturate(1.5)
+   under a 78% tint, the recipe this design was ported from (blog.cosine.ren) —
+   while the name keeps the incoming page from ever painting over it during a
+   ClientRouter navigation. The blur belongs to the `.with-background` state and
+   fades with the capsule, exactly as upstream choreographs it.
    --------------------------------------------------------------------------- */
 .header-inner {
   position: relative;
@@ -122,11 +188,12 @@
   inset: -0.375rem -1.25rem;
   z-index: -1;
   border-radius: 9999px;
-  /* 78% tint + real blur, borderless: the blur does the covering, and the soft
-     shadow below stands in for an outline — the floating capsule state
-     deliberately carries no border ring (user decision, 2026-10). */
+  /* 78% tint; the blur lives in the `.with-background` state below so it fades
+     in with the capsule (upstream v7 choreography). Borderless: the blur does
+     the covering, and the soft shadow below stands in for an outline — the
+     floating capsule state deliberately carries no border ring (user decision,
+     2026-10). */
   background: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
-  backdrop-filter: blur(16px) saturate(1.5);
   box-shadow:
     0 0.75rem 2rem -1rem rgb(0 0 0 / 0.12),
     0 0.25rem 0.75rem -0.5rem rgb(0 0 0 / 0.08);
@@ -212,6 +279,42 @@
 #site-header.with-background .header-capsule {
   opacity: 1;
   scale: 1;
+  /* Blur is part of the revealed state, not a constant: entering scrollback it
+     fades in with the capsule (see the transition below), and across a
+     ClientRouter navigation the capsule's view-transition group copies this
+     live value every frame instead of freezing a snapshot. */
+  backdrop-filter: blur(16px) saturate(1.5);
+}
+
+/* ---------------------------------------------------------------------------
+   View-transition continuity, desktop only (upstream v7 header.css).
+
+   The capsule is a named layer so a ClientRouter navigation never paints the
+   incoming page over it: its transition group follows the LIVE capsule
+   (animation disabled, old snapshot hidden), and the blur above stays live
+   throughout — the state change plays through the capsule's own transitions,
+   in step with the page cross-fade. `header-continuity.ts` carries
+   `.with-background` onto the incoming header so the first frame matches.
+   `.header-content` deliberately stays UNnamed: local child glass (the icon
+   discs) must keep sampling the page behind the header, and a named ancestor
+   would clip it to a flat tint.
+   --------------------------------------------------------------------------- */
+@media (min-width: 993px) {
+  .header-capsule {
+    view-transition-name: site-header-capsule;
+  }
+
+  ::view-transition-group(site-header-capsule) {
+    animation: none;
+  }
+
+  ::view-transition-old(site-header-capsule) {
+    display: none;
+  }
+
+  ::view-transition-new(site-header-capsule) {
+    animation: none;
+  }
 }
 
 /* Nudge the content row down inside the revealed capsule. Desktop-only: below
@@ -239,7 +342,8 @@
   .header-capsule {
     transition:
       opacity 0.32s var(--ease-out-quart),
-      scale 0.56s var(--ease-out-expo);
+      scale 0.56s var(--ease-out-expo),
+      backdrop-filter 320ms var(--ease-out-quart);
   }
 }
 

@@ -42,7 +42,8 @@ html.theme-transition::view-transition-new(root) {
 }
 
 /* During theme transition, merge header into root snapshot */
-html.theme-transition #site-header {
+html.theme-transition #site-header,
+html.theme-transition .header-capsule {
   view-transition-name: none;
 }
 

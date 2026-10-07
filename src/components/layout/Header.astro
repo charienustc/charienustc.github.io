@@ -23,11 +23,14 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
   id="site-header"
   class={`shadow-text fixed inset-x-0 top-0 z-30 gap-4 py-2.5 text-white select-none tablet:py-2 tablet:pl-3 tablet:pr-0 overflow-visible`}
 >
-  <!-- Do NOT reinstate `transition:name="site-header"` here: a view-transition
-       name makes Chromium render this subtree as an atomic capture group, which
-       silently disables every `backdrop-filter` inside it (verified 2026-10:
-       blur(20px) on an in-header element rendered nothing until the name was
-       removed; the theme transition already drops the name the same way). -->
+  <!-- Do NOT reinstate `transition:name="site-header"` here: a named element is
+       a backdrop root, so ANY view-transition-name on the header would clip the
+       child glass (`.header-icon-button` discs, mobile heading pill) to a flat
+       tint — their backdrop-filter must sample the page behind the header.
+       Upstream v7 names `.header-content` + `.header-capsule` instead; locally
+       only the capsule is named (an element's OWN backdrop-filter survives
+       naming), keeping it live across ClientRouter navigations. See
+       header-capsule.css and theme-transition.css (which drops the name). -->
   <!-- `.header-inner` carries the horizontal padding and owns the positioning
        context; `.header-content` is the flex row. They are kept separate so the
        capsule (inset against the inner box) can extend past the content row to
