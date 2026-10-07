@@ -114,6 +114,11 @@ export const uiStrings = {
   'friends.copyConfig': '复制配置',
   'friends.copiedConfig': '已复制!',
   'friends.hint': '提示: 复制上方配置后，直接在下方评论区留言，或发送到左侧栏的邮箱都可以~',
+  'friends.all': '全部',
+  'friends.ungrouped': '未分组',
+  'friends.filterLabel': '按友链分组筛选',
+  'friends.emptyGroupTitle': '这个分组还没有站点',
+  'friends.emptyGroupDescription': '可以切换分组，看看其他小伙伴。',
 
   // ── Code Block ──────────────────────────────────────────────
   'code.copy': '复制代码',

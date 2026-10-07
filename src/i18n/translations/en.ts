@@ -116,6 +116,11 @@ export const uiStrings: UIStrings = {
   'friends.copiedConfig': 'Copied!',
   'friends.hint':
     'Tip: Copy the config above, then leave it in the comments below or email it to us — the address is in the sidebar on the left.',
+  'friends.all': 'All',
+  'friends.ungrouped': 'Ungrouped',
+  'friends.filterLabel': 'Filter friend links by group',
+  'friends.emptyGroupTitle': 'No sites in this group yet',
+  'friends.emptyGroupDescription': 'Choose another group to explore more blogs.',
 
   // ── Code Block ──────────────────────────────────────────────
   'code.copy': 'Copy code',

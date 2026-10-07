@@ -11,11 +11,15 @@ import yamlConfig from '../../../config/site.yaml';
 import { DEFAULT_TIMEZONE, isValidTimezone } from '../timezone';
 import { normalizeContentConfig } from './content';
 import { enabledFeaturedSeriesSlugs, normalizeFeaturedSeries } from './featured-series';
+import { normalizeFriendGroups } from './friends';
 import { RESERVED_ROUTES } from './reserved-routes';
 import type { I18nConfig, ResolvedContentConfig, ResolvedSiteConfig } from './types';
 
 /** Category name → URL slug map, e.g. `{ '随笔': 'life' }`. */
 export const categoryMap: Record<string, string> = yamlConfig.categoryMap ?? {};
+
+/** Validated friend link groups; empty when `friends.groups` is not configured. */
+export const friendGroups = normalizeFriendGroups(yamlConfig.friends?.groups);
 
 /** Validated featured series, always an array with lowercase slugs. */
 export const featuredSeriesList = normalizeFeaturedSeries(yamlConfig.featuredSeries, {
