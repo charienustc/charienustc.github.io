@@ -74,6 +74,8 @@ export const uiStrings = {
   'tag.postsWithTag': '标签「{name}」下的文章',
   'tag.totalTags': '共 {count} 个标签',
   'tag.all': '全部',
+  'colophon.seal': '落款',
+  'colophon.filter': '按落款筛选',
   'tag.postCount': '{count} 篇文章',
 
   // ── Archives ────────────────────────────────────────────────

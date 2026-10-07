@@ -66,8 +66,21 @@ export default function PostItemCard({
   const showTags = showTagsProp ?? !isSimple;
   const hideCover = hideCoverProp ?? isSimple;
 
-  const { cover, date, categories, title, draft, description, slug, link, tags, wordCount, readingTime, postLocale } =
-    data ?? {};
+  const {
+    cover,
+    date,
+    categories,
+    title,
+    draft,
+    description,
+    slug,
+    link,
+    tags,
+    wordCount,
+    readingTime,
+    postLocale,
+    cardMarks,
+  } = data ?? {};
 
   const locale = getLocaleFromUrl(typeof window === 'undefined' ? '/' : window.location.pathname);
   const finalCover = cover ?? randomCover ?? defaultCoverList[0];
@@ -152,6 +165,21 @@ export default function PostItemCard({
                     <Icon icon="fa6-solid:calendar-days" />
                     {displayDate.date(date)}
                   </p>
+                ) : null}
+                {cardMarks?.length ? (
+                  <span className="flex-center gap-1.5">
+                    {cardMarks.map((mark) => (
+                      <span
+                        key={mark.icon + mark.label}
+                        className="inline-flex"
+                        role="img"
+                        title={mark.label}
+                        aria-label={mark.label}
+                      >
+                        <Icon icon={mark.icon} className="h-3.5 w-3.5" aria-hidden="true" />
+                      </span>
+                    ))}
+                  </span>
                 ) : null}
                 <p className="flex-center gap-1 whitespace-nowrap">
                   <Icon icon="fa6-solid:pen-nib" />

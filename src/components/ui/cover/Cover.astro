@@ -1,6 +1,9 @@
 ---
+import ColophonMeta from '@components/post/colophon/ColophonMeta.astro';
 import { Routes } from '@constants/router';
 import { createArticleStatsConfig, siteConfig } from '@constants/site-config';
+import { colophonItemsAt } from '@lib/content/colophon';
+import { getPostColophon } from '@lib/content/post-colophon';
 import { getPostReadingTime } from '@lib/content/posts';
 import { displayDate } from '@lib/date';
 import { getLqipStyle } from '@lib/lqip';
@@ -34,6 +37,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 const href = data && localizedPath(routeBuilder(Routes.Post, data), locale);
 
 const pageStatsConfig = href ? createArticleStatsConfig(href) : null;
+const metaMarks = data ? colophonItemsAt(getPostColophon(data, locale), 'meta') : [];
 const copyLinkLabel = t(locale, 'cover.copyLink');
 const copiedLabel = t(locale, 'common.copied');
 const copyFailedLabel = t(locale, 'common.copyFailed');
@@ -116,6 +120,7 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
                   {t(locale, 'stats.pageviews')}
                 </span>
               )}
+              {metaMarks.length > 0 && <ColophonMeta items={metaMarks} />}
             </p>
           )}
         </>

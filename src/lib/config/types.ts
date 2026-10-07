@@ -671,6 +671,8 @@ export interface SiteYamlConfig {
   moments?: MomentsConfig;
   /** Markdown copy / download actions on post pages. */
   postActions?: unknown;
+  /** Post marks dictionary (落款); validated by normalizeColophonConfig. */
+  colophon?: unknown;
   navigation?: RouterItem[];
   comment?: CommentConfig;
   analytics?: AnalyticsConfig;

@@ -75,6 +75,8 @@ export const uiStrings: UIStrings = {
   'tag.postsWithTag': 'Posts tagged "{name}"',
   'tag.totalTags': '{count} tags',
   'tag.all': 'All',
+  'colophon.seal': 'Colophon',
+  'colophon.filter': 'Filter by colophon mark',
   'tag.postCount': '{count} posts',
 
   // ── Archives ────────────────────────────────────────────────

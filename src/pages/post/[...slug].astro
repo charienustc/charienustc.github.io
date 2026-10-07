@@ -2,6 +2,8 @@
 import { render } from 'astro:content';
 import CustomContent from '@components/common/CustomContent.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
+import ColophonBanner from '@components/post/colophon/ColophonBanner.astro';
+import ColophonSeal from '@components/post/colophon/ColophonSeal.astro';
 import SummaryPanel, { type SummarySource } from '@components/post/SummaryPanel';
 import Cover from '@components/ui/cover/Cover.astro';
 import { defaultContentConfig } from '@constants/content-config';
@@ -21,6 +23,8 @@ import {
   getPostSummary,
   translateCategoryName,
 } from '@lib/content';
+import { colophonItemsAt } from '@lib/content/colophon';
+import { getPostColophon } from '@lib/content/post-colophon';
 import { getLocalEditorHref, getPostSourceFilename, getPostSourcePath, isPostSourcePublic } from '@lib/content/post-source';
 import { formatForSeo } from '@lib/date';
 import { encodeSlug } from '@lib/route';
@@ -134,6 +138,9 @@ const breadcrumbJsonLd = {
 
 // 确定显示的摘要内容和来源类型
 const postSlug = getPostSlug(post);
+const colophonItems = getPostColophon(post, locale);
+const bannerMarks = colophonItemsAt(colophonItems, 'banner');
+const sealMarks = colophonItemsAt(colophonItems, 'seal');
 const postSourcePath = getPostSourcePath(localizedPath(`/post/${encodeSlug(postSlug)}`, locale));
 const localEditors =
   import.meta.env.DEV && devConfig.localProjectPath && postRelativePath
@@ -229,6 +236,7 @@ if (post.data.description) {
           <span>{t(locale, 'post.fallbackNotice', { lang: getLocaleLabel(locale) })}</span>
         </div>
       )}
+      {bannerMarks.length > 0 && <ColophonBanner items={bannerMarks} />}
       {
         !post.data.password && summaryText && summarySource && (
           <SummaryPanel client:visible summary={summaryText} source={summarySource} className="mt-2" locale={locale} />
@@ -237,6 +245,7 @@ if (post.data.description) {
       <article class="prose dark:prose-invert" data-pagefind-body>
         <CustomContent Content={Content} />
       </article>
+      {sealMarks.length > 0 && <ColophonSeal items={sealMarks} date={post.data.date} locale={locale} />}
       <Comment />
     </div>
   </TwoColumnLayout>

@@ -2,6 +2,8 @@
  * Type definitions for i18n content translations (config/i18n-content.yaml)
  */
 
+import type { ColophonContentTranslation } from '@lib/config/colophon';
+
 export interface SeriesContentTranslation {
   label?: string;
   fullName?: string;
@@ -14,6 +16,7 @@ export interface FeaturedCategoryContentTranslation {
 }
 
 export interface LocaleContentTranslations {
+  colophon?: ColophonContentTranslation;
   categories?: Record<string, string>;
   series?: Record<string, SeriesContentTranslation>;
   featuredCategories?: Record<string, FeaturedCategoryContentTranslation>;

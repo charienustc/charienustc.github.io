@@ -9,6 +9,7 @@
 
 import yamlConfig from '../../../config/site.yaml';
 import { DEFAULT_TIMEZONE, isValidTimezone } from '../timezone';
+import { normalizeColophonConfig } from './colophon';
 import { normalizeContentConfig } from './content';
 import { enabledFeaturedSeriesSlugs, normalizeFeaturedSeries } from './featured-series';
 import { normalizeFriendGroups } from './friends';
@@ -44,6 +45,9 @@ export const contentConfig: ResolvedContentConfig = normalizeContentConfig(yamlC
 
 /** Markdown copy / download actions on post pages; gates the `<post url>.md` endpoint. */
 export const postActionsConfig = normalizePostActionsConfig(yamlConfig.postActions);
+
+/** Colophon mark dictionary in the default locale; localize via `getColophonConfig()` in `@lib/content/post-colophon`. */
+export const colophonConfig = normalizeColophonConfig(yamlConfig.colophon);
 
 /**
  * Site timezone in IANA format.
