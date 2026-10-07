@@ -33,7 +33,7 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | **A1** | 生产构建 CSS 压缩器把 `animation-timeline` 折进 `animation` 简写 → 头图 / 目录滚动动画全部失效。需加 `build.cssTarget`（**预防性配置**：与上游滚动动画同一 commit 落地，你目前无此类动画，见 I 节实测） | 无此配置 | `astro.config.mjs` | 小 | **P0** | **✅ 已做** `1550b06` |
 | **A2** | KaTeX 浏览器端渲染需要的 Vite alias（`hast-util-from-html-isomorphic` / `decode-named-character-reference`）。**本仓库实测为潜在隐患**：两个包无 alias 时 `require.resolve` 均 `MODULE_NOT_FOUND`，但当前客户端图中无人 import，故配置前后产物**逐字节相同**（见 I 节） | 无 | `astro.config.mjs` | 小 | **P0** | **✅ 已做** `739b9df` |
-| A3 | 同一行多段注音的 `^` 被上标预处理跨表达式错配（假名错位、残留花括号） | 旧实现 | `src/lib/markdown/` | 小 | P1 | 待做 |
+| A3 | 同一行多段注音的 `^` 被上标预处理跨表达式错配（假名错位、残留花括号） | 旧实现 | `src/lib/markdown/` | 小 | P1 | **✅ 已做** `e3388db` |
 | A4 | Mermaid 渲染失败提示 + 源码回退误把已渲染 SVG 内部 CSS 当成源码 | 旧实现 | `content-enhancer-utils.ts` | 小 | P1 | 待做 |
 | A5 | 代码全屏弹层入场动画结束时闪烁（需 `motion` 钉到 12.43.0） | `motion ^11.18.2` | `package.json` | 中 | P1 | 待做 |
 | A6 | 移动端目录展开时闪回关闭状态（同 A5 依赖 motion 12.43.0） | 旧实现 | 目录组件 | 中 | P1 | 待做 |
@@ -258,7 +258,7 @@ setMotionLevel('lively');
 | 步骤 | 内容 | 依赖关系 | 涉及文件 | 冲突面 | 优先级 | 最终解决方案 |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | 先落地 **A1 + A2**（`astro.config.mjs` 两处小改） | 独立，不依赖 v7 | `astro.config.mjs` | 小 | **P0** | **✅ 已完成**（`1550b06` + `739b9df`） |
-| 2 | **A3 + A4**（markdown 解析层修复） | 独立 | `src/lib/markdown/` | 小 | P1 | 待做 · 下一步 |
+| 2 | **A3 + A4**（markdown 解析层修复） | 独立 | `src/lib/markdown/` | 小 | P1 | **A3 ✅ 已做** `e3388db`；**A4 待做** |
 | 3 | **B4 + B5 + B6**（图表能力） | 独立，纯增量 | 新 lib 模块 | 低 | P1 | 待做 |
 | 4 | **B2**（替换自研指示器） | 需先确认视觉一致 | `Navigator.tsx` | 高 | P1 | 待做 |
 | 5 | **A5 + E5**（motion 升级到 12.43.0） | 需全站动效回归 | `package.json` | 中 | P1 | 待做 |
