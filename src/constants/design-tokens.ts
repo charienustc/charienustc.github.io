@@ -259,6 +259,11 @@ export const animation = {
     easeOut: 'cubic-bezier(0, 0, 0.2, 1)',
     easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
     spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)', // Spring-like easing
+    // The quart/expo curves as Tailwind `ease-*` utilities (mirror --ease-* in motion.css)
+    'out-quart': 'cubic-bezier(0.25, 1, 0.5, 1)',
+    'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
+    'in-quart': 'cubic-bezier(0.5, 0, 0.75, 0)',
+    'in-out-quart': 'cubic-bezier(0.76, 0, 0.24, 1)',
   },
 
   // The same curves as Motion `ease` arrays (mirror the --ease-* CSS variables)

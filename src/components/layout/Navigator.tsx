@@ -12,7 +12,7 @@ import { useIsTablet } from '@hooks/useMediaQuery';
 import { useScrollTrigger } from '@hooks/useScrollTrigger';
 import { Icon } from '@iconify/react';
 import { filterNavItems } from '@lib/utils';
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { defaultLocale, localizedPath, resolveNavName, stripLocaleFromPath } from '@/i18n';
 import DropdownNav from './DropdownNav';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -178,6 +178,12 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
   const strippedPath = stripLocaleFromPath(currentPath);
   const isPostPageMobile = isTablet && strippedPath.startsWith('/post/');
 
+  // One hover menu at a time across the whole header: a nav dropdown and the
+  // language menu are keyed into the same open state, so opening one closes
+  // the other instead of stacking portaled panels.
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const languageMenuKey = 'language-menu';
+
   // Re-measure when the route changes.
   const { navRef, indicatorRef } = useNavIndicator<HTMLElement>(currentPath);
 
@@ -245,7 +251,17 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
         {filteredRouters.map((item) => {
           const displayName = resolveNavName(item.nameKey, item.name, locale);
           if (item.children?.length) {
-            return <DropdownNav key={item.path ?? item.name} item={item} currentPath={currentPath} locale={locale} />;
+            const key = item.path ?? item.name ?? 'menu';
+            return (
+              <DropdownNav
+                key={key}
+                item={item}
+                currentPath={currentPath}
+                locale={locale}
+                open={openKey === key}
+                onOpenChange={(open) => setOpenKey((current) => (open ? key : current === key ? null : current))}
+              />
+            );
           }
           if (!item.path || !displayName) return null;
           const localizedUrl = item.localeIndependent ? item.path : localizedPath(item.path, locale);
@@ -265,7 +281,14 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
             place. */}
         <SearchTrigger className="header-icon-button" />
         <div className="tablet:hidden flex-center">
-          <LanguageSwitcher locale={locale} className="header-icon-button" />
+          <LanguageSwitcher
+            locale={locale}
+            className="header-icon-button"
+            open={openKey === languageMenuKey}
+            onOpenChange={(open) =>
+              setOpenKey((current) => (open ? languageMenuKey : current === languageMenuKey ? null : current))
+            }
+          />
         </div>
         <ThemeToggle className="header-icon-button" />
       </div>

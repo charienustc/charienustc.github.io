@@ -14,6 +14,7 @@ import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { memo, useCallback, useSyncExternalStore } from 'react';
 import { getAlternateUrl, getLocaleFromUrl, localeEntries } from '@/i18n';
+import { NavMenu } from './NavMenu';
 
 /** Subscribe to pathname changes via Astro's `astro:page-load` event. */
 function subscribePathname(callback: () => void) {
@@ -33,9 +34,11 @@ interface LanguageSwitcherProps {
   /** Initial locale code from SSR (e.g., 'zh', 'en') */
   locale: string;
   className?: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSwitcherProps) => {
+const LanguageSwitcherComponent = ({ locale: _ssrLocale, className, open, onOpenChange }: LanguageSwitcherProps) => {
   const currentPath = useSyncExternalStore(subscribePathname, getPathname, getServerPathname);
 
   // Derive locale from live URL so it stays in sync after View Transition navigations
@@ -45,36 +48,16 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
   const currentLabel = localeEntries.find((l) => l.code === locale)?.label ?? locale;
 
   const renderDropdownContent = useCallback(
-    () => (
-      <div className="flex flex-col">
-        {localeEntries.map((entry, index) => {
-          const isActive = entry.code === locale;
-          const targetUrl = getAlternateUrl(currentPath, entry.code);
-          return (
-            <a
-              key={entry.code}
-              href={targetUrl}
-              className={cn(
-                'group px-4 py-2 text-sm outline-hidden transition-colors duration-300 hover:bg-gradient-shoka-button',
-                {
-                  'rounded-t-xl': index === 0,
-                  'rounded-b-xl': index === localeEntries.length - 1,
-                  'bg-gradient-shoka-button text-muted': isActive,
-                },
-              )}
-            >
-              <div className="flex items-center gap-2 text-white transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-white">
-                {entry.label}
-                {isActive && (
-                  <span className="inline-flex size-3.5 shrink-0 items-center justify-center">
-                    <Icon icon="lucide:check" className="size-3.5" />
-                  </span>
-                )}
-              </div>
-            </a>
-          );
-        })}
-      </div>
+    ({ close }: { close: () => void }) => (
+      <NavMenu
+        items={localeEntries.map((entry) => ({
+          key: entry.code,
+          href: getAlternateUrl(currentPath, entry.code),
+          label: entry.label,
+          current: entry.code === locale,
+        }))}
+        onSelect={close}
+      />
     ),
     [locale, currentPath],
   );
@@ -85,12 +68,20 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
   }
 
   return (
-    <Popover placement="bottom-end" trigger="hover" render={renderDropdownContent}>
+    <Popover
+      open={open}
+      onOpenChange={onOpenChange}
+      placement="bottom-end"
+      trigger="hover"
+      render={renderDropdownContent}
+      className="nav-popover"
+    >
       <button
         type="button"
         className={cn('cursor-pointer transition duration-300 hover:scale-110', className)}
         aria-label={`Language: ${currentLabel}`}
         aria-haspopup="true"
+        aria-expanded={open}
       >
         {/* 图标数据异步加载，固定尺寸容器保证 SSR/加载前后几何不变，避免 popover 重定位 */}
         <span className="inline-flex size-8 items-center justify-center">
