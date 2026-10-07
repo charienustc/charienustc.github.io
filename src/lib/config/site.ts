@@ -12,6 +12,7 @@ import { DEFAULT_TIMEZONE, isValidTimezone } from '../timezone';
 import { normalizeContentConfig } from './content';
 import { enabledFeaturedSeriesSlugs, normalizeFeaturedSeries } from './featured-series';
 import { normalizeFriendGroups } from './friends';
+import { normalizePostActionsConfig } from './post-actions';
 import { RESERVED_ROUTES } from './reserved-routes';
 import type { I18nConfig, ResolvedContentConfig, ResolvedSiteConfig } from './types';
 
@@ -40,6 +41,9 @@ export const enabledLocaleCodes = i18nConfig.locales.flatMap((locale) => (locale
 
 /** Content processing flags with field-level defaults applied. */
 export const contentConfig: ResolvedContentConfig = normalizeContentConfig(yamlConfig.content);
+
+/** Markdown copy / download actions on post pages; gates the `<post url>.md` endpoint. */
+export const postActionsConfig = normalizePostActionsConfig(yamlConfig.postActions);
 
 /**
  * Site timezone in IANA format.

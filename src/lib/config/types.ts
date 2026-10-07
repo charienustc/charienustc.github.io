@@ -669,6 +669,8 @@ export interface SiteYamlConfig {
   content?: ContentConfig;
   /** Optional dynamic moments archive backed by koharu-suite. */
   moments?: MomentsConfig;
+  /** Markdown copy / download actions on post pages. */
+  postActions?: unknown;
   navigation?: RouterItem[];
   comment?: CommentConfig;
   analytics?: AnalyticsConfig;
