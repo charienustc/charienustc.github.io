@@ -21,7 +21,7 @@
 | **最终解决方案** | 每项的**落地状态与去向**，五种取值：**✅ 已做**（附 commit）/ **⛔ 不做**（附理由）/ **🛡️ 已受保护**（无需动作，本地写法已免疫）/ **— 无影响**（本仓库不涉及）/ 待做 |
 
 > **「⛔ 不做」vs「保留自研」**：两处取舍不同，别混。
-> **B2 ⛔ 不做**指「不采用上游 `useGlideIndicator` 的实现方式」，但本仓库**自己重写了一套更完整的导航指示器**（悬停滑动 + 磨砂胶囊，见 `header-capsule.css`）——功能有，只是实现不同。其余「⛔ 不做」（C1 / C12 / D4 / E4）是**功能上真的不做**。
+> **B2 ⛔ 不做**指「不采用上游 `useGlideIndicator` 的实现方式」，但本仓库**自己重写了一套更完整的导航指示器**（悬停滑动 + 磨砂胶囊，见 `header-capsule.css`）——功能有，只是实现不同。其余「⛔ 不做」（C1 / C12 / D4 / E4）是**功能上真的不做**。后续 **B11** 已把宿主胶囊的动效编排与上游对齐，仅指示器驱动实现保留自研。
 
 ---
 
@@ -63,7 +63,7 @@ build: {
 | 编号 | 功能 / 变更 | 你的现状 | 涉及文件 | 冲突面 | 优先级 | 最终解决方案 |
 | --- | --- | --- | --- | --- | --- | --- |
 | B1 | 三档动效强度（灵动 / 克制 / 减弱）+ 系统 `prefers-reduced-motion` 优先 | 无 | `lib/motion-level.ts` 等 | 中 | P1 | ✅ 5907e24 |
-| **B2** | 滑动指示器上游实现 `useGlideIndicator` + `lib/glide.ts` | **自研** `nav-indicator` | `Navigator.tsx` / `DropdownNav.tsx` | **高·二选一** | P1 | **⛔ 不做**（保留自研） |
+| **B2** | 滑动指示器上游实现 `useGlideIndicator` + `lib/glide.ts` | **自研** `nav-indicator` | `Navigator.tsx` / `DropdownNav.tsx` | **高·二选一** | P1 | **⛔ 不做**（保留自研；宿主胶囊动效编排见 B11 已对齐） |
 | B3 | 丝线阅读目录：编号沿丝线排列，花瓣表示当前小节进度 | 旧 ToC | `lib/toc-ribbon.ts` + 14 文件 | 高 | P2 | ✅ eab30be |
 | B4 | 图表按内容自然尺寸呈现，支持拖拽与键盘缩放 | 无 | `lib/diagram-sizing.ts` | 低 | P1 | ✅ 36404f4 |
 | B5 | 图表全屏增强：滚轮 / 双指缩放、拖动平移、双击放大、键盘快捷键 | 旧全屏 | `lib/zoom-pan.ts` | 低 | P1 | ✅ 36404f4 |
@@ -72,6 +72,7 @@ build: {
 | B8 | 页面入场编排 + 滚动浮现 + 共享元素过渡 | 部分 | `lib/scroll-reveal.ts` 等 | 中 | P2 | ✅ 9da22d3 |
 | B9 | 图标包按需打包 `BUNDLED_ICON_SETS` | 硬编码 4 套 | `lib/config/icon-sets.ts` | 小 | P3 | ✅ 49ee9a2（含 lucide 扩展） |
 | B10 | Shiki 主题抽常量 + 代码高亮改 **Catppuccin Latte / Mocha** | `github-light` / `github-dark` | `lib/markdown/shiki-themes.ts` | 小 | P2 | ✅ b0d7b87（常量已移植，主题保留 github 对，未切 Catppuccin） |
+| B11 | 顶部导航条胶囊动效编排（header.css 重写：hide/reveal 非对称、blur 随滚动态淡入、内容下沉、view-transition 连续命名 + `header-continuity.ts`） | 自研 `header-capsule.css` | `styles/components/header-capsule.css` / `theme-transition.css` | 中 | P2 | ✅ 0ad8e3c（动效对齐上游 v7；**命名只给胶囊**——被命名元素是 backdrop root，会把本地子元素玻璃（图标药丸）截成平色，故 `#site-header` / `.header-content` 不命名；移动端保留本地方案，不引入上游 `::before` 整栏毛玻璃条） |
 
 ### 按上游版本看新特性
 
@@ -196,7 +197,7 @@ setMotionLevel('lively');
 
 | 编号 | 文件 / 模块 | 冲突性质 | 位置 | 严重度 | 最终解决方案 |
 | --- | --- | --- | --- | --- | --- |
-| H1 | `Navigator.tsx` + `DropdownNav.tsx` | 自研 `nav-indicator` vs 上游 `useGlideIndicator` | `src/components/layout/` | **最高·二选一** | 待做 |
+| H1 | `Navigator.tsx` + `DropdownNav.tsx` | 自研 `nav-indicator` vs 上游 `useGlideIndicator` | `src/components/layout/` | **最高·二选一** | **⛔ 不做**（保留自研，B2；宿主胶囊动效 B11 已对齐） |
 | H2 | `Header.astro` + `post.css` | logo `?react` → `<img>` 优化 | `layout` / `styles` | 高 | 待做 |
 | H3 | `theme/index.css` + `global/utils.css` | 蓝色主题定制 vs 上游樱花配色 | `styles/` | 高 | 待做 |
 | H4 | `InfographicToolbar.tsx` | 刚加的 emitter 错误捕获 vs 上游缩放/导出重写 | `components/markdown/` | 高 | 待做 |
@@ -260,7 +261,7 @@ setMotionLevel('lively');
 | 1 | 先落地 **A1 + A2**（`astro.config.mjs` 两处小改） | 独立，不依赖 v7 | `astro.config.mjs` | 小 | **P0** | **✅ 已完成**（`1550b06` + `739b9df`） |
 | 2 | **A3 + A4**（markdown 解析层修复） | 独立 | `src/lib/markdown/` | 小 | P1 | **A3 ✅ 已做** `e3388db`；**A4 ✅ 已做** `9a20439` |
 | 3 | **B4 + B5 + B6**（图表能力） | 独立，纯增量 | 新 lib 模块 | 低 | P1 | ✅ 36404f4 |
-| 4 | **B2**（替换自研指示器） | 需先确认视觉一致 | `Navigator.tsx` | 高 | P1 | 待做 |
+| 4 | **B2**（替换自研指示器） | 需先确认视觉一致 | `Navigator.tsx` | 高 | P1 | **⛔ 不做**（保留自研，见 B2 / B11） |
 | 5 | **A5 + E5**（motion 升级到 12.43.0） | 需全站动效回归 | `package.json` | 中 | P1 | 待做 |
 | 6 | **D1 + D3**（低风险增量功能） | 独立 | friends / 面包屑 | 低 | P2 | **✅ D1** b9cb4be；**✅ D3** 0ec8045；**D2** 49ee9a2、**D5** 0225d16、**D6** a1b64b7 一并落地 |
 | 7 | **B1 + B7 + B8**（动效系统） | 会改变整站观感，最后做 | 多文件 | 中 | P2 | ✅ 5907e24 / 6324152 / 9da22d3 |
