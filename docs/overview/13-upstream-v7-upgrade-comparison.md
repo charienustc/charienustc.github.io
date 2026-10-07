@@ -18,6 +18,10 @@
 | **旧** | 有，但是旧的实现 / 旧版行为 |
 | **冲突面** | 小 = 文件独立可整体覆盖；中 = 需按 hunk 合并；高 = 双方改了同一段逻辑，必须二选一 |
 | **优先级** | P0 = 建议立刻做；P1 = 建议做；P2 = 看需求；P3 = 可选 |
+| **最终解决方案** | 每项的**落地状态与去向**，五种取值：**✅ 已做**（附 commit）/ **⛔ 不做**（附理由）/ **🛡️ 已受保护**（无需动作，本地写法已免疫）/ **— 无影响**（本仓库不涉及）/ 待做 |
+
+> **「⛔ 不做」vs「保留自研」**：两处取舍不同，别混。
+> **B2 ⛔ 不做**指「不采用上游 `useGlideIndicator` 的实现方式」，但本仓库**自己重写了一套更完整的导航指示器**（悬停滑动 + 磨砂胶囊，见 `header-capsule.css`）——功能有，只是实现不同。其余「⛔ 不做」（C1 / C12 / D4 / E4）是**功能上真的不做**。
 
 ---
 
@@ -25,20 +29,20 @@
 
 这一组不是「新特性」，是你会实际踩到的问题。**A1、A2 是本次对比中收益最高、风险最低的两项。**
 
-| 编号 | 功能 / 变更 | 你的现状 | 涉及文件 | 冲突面 | 优先级 |
-|---|---|---|---|---|---|
-| **A1** | 生产构建 CSS 压缩器把 `animation-timeline` 折进 `animation` 简写 → 头图 / 目录滚动动画全部失效。需加 `build.cssTarget`（**预防性配置**：与上游滚动动画同一 commit 落地，你目前无此类动画，见 I 节实测） | 无此配置 | `astro.config.mjs` | 小 | **P0** |
-| **A2** | KaTeX 浏览器端渲染需要的 Vite alias（`hast-util-from-html-isomorphic` / `decode-named-character-reference`）。**本仓库实测为潜在隐患**：两个包无 alias 时 `require.resolve` 均 `MODULE_NOT_FOUND`，但当前客户端图中无人 import，故配置前后产物**逐字节相同**（见 I 节） | 无 | `astro.config.mjs` | 小 | **P0** |
-| A3 | 同一行多段注音的 `^` 被上标预处理跨表达式错配（假名错位、残留花括号） | 旧实现 | `src/lib/markdown/` | 小 | P1 |
-| A4 | Mermaid 渲染失败提示 + 源码回退误把已渲染 SVG 内部 CSS 当成源码 | 旧实现 | `content-enhancer-utils.ts` | 小 | P1 |
-| A5 | 代码全屏弹层入场动画结束时闪烁（需 `motion` 钉到 12.43.0） | `motion ^11.18.2` | `package.json` | 中 | P1 |
-| A6 | 移动端目录展开时闪回关闭状态（同 A5 依赖 motion 12.43.0） | 旧实现 | 目录组件 | 中 | P1 |
-| A7 | 移动端改用稳定小视口高度，修手机地址栏伸缩导致文章位置跳动 | 无 | 布局层 | 中 | P2 |
-| A8 | 移动端代码全屏：短内容被撑满屏 → 改为随内容增高的底部面板 | 旧实现 | `src/components/markdown/` | 小 | P2 |
-| A9 | 图片灯箱：点空白关闭、拖动后不误关闭、双指跟随触点、下滑关闭 | 旧实现 | 灯箱组件 | 中 | P2 |
-| A10 | 侧栏社交图标掉行 / 头像问候气泡被裁 / 长简介行首出现斜杠 | 旧实现 | `Social.astro` | 小 | P3 |
-| A11 | 不同父分类下的同名子分类显示错误的文章 | 旧实现 | `src/lib/content/` | 小 | P2 |
-| A12 | 日 / 韩文案缺失，非中文页友链申请表水合不一致 | 只开 zh + en | `config/i18n-content.yaml` | 小 | P3 |
+| 编号 | 功能 / 变更 | 你的现状 | 涉及文件 | 冲突面 | 优先级 | 最终解决方案 |
+| --- | --- | --- | --- | --- | --- | --- |
+| **A1** | 生产构建 CSS 压缩器把 `animation-timeline` 折进 `animation` 简写 → 头图 / 目录滚动动画全部失效。需加 `build.cssTarget`（**预防性配置**：与上游滚动动画同一 commit 落地，你目前无此类动画，见 I 节实测） | 无此配置 | `astro.config.mjs` | 小 | **P0** | **✅ 已做** `1550b06` |
+| **A2** | KaTeX 浏览器端渲染需要的 Vite alias（`hast-util-from-html-isomorphic` / `decode-named-character-reference`）。**本仓库实测为潜在隐患**：两个包无 alias 时 `require.resolve` 均 `MODULE_NOT_FOUND`，但当前客户端图中无人 import，故配置前后产物**逐字节相同**（见 I 节） | 无 | `astro.config.mjs` | 小 | **P0** | **✅ 已做** `739b9df` |
+| A3 | 同一行多段注音的 `^` 被上标预处理跨表达式错配（假名错位、残留花括号） | 旧实现 | `src/lib/markdown/` | 小 | P1 | 待做 |
+| A4 | Mermaid 渲染失败提示 + 源码回退误把已渲染 SVG 内部 CSS 当成源码 | 旧实现 | `content-enhancer-utils.ts` | 小 | P1 | 待做 |
+| A5 | 代码全屏弹层入场动画结束时闪烁（需 `motion` 钉到 12.43.0） | `motion ^11.18.2` | `package.json` | 中 | P1 | 待做 |
+| A6 | 移动端目录展开时闪回关闭状态（同 A5 依赖 motion 12.43.0） | 旧实现 | 目录组件 | 中 | P1 | 待做 |
+| A7 | 移动端改用稳定小视口高度，修手机地址栏伸缩导致文章位置跳动 | 无 | 布局层 | 中 | P2 | 待做 |
+| A8 | 移动端代码全屏：短内容被撑满屏 → 改为随内容增高的底部面板 | 旧实现 | `src/components/markdown/` | 小 | P2 | 待做 |
+| A9 | 图片灯箱：点空白关闭、拖动后不误关闭、双指跟随触点、下滑关闭 | 旧实现 | 灯箱组件 | 中 | P2 | 待做 |
+| A10 | 侧栏社交图标掉行 / 头像问候气泡被裁 / 长简介行首出现斜杠 | 旧实现 | `Social.astro` | 小 | P3 | 待做 |
+| A11 | 不同父分类下的同名子分类显示错误的文章 | 旧实现 | `src/lib/content/` | 小 | P2 | 待做 |
+| A12 | 日 / 韩文案缺失，非中文页友链申请表水合不一致 | 只开 zh + en | `config/i18n-content.yaml` | 小 | P3 | 待做 |
 
 > **A1 出处**（v7.0.0 Bug Fixes 原文）：「为 CSS 压缩配置明确浏览器目标，避免滚动时间线被合并进无效的动画简写，导致头图与目录动效失效。」
 
@@ -56,18 +60,18 @@ build: {
 
 ## B. 核心新特性
 
-| 编号 | 功能 / 变更 | 你的现状 | 涉及文件 | 冲突面 | 优先级 |
-|---|---|---|---|---|---|
-| B1 | 三档动效强度（灵动 / 克制 / 减弱）+ 系统 `prefers-reduced-motion` 优先 | 无 | `lib/motion-level.ts` 等 | 中 | P1 |
-| **B2** | 滑动指示器上游实现 `useGlideIndicator` + `lib/glide.ts` | **自研** `nav-indicator` | `Navigator.tsx` / `DropdownNav.tsx` | **高·二选一** | P1 |
-| B3 | 丝线阅读目录：编号沿丝线排列，花瓣表示当前小节进度 | 旧 ToC | `lib/toc-ribbon.ts` + 14 文件 | 高 | P2 |
-| B4 | 图表按内容自然尺寸呈现，支持拖拽与键盘缩放 | 无 | `lib/diagram-sizing.ts` | 低 | P1 |
-| B5 | 图表全屏增强：滚轮 / 双指缩放、拖动平移、双击放大、键盘快捷键 | 旧全屏 | `lib/zoom-pan.ts` | 低 | P1 |
-| B6 | 图表 PNG 导出（按当前主题；浏览器不支持时存 SVG） | 无 | `lib/diagram-export.ts` | 低 | P2 |
-| B7 | 樱花视觉系统：头图樱花飘落 + 点击迸出花瓣 | 无 | `lib/sakura/`（3 文件） | 低 | P2 |
-| B8 | 页面入场编排 + 滚动浮现 + 共享元素过渡 | 部分 | `lib/scroll-reveal.ts` 等 | 中 | P2 |
-| B9 | 图标包按需打包 `BUNDLED_ICON_SETS` | 硬编码 4 套 | `lib/config/icon-sets.ts` | 小 | P3 |
-| B10 | Shiki 主题抽常量 + 代码高亮改 **Catppuccin Latte / Mocha** | `github-light` / `github-dark` | `lib/markdown/shiki-themes.ts` | 小 | P2 |
+| 编号 | 功能 / 变更 | 你的现状 | 涉及文件 | 冲突面 | 优先级 | 最终解决方案 |
+| --- | --- | --- | --- | --- | --- | --- |
+| B1 | 三档动效强度（灵动 / 克制 / 减弱）+ 系统 `prefers-reduced-motion` 优先 | 无 | `lib/motion-level.ts` 等 | 中 | P1 | 待做 |
+| **B2** | 滑动指示器上游实现 `useGlideIndicator` + `lib/glide.ts` | **自研** `nav-indicator` | `Navigator.tsx` / `DropdownNav.tsx` | **高·二选一** | P1 | **⛔ 不做**（保留自研） |
+| B3 | 丝线阅读目录：编号沿丝线排列，花瓣表示当前小节进度 | 旧 ToC | `lib/toc-ribbon.ts` + 14 文件 | 高 | P2 | 待做 |
+| B4 | 图表按内容自然尺寸呈现，支持拖拽与键盘缩放 | 无 | `lib/diagram-sizing.ts` | 低 | P1 | 待做 |
+| B5 | 图表全屏增强：滚轮 / 双指缩放、拖动平移、双击放大、键盘快捷键 | 旧全屏 | `lib/zoom-pan.ts` | 低 | P1 | 待做 |
+| B6 | 图表 PNG 导出（按当前主题；浏览器不支持时存 SVG） | 无 | `lib/diagram-export.ts` | 低 | P2 | 待做 |
+| B7 | 樱花视觉系统：头图樱花飘落 + 点击迸出花瓣 | 无 | `lib/sakura/`（3 文件） | 低 | P2 | 待做 |
+| B8 | 页面入场编排 + 滚动浮现 + 共享元素过渡 | 部分 | `lib/scroll-reveal.ts` 等 | 中 | P2 | 待做 |
+| B9 | 图标包按需打包 `BUNDLED_ICON_SETS` | 硬编码 4 套 | `lib/config/icon-sets.ts` | 小 | P3 | 待做 |
+| B10 | Shiki 主题抽常量 + 代码高亮改 **Catppuccin Latte / Mocha** | `github-light` / `github-dark` | `lib/markdown/shiki-themes.ts` | 小 | P2 | 待做 |
 
 ### 按上游版本看新特性
 
@@ -89,33 +93,33 @@ build: {
 
 > ⚠️ 这一组会**覆盖你在这些页面上的配色定制**，做之前需先确认是否接受视觉变化。
 
-| 编号 | 功能 / 变更 | 你的现状 | 涉及文件 | 冲突面 | 优先级 |
-|---|---|---|---|---|---|
-| C1 | 归档 / 分类 / 标签 / 系列页统一换成首页樱花视觉（紧凑封面 + 文字页签） | 旧样式（你改过配色） | 多个页面 | 高 | P2 |
-| C2 | 写作日历：归档页按月展示发文量，对数分档，点击跳转年月 | 无 | `archives.astro` | 中 | P2 |
-| C3 | 分类首页改书本目录式列表，详情页用文字页签切换子分类 | 旧样式 | `category/` 系列 | 中 | P2 |
-| C4 | 标签改纯文字标签云 + 本地过滤 | 旧 `CollapsibleTags` / `TagItem` | `lib/tag-filter.ts` | 中 | P2 |
-| C5 | 友链改静态横排名片，配置色体现在头像外圈与悬停反馈 | 旧卡片 | `friends/FriendCard.tsx` | 中 | P2 |
-| C6 | 期刊目录页重设计 + 期数从标题自动解析（`Vol.35` / `No.3` / `#12` / `第 1 期`） | 旧系列页 | `lib/series-issue.ts` | 中 | P2 |
-| C7 | 系列头图共用遮罩 / 樱花 / 入场动画 / 滚动视差，链接改磨砂胶囊按钮 | 旧 | 系列页 | 中 | P2 |
-| C8 | 系列阅读进度尺（悬停或触摸拖动预览并跳转）+ 上下篇改翻页卡片 | 旧 `SeriesNavigation` | `lib/series-rail.ts` | 中 | P2 |
-| C9 | 碎碎念：同一作者连续消息合并，操作按钮收进悬停工具条 | 旧 | `moments/` | 中 | P3 |
-| C10 | 追番改海报书架，只用粉色角标标出「在看」 | 旧 | `bangumi/` | 中 | P3 |
-| C11 | 移动导航抽屉重做：跟手拖动关闭、焦点约束与返回、背景交互隔离、安全区 | 旧 `MobileDrawer` | `lib/drawer-gesture.ts` | 中 | P2 |
-| C12 | 侧栏 / 顶栏同步收起、按访客当地时间显示问候、头像挥手 | 部分 | 布局层 | 中 | P3 |
+| 编号 | 功能 / 变更 | 你的现状 | 涉及文件 | 冲突面 | 优先级 | 最终解决方案 |
+| --- | --- | --- | --- | --- | --- | --- |
+| C1 | 归档 / 分类 / 标签 / 系列页统一换成首页樱花视觉（紧凑封面 + 文字页签） | 旧样式（你改过配色） | 多个页面 | 高 | P2 | **⛔ 不做**（护住蓝色主题） |
+| C2 | 写作日历：归档页按月展示发文量，对数分档，点击跳转年月 | 无 | `archives.astro` | 中 | P2 | 待做 |
+| C3 | 分类首页改书本目录式列表，详情页用文字页签切换子分类 | 旧样式 | `category/` 系列 | 中 | P2 | 待做 |
+| C4 | 标签改纯文字标签云 + 本地过滤 | 旧 `CollapsibleTags` / `TagItem` | `lib/tag-filter.ts` | 中 | P2 | 待做 |
+| C5 | 友链改静态横排名片，配置色体现在头像外圈与悬停反馈 | 旧卡片 | `friends/FriendCard.tsx` | 中 | P2 | 待做 |
+| C6 | 期刊目录页重设计 + 期数从标题自动解析（`Vol.35` / `No.3` / `#12` / `第 1 期`） | 旧系列页 | `lib/series-issue.ts` | 中 | P2 | 待做 |
+| C7 | 系列头图共用遮罩 / 樱花 / 入场动画 / 滚动视差，链接改磨砂胶囊按钮 | 旧 | 系列页 | 中 | P2 | 待做 |
+| C8 | 系列阅读进度尺（悬停或触摸拖动预览并跳转）+ 上下篇改翻页卡片 | 旧 `SeriesNavigation` | `lib/series-rail.ts` | 中 | P2 | 待做 |
+| C9 | 碎碎念：同一作者连续消息合并，操作按钮收进悬停工具条 | 旧 | `moments/` | 中 | P3 | 待做 |
+| C10 | 追番改海报书架，只用粉色角标标出「在看」 | 旧 | `bangumi/` | 中 | P3 | 待做 |
+| C11 | 移动导航抽屉重做：跟手拖动关闭、焦点约束与返回、背景交互隔离、安全区 | 旧 `MobileDrawer` | `lib/drawer-gesture.ts` | 中 | P2 | 待做 |
+| C12 | 侧栏 / 顶栏同步收起、按访客当地时间显示问候、头像挥手 | 部分 | 布局层 | 中 | P3 | **⛔ 不做**（仅问候语，见 08 文档） |
 
 ---
 
 ## D. 需要你做产品决策的功能
 
-| 编号 | 功能 / 变更 | 你的现状 | 涉及文件 | 冲突面 | 建议 |
-|---|---|---|---|---|---|
-| D1 | 友链分组 `friends.groups` + `group` 字段，页签本页切换 | 平铺 1 条友链 | friends 组件 | 低 | 建议做 |
-| D2 | 文章落款 colophon：手写 / 与 AI 合写 / AI 主笔 / 含剧透等标记，归档可按 `?mark=` 筛选 | 无 | `lib/content/post-colophon.ts` | 中 | 看意愿 |
-| D3 | 复制 Markdown / 下载 `.md` / 在写作室打开（`postActions` 段） | 无 | 面包屑右侧 | 低 | 建议做 |
-| D4 | 公开写作室 `/editor/`：CodeMirror 6 + 语法手册 + 浏览器草稿 | 无（你有 loopback CMS） | +62 文件，+8 依赖 | 高 | 不建议 |
-| D5 | 原文 URL：`<文章地址>.md` 可直接访问 | 无 | `postActions` 关联 | 低 | 看意愿 |
-| D6 | `catalog` 字段语义更正（决定是否计入分类树，旧文档写成「显示目录」） | 旧文档 | 文档 | 无 | 仅文档 |
+| 编号 | 功能 / 变更 | 你的现状 | 涉及文件 | 冲突面 | 建议 | 最终解决方案 |
+| --- | --- | --- | --- | --- | --- | --- |
+| D1 | 友链分组 `friends.groups` + `group` 字段，页签本页切换 | 平铺 1 条友链 | friends 组件 | 低 | 建议做 | 待做 |
+| D2 | 文章落款 colophon：手写 / 与 AI 合写 / AI 主笔 / 含剧透等标记，归档可按 `?mark=` 筛选 | 无 | `lib/content/post-colophon.ts` | 中 | 看意愿 | 待做 |
+| D3 | 复制 Markdown / 下载 `.md` / 在写作室打开（`postActions` 段） | 无 | 面包屑右侧 | 低 | 建议做 | 待做 |
+| D4 | 公开写作室 `/editor/`：CodeMirror 6 + 语法手册 + 浏览器草稿 | 无（你有 loopback CMS） | +62 文件，+8 依赖 | 高 | 不建议 | **⛔ 不做**（与 loopback CMS 职责重叠） |
+| D5 | 原文 URL：`<文章地址>.md` 可直接访问 | 无 | `postActions` 关联 | 低 | 看意愿 | 待做 |
+| D6 | `catalog` 字段语义更正（决定是否计入分类树，旧文档写成「显示目录」） | 旧文档 | 文档 | 无 | 仅文档 | **📄 文档级**，随手改 |
 
 ### D2 的代价
 
@@ -129,15 +133,15 @@ build: {
 
 ## E. Breaking Changes —— 升级前必须处理
 
-| 编号 | 变更 | 你的现状 | 涉及文件 | 冲突面 | 处理 |
-|---|---|---|---|---|---|
-| **E1** | `masterMotionEnabled` / `setMasterMotionEnabled(bool)` → `motionLevel` / `setMotionLevel('lively'\|'subtle'\|'reduced')` | 自研 hooks | 自定义动效组件 | 高 | **必须改** |
-| E2 | `site.showLogo` 默认 `true` → `false`（默认显示站点名而非图形 logo） | 已显式写 `showLogo: true` | `config/site.yaml` | 低 | 受保护 |
-| E3 | 系列页卡片移除 `isSimple` / `hideCover` / `showTags` 属性 | 未使用 | 系列页 | 低 | 无影响 |
-| E4 | `cms:install` 改 `--filter`；主站与 CMS 合并到根 `pnpm-workspace.yaml`；`pnpm install` 现在会装 CMS 依赖 | `cms/` 改动很多 | `package.json` / workspace | 高 | **高风险** |
-| E5 | `motion` `^11.18.2` → 钉死 **12.43.0** | `^11.18.2` | `package.json` | 中 | 需回归 |
-| E6 | `@blocknote/*` 全部移除，改用 CodeMirror 6 全家桶 | 仅影响 CMS / 编辑器 | `package.json` | 中 | 随 D4 |
-| E7 | 上游删除 `CLAUDE.md`、`src/components/tag/*`、`category/CategoryTitle.astro`、`SubCategory.astro`、`control/ButtonLink.astro`、`friends/FriendsGrid.tsx` | 这些文件你也有 | 多处 | 中 | 注意连带 |
+| 编号 | 变更 | 你的现状 | 涉及文件 | 冲突面 | 处理 | 最终解决方案 |
+| --- | --- | --- | --- | --- | --- | --- |
+| **E1** | `masterMotionEnabled` / `setMasterMotionEnabled(bool)` → `motionLevel` / `setMotionLevel('lively'\|'subtle'\|'reduced')` | 自研 hooks | 自定义动效组件 | 高 | **必须改** | 待做 |
+| E2 | `site.showLogo` 默认 `true` → `false`（默认显示站点名而非图形 logo） | 已显式写 `showLogo: true` | `config/site.yaml` | 低 | 受保护 | **🛡️ 已受保护**（`showLogo: true` 已显式写死） |
+| E3 | 系列页卡片移除 `isSimple` / `hideCover` / `showTags` 属性 | 未使用 | 系列页 | 低 | 无影响 | **— 无影响**（本仓库未使用） |
+| E4 | `cms:install` 改 `--filter`；主站与 CMS 合并到根 `pnpm-workspace.yaml`；`pnpm install` 现在会装 CMS 依赖 | `cms/` 改动很多 | `package.json` / workspace | 高 | **高风险** | **⛔ 不做** |
+| E5 | `motion` `^11.18.2` → 钉死 **12.43.0** | `^11.18.2` | `package.json` | 中 | 需回归 | 待做 |
+| E6 | `@blocknote/*` 全部移除，改用 CodeMirror 6 全家桶 | 仅影响 CMS / 编辑器 | `package.json` | 中 | 随 D4 | 待做 |
+| E7 | 上游删除 `CLAUDE.md`、`src/components/tag/*`、`category/CategoryTitle.astro`、`SubCategory.astro`、`control/ButtonLink.astro`、`friends/FriendsGrid.tsx` | 这些文件你也有 | 多处 | 中 | 注意连带 | 待做 |
 
 > **E2 说明**：你已在 `config/site.yaml` 里显式写死 `showLogo: true`，所以不受上游改默认值的影响。但注意你的 logo 渲染方式已被本地优化过（`?react` 内联 → `<img>`），升级时**不要被上游版本覆盖回去**。
 
@@ -161,13 +165,13 @@ setMotionLevel('lively');
 
 ## F. 架构 / 性能改进
 
-| 编号 | 内容 | 你的现状 | 涉及文件 | 冲突面 | 优先级 |
-|---|---|---|---|---|---|
-| F1 | Vite `worker: { format: 'es' }` 配置 | 无 | `astro.config.mjs` | 小 | P2 |
-| **F2** | 隐藏的桌面目录、关闭的抽屉**停止跟踪滚动**；缓存目录节点状态，减少重绘与逐帧 DOM 读取 | 无 | 目录 / 抽屉组件 | 中 | P1 |
-| F3 | 停止隐藏装饰的计算，限制雪花绘制频率与画布尺寸，减少无效弹簧与指针追踪 | 无 | 动效层 | 中 | P2 |
-| F4 | 测试从本地 6 组扩到 117 编辑器 + 32 Markdown + 11 图表 + 25 动效 + 灯箱 / TOC / 设置 / BGM 浏览器回归 | 本地 6 组 | `tests/` + `*.test.ts` | 小 | P3 |
-| F5 | 41 个新 lib 模块，全部带 `.test.ts`（`zoom-pan` / `glide` / `toc-ribbon` / `lightbox-flip` / `motion-level` ……） | 无 | `src/lib/` | — | — |
+| 编号 | 内容 | 你的现状 | 涉及文件 | 冲突面 | 优先级 | 最终解决方案 |
+| --- | --- | --- | --- | --- | --- | --- |
+| F1 | Vite `worker: { format: 'es' }` 配置 | 无 | `astro.config.mjs` | 小 | P2 | 待做 |
+| **F2** | 隐藏的桌面目录、关闭的抽屉**停止跟踪滚动**；缓存目录节点状态，减少重绘与逐帧 DOM 读取 | 无 | 目录 / 抽屉组件 | 中 | P1 | 待做 |
+| F3 | 停止隐藏装饰的计算，限制雪花绘制频率与画布尺寸，减少无效弹簧与指针追踪 | 无 | 动效层 | 中 | P2 | 待做 |
+| F4 | 测试从本地 6 组扩到 117 编辑器 + 32 Markdown + 11 图表 + 25 动效 + 灯箱 / TOC / 设置 / BGM 浏览器回归 | 本地 6 组 | `tests/` + `*.test.ts` | 小 | P3 | 待做 |
+| F5 | 41 个新 lib 模块，全部带 `.test.ts`（`zoom-pan` / `glide` / `toc-ribbon` / `lightbox-flip` / `motion-level` ……） | 无 | `src/lib/` | — | — | — 上游有、本地无，随对应项落地时一并摘 |
 
 > F2 与本文档相关的背景：本仓库此前做过一轮首页性能优化（logo `<img>` 化 + pagefind 懒加载，commit `18c3965`）。上游的 F2/F3 是**同一方向**但作用在不同模块上的优化，可叠加。
 
@@ -190,16 +194,16 @@ setMotionLevel('lively');
 
 ### G.2 双方都改过的文件 —— 54 个，需要手动合并
 
-| 编号 | 文件 / 模块 | 冲突性质 | 位置 | 严重度 |
-|---|---|---|---|---|
-| H1 | `Navigator.tsx` + `DropdownNav.tsx` | 自研 `nav-indicator` vs 上游 `useGlideIndicator` | `src/components/layout/` | **最高·二选一** |
-| H2 | `Header.astro` + `post.css` | logo `?react` → `<img>` 优化 | `layout` / `styles` | 高 |
-| H3 | `theme/index.css` + `global/utils.css` | 蓝色主题定制 vs 上游樱花配色 | `styles/` | 高 |
-| H4 | `InfographicToolbar.tsx` | 刚加的 emitter 错误捕获 vs 上游缩放/导出重写 | `components/markdown/` | 高 |
-| H5 | `SearchDialog.tsx` | pagefind 懒加载事件 | `components/layout/` | 中 |
-| H6 | `package.json` / `pnpm-lock.yaml` | motion 版本 + 依赖集 | 根目录 | 高 |
-| H7 | `config/site.yaml` + `i18n-content.yaml` | 你的站点配置 | `config/` | 中 |
-| H8 | `cms/` 整块（`server.ts`、`App.tsx`、各 api 与组件） | 你有大量 CMS 改动 | `cms/` | **最高·与 E4 叠加** |
+| 编号 | 文件 / 模块 | 冲突性质 | 位置 | 严重度 | 最终解决方案 |
+| --- | --- | --- | --- | --- | --- |
+| H1 | `Navigator.tsx` + `DropdownNav.tsx` | 自研 `nav-indicator` vs 上游 `useGlideIndicator` | `src/components/layout/` | **最高·二选一** | 待做 |
+| H2 | `Header.astro` + `post.css` | logo `?react` → `<img>` 优化 | `layout` / `styles` | 高 | 待做 |
+| H3 | `theme/index.css` + `global/utils.css` | 蓝色主题定制 vs 上游樱花配色 | `styles/` | 高 | 待做 |
+| H4 | `InfographicToolbar.tsx` | 刚加的 emitter 错误捕获 vs 上游缩放/导出重写 | `components/markdown/` | 高 | 待做 |
+| H5 | `SearchDialog.tsx` | pagefind 懒加载事件 | `components/layout/` | 中 | 待做 |
+| H6 | `package.json` / `pnpm-lock.yaml` | motion 版本 + 依赖集 | 根目录 | 高 | 待做 |
+| H7 | `config/site.yaml` + `i18n-content.yaml` | 你的站点配置 | `config/` | 中 | 待做 |
+| H8 | `cms/` 整块（`server.ts`、`App.tsx`、各 api 与组件） | 你有大量 CMS 改动 | `cms/` | **最高·与 E4 叠加** | 待做 |
 
 其余 46 个文件为常规 hunk 级冲突，包括 `announcement/`、`friends/`、`i18n/translations/*`、`styles/components/*` 等。
 
@@ -222,6 +226,8 @@ setMotionLevel('lively');
 **总体结论：不要整体 merge / rebase 到 v7.7.1，改为按需摘取（cherry-pick 单点）。**
 
 119 个 commit / 462 个文件里真正对你有价值的是少数几项，全量合并会把导航胶囊、蓝色主题、pagefind 懒加载、信息图修复全部推回冲突状态。
+
+> ✅ **本决策已确认落地**：A1 + A2 已按此方案摘取完成（`1550b06` + `739b9df`），未做任何整体 merge。各表的「最终解决方案」列记录了逐项去向。
 
 ### 值得做
 
@@ -249,15 +255,15 @@ setMotionLevel('lively');
 
 按依赖关系拆成独立 commit，**禁止批量乱改**：
 
-| 步骤 | 内容 | 依赖关系 | 涉及文件 | 冲突面 | 优先级 |
-|---|---|---|---|---|---|
-| 1 | 先落地 **A1 + A2**（`astro.config.mjs` 两处小改） | 独立，不依赖 v7 | `astro.config.mjs` | 小 | **P0** |
-| 2 | **A3 + A4**（markdown 解析层修复） | 独立 | `src/lib/markdown/` | 小 | P1 |
-| 3 | **B4 + B5 + B6**（图表能力） | 独立，纯增量 | 新 lib 模块 | 低 | P1 |
-| 4 | **B2**（替换自研指示器） | 需先确认视觉一致 | `Navigator.tsx` | 高 | P1 |
-| 5 | **A5 + E5**（motion 升级到 12.43.0） | 需全站动效回归 | `package.json` | 中 | P1 |
-| 6 | **D1 + D3**（低风险增量功能） | 独立 | friends / 面包屑 | 低 | P2 |
-| 7 | **B1 + B7 + B8**（动效系统） | 会改变整站观感，最后做 | 多文件 | 中 | P2 |
+| 步骤 | 内容 | 依赖关系 | 涉及文件 | 冲突面 | 优先级 | 最终解决方案 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 先落地 **A1 + A2**（`astro.config.mjs` 两处小改） | 独立，不依赖 v7 | `astro.config.mjs` | 小 | **P0** | **✅ 已完成**（`1550b06` + `739b9df`） |
+| 2 | **A3 + A4**（markdown 解析层修复） | 独立 | `src/lib/markdown/` | 小 | P1 | 待做 · 下一步 |
+| 3 | **B4 + B5 + B6**（图表能力） | 独立，纯增量 | 新 lib 模块 | 低 | P1 | 待做 |
+| 4 | **B2**（替换自研指示器） | 需先确认视觉一致 | `Navigator.tsx` | 高 | P1 | 待做 |
+| 5 | **A5 + E5**（motion 升级到 12.43.0） | 需全站动效回归 | `package.json` | 中 | P1 | 待做 |
+| 6 | **D1 + D3**（低风险增量功能） | 独立 | friends / 面包屑 | 低 | P2 | 待做 |
+| 7 | **B1 + B7 + B8**（动效系统） | 会改变整站观感，最后做 | 多文件 | 中 | P2 | 待做 |
 
 ### 复查 A1 是否已修复
 
