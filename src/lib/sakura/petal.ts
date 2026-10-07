@@ -1,19 +1,19 @@
 /**
- * Shared sakura petal geometry for the cover petal field and the click burst.
- * One notched petal in a 20×24 box, narrow end (where it joins the flower) at the bottom.
+ * Shared paper-plane geometry for the click burst and the ToC ribbon progress mark.
+ * One plane silhouette in a 20×24 box, nose toward the upper right (it reads as
+ * "sent/flying" on the ribbon and matches the burst's upward toss).
  */
 
 export const PETAL_VIEWBOX = { width: 20, height: 24 } as const;
 
-const PETAL_PATH =
-  'M10 24C4.6 20.4.4 14 1.3 7.9 2 3.3 5.4.6 8.7 1.3L10 4.1l1.3-2.8c3.3-.7 6.7 2 7.4 6.6.9 6.1-3.3 12.5-8.7 16.1Z';
+const PETAL_PATH = 'M1.5 11.2 18.5 1.5 12.6 22.3 9.4 13.6Z';
 
-/** Tip and base colors per variant; the gradient runs from the notched tip to the base. */
+/** Tip and base colors per variant; the gradient runs from the nose to the tail. */
 export const PETAL_COLORS: ReadonlyArray<readonly [tip: string, base: string]> = [
-  ['#ffe6ee', '#ff9ebd'],
-  ['#fff3f7', '#ffb8cc'],
-  ['#ffd9e5', '#f7879f'],
-  ['#fff9fb', '#ffc7d6'],
+  ['#e0f2fe', '#60a5fa'],
+  ['#eff6ff', '#93c5fd'],
+  ['#dbeafe', '#3b82f6'],
+  ['#f0f9ff', '#7dd3fc'],
 ];
 
 /**
