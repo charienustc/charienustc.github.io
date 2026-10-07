@@ -1,3 +1,16 @@
+/* Code window surface tokens consumed by the ported v7 toolbar/fullscreen components
+   (MacToolbar, CodeBlockFullscreen, DiagramFullscreen). Mapped to the original local
+   look: card body, muted toolbar, standard border. */
+:root {
+  --code-surface: hsl(var(--card));
+  --code-toolbar: hsl(var(--muted) / 0.5);
+  --code-border: hsl(var(--border));
+}
+
+.dark {
+  --code-toolbar: hsl(var(--muted) / 0.3);
+}
+
 .prose {
   /* Reader variables are set by src/store/settings.ts and the inline Layout.astro script. */
   font-size: var(--reader-font-size, 1rem);

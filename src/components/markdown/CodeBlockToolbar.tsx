@@ -77,7 +77,7 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
           <button
             type="button"
             onClick={() => setCollapsed((prev) => !prev)}
-            className="flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
             aria-label={collapsed ? t('code.expand') : t('code.collapse')}
             aria-expanded={!collapsed}
             title={collapsed ? t('code.expand') : t('code.collapse')}
@@ -96,7 +96,7 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
               event.currentTarget.focus({ preventScroll: true });
               handleFullscreen();
             }}
-            className="flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
             aria-label={t('code.fullscreen')}
             title={t('code.fullscreen')}
           >
@@ -114,8 +114,7 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
           title={t('code.expand')}
         >
           <span className="code-block-expand-overlay-icon">
-            <Icon icon="ri:arrow-down-s-line" className="size-4" />
-            {t('code.expand')}
+            <Icon icon="ri:arrow-down-s-line" className="size-5" />
           </span>
         </button>
       )}
