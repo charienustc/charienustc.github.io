@@ -19,6 +19,7 @@ import { translateCategoryName } from '@lib/content/category-translate';
 import { buildTagPath } from '@lib/content/tags';
 import { displayDate } from '@lib/date';
 import { getLqipProps } from '@lib/lqip';
+import { postTitleMorphName } from '@lib/morph-transitions';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
 import { m } from 'motion/react';
@@ -101,10 +102,12 @@ export default function PostItemCard({
 
   const { onPointerMove, onPointerLeave, wrapperStyle, layerStyle, highlightStyle } = useMagneticTilt();
 
+  const titleMorph = postTitleMorphName(slug);
+
   return (
     <LazyMotionProvider>
       <m.div
-        className={cn('post-item-card relative', hideCover && 'md:flex-col')}
+        className={cn('post-item-card motion-reveal relative', hideCover && 'md:flex-col')}
         style={wrapperStyle}
         onPointerMove={onPointerMove}
         onPointerLeave={onPointerLeave}
@@ -208,7 +211,11 @@ export default function PostItemCard({
             <div className={cn('mt-1 flex flex-col space-y-1.5 p-0', getStaggerPadding(1, stagger), 'md:pr-0 md:pl-0')}>
               <div className="flex items-center gap-2">
                 <a href={href} aria-label="post-link" className="min-w-0 flex-1">
-                  <h2 className="line-clamp-1 truncate font-bold text-primary text-xl transition-colors duration-300 hover:text-blue">
+                  <h2
+                    className="line-clamp-1 w-fit max-w-full truncate font-bold text-primary text-xl transition-colors duration-300 hover:text-blue"
+                    data-morph={titleMorph}
+                    style={{ viewTransitionName: titleMorph }}
+                  >
                     {title}
                   </h2>
                 </a>

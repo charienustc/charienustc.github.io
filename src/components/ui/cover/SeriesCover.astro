@@ -50,14 +50,14 @@ const descriptionHtml = getSanitizeHtml(rawHtml);
   <!-- Main content area -->
   <div class={`relative z-10 flex flex-col items-center justify-center px-5 py-4 text-white ${MAX_WIDTH.content}`}>
     <!-- Title -->
-    <h1 class="shadow-text text-center text-5xl font-bold md:text-3xl">
+    <h1 class="motion-rise shadow-text text-center text-5xl font-bold md:text-3xl">
       {seriesTitle}
     </h1>
 
     <!-- Link buttons -->
     {
       series.links && (
-        <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <div class="motion-rise mt-6 flex flex-wrap items-center justify-center gap-3" style="--i: 1">
           {series.links.github && (
             <a
               href={series.links.github}
@@ -106,7 +106,7 @@ const descriptionHtml = getSanitizeHtml(rawHtml);
     <!-- Description -->
     {
       series.description && (
-        <div class="shadow-text mt-8 max-w-3xl text-center">
+        <div class="motion-rise shadow-text mt-8 max-w-3xl text-center" style="--i: 2">
           <div class="prose prose-invert mx-auto text-sm leading-relaxed md:text-xs" set:html={descriptionHtml} />
         </div>
       )

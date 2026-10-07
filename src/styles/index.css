@@ -4,6 +4,7 @@
 @import "./christmas/christmas-theme.css";
 @import "./global/animate.css";
 @import "./global/motion.css";
+@import "./global/scrollbar.css";
 @import "./global/tailwind.css";
 
 @import "./theme/markdown.css";
