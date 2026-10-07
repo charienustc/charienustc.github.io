@@ -41,6 +41,7 @@ const spoilerRevealLabel = t(getLocaleFromUrl(Astro.url.pathname), 'content.reve
 
 <script>
   import { enhanceImages } from '@lib/image-enhancer';
+  import { getScrollBehavior } from '@lib/motion-level';
   import { enhanceLinkPreviews } from '@lib/link-preview-enhancer';
   import { enhanceSpoilers } from '@lib/spoiler-enhancer';
 
@@ -85,7 +86,7 @@ const spoilerRevealLabel = t(getLocaleFromUrl(Astro.url.pathname), 'content.reve
           if (!targetId) return;
           const targetElement = document.getElementById(targetId);
           if (targetElement) {
-            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            targetElement.scrollIntoView({ behavior: getScrollBehavior(), block: 'start' });
             history.pushState(null, '', `#${targetId}`);
           }
         });

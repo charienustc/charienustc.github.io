@@ -688,6 +688,7 @@
 /* ========== Mermaid layout styles ========== */
 
 .mermaid-wrapper {
+  position: relative;
   margin-bottom: 1.25rem;
 }
 
@@ -737,6 +738,7 @@
 /* ========== Infographic layout styles ========== */
 
 .infographic-wrapper {
+  position: relative;
   margin-bottom: 1.25rem;
 }
 
@@ -860,21 +862,57 @@
 }
 
 /* Line highlighting (mark) */
-.prose pre code .line-highlight {
+:is(.prose pre, .code-fullscreen-content) code .line-highlight {
   background: hsl(var(--shoka-warning) / 0.12);
-  margin: 0 -1.5rem;
-  padding: 0 1.5rem;
+  margin: 0 calc(-1 * var(--code-gutter, 1.5rem));
+  padding: 0 var(--code-gutter, 1.5rem);
   display: inline-block;
-  width: calc(100% + 3rem);
+  width: calc(100% + 2 * var(--code-gutter, 1.5rem));
   border-left: 3px solid hsl(var(--shoka-warning));
-  padding-left: calc(1.5rem - 3px);
+  padding-left: calc(var(--code-gutter, 1.5rem) - 3px);
 }
 
 /* Command prompt */
-.prose pre code .has-prompt::before {
+:is(.prose pre, .code-fullscreen-content) code .has-prompt::before {
   content: attr(data-prompt) " ";
   color: hsl(var(--muted-foreground));
   user-select: none;
+}
+
+/* Fullscreen code viewer content surface (CodeBlockFullscreen).
+   Local equivalent of upstream's block, using local card/border tokens. */
+.code-fullscreen-content {
+  --code-gutter: 1.25rem;
+  /* biome-ignore lint/complexity/noImportantStyles: same surface as the in-article window; Shiki writes its theme background inline. */
+  background-color: hsl(var(--card)) !important;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 1rem var(--code-gutter);
+  overflow: auto;
+  overscroll-behavior: contain;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.code-fullscreen-content > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  font: inherit;
+}
+
+.code-fullscreen-content[data-wrap] > code {
+  width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 992px) {
+  .code-fullscreen-content {
+    flex: 0 1 auto;
+  }
 }
 
 /* Reader font presets */
