@@ -35,7 +35,7 @@
     "test:config": "tsx --test src/lib/config/content.test.ts src/lib/config/featured-series.test.ts src/lib/config/friends.test.ts src/lib/config/motion.test.ts src/lib/config/colophon.test.ts",
     "test:markdown": "tsx --test src/lib/markdown/*.test.ts",
     "test:toc": "tsx --test src/lib/toc.test.ts",
-    "test:diagram": "tsx --test src/lib/mermaid-source.test.ts",
+    "test:diagram": "tsx --test src/lib/diagram-sizing.test.ts src/lib/mermaid-source.test.ts src/lib/zoom-pan.test.ts",
     "test:motion": "node --import tsx --test src/lib/motion-level.test.ts",
     "test:content": "tsx --test src/lib/content/*.test.ts",
     "test:migrate": "tsx --test scripts/koharu/utils/*.test.ts",

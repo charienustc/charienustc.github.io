@@ -703,6 +703,23 @@
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
+/* Once useDiagramScale sizes it, the same canvas as infographics: centered, scrolling sideways when zoomed past the column.
+   Block layout instead of astro-mermaid's flex centering, which would clip the left edge of an overflowing diagram. */
+.mermaid-wrapper > pre.mermaid[data-diagram-sized] {
+  display: block;
+  overflow: auto hidden;
+  overscroll-behavior-x: contain;
+
+  & > svg {
+    display: block;
+    width: var(--diagram-width);
+    height: var(--diagram-height);
+    /* biome-ignore lint/complexity/noImportantStyles: mermaid writes max-width inline on every SVG, which would stop zooming at natural size. */
+    max-width: none !important;
+    margin-inline: auto;
+  }
+}
+
 /* Fullscreen SVG container */
 .mermaid-svg-container {
   display: flex;
@@ -736,6 +753,28 @@
   min-width: min(920px, 100%);
 }
 
+/* In-article canvas (the fullscreen viewer reuses .infographic-container): useDiagramScale sizes the SVG,
+   it centers in the column and scrolls sideways once zoomed past it. The bottom padding holds the resize grip. */
+.infographic-wrapper > .infographic-container {
+  padding: 1rem 1rem 1.5rem;
+  overflow: auto hidden;
+  /* Panning a zoomed diagram to its edge must not turn into a trackpad back-navigation swipe. */
+  overscroll-behavior-x: contain;
+
+  &:not(:empty) {
+    min-height: 0;
+  }
+
+  & > svg {
+    display: block;
+    width: var(--diagram-width, 100%);
+    height: var(--diagram-height, auto);
+    margin-inline: auto;
+    /* The viewBox hugs the content, so item drop shadows paint into the padding instead of being clipped. */
+    overflow: visible;
+  }
+}
+
 /* Override infographic text wrapping - prevent title and label wrapping */
 .infographic-container foreignObject[data-element-type="title"] span,
 .infographic-container foreignObject[data-element-type="desc"] span {
@@ -760,6 +799,7 @@
 
 /* Mermaid source view styling */
 .mermaid-source {
+  color: hsl(var(--card-foreground));
   padding: 1rem 1.5rem;
   overflow-x: auto;
   font-size: 0.875em;
@@ -767,6 +807,32 @@
   font-family: var(--font-mono);
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.mermaid-fallback {
+  border: 1px solid hsl(var(--border));
+  border-top: none;
+  border-radius: 0 0 0.75rem 0.75rem;
+  background-color: hsl(var(--card));
+  overflow: hidden;
+}
+
+.mermaid-error {
+  padding: 1rem 1.5rem;
+  white-space: normal;
+
+  & span {
+    display: block;
+    margin: 0 0 0.5rem;
+  }
+
+  & > button {
+    padding: 0.375rem 0.75rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
 }
 
 /* ========== Code block meta enhancements ========== */

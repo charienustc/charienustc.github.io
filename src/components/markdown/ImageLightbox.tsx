@@ -2,7 +2,8 @@
  * React image lightbox with zoom/pan support.
  * Replaces the vanilla DOM lightbox in image-enhancer.ts (~400 lines).
  *
- * Uses shared useZoomPan hook, the ModalLayer shell for portal/dismiss behavior, and Motion animations.
+ * Uses shared useZoomPan hook (which drives transforms imperatively on the content
+ * node), the ModalLayer shell for portal/dismiss behavior, and Motion animations.
  * Listens for 'open-image-lightbox' custom events dispatched by image-enhancer.ts.
  */
 
@@ -16,6 +17,9 @@ import { $imageLightboxData, closeModal, type ImageLightboxData, navigateImage, 
 import { m } from 'motion/react';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
+const MAX_SCALE = 5;
+const MIN_SCALE = 0.5;
+
 export default function ImageLightbox() {
   const { t } = useTranslation();
   const data = useStore($imageLightboxData);
@@ -23,14 +27,14 @@ export default function ImageLightbox() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [rotation, setRotation] = useState(0);
 
-  const { containerRef, state, reset, zoomTo, zoomLevel } = useZoomPan(isOpen);
+  const { viewportRef, contentRef, scale, reset, zoomTo, zoomLevel } = useZoomPan(isOpen);
 
   // Use a ref so the outsidePress callback always reads the latest scale
-  const scaleRef = useRef(state.scale);
+  const scaleRef = useRef(scale);
 
   useLayoutEffect(() => {
-    scaleRef.current = state.scale;
-  }, [state.scale]);
+    scaleRef.current = scale;
+  }, [scale]);
 
   const handleResetAll = useCallback(() => {
     reset();
@@ -114,7 +118,7 @@ export default function ImageLightbox() {
 
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (state.scale > 1.05) {
+    if (scale > 1.05) {
       reset();
       setRotation(0);
     } else {
@@ -133,7 +137,12 @@ export default function ImageLightbox() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.2, delay: 0.1 }}
       >
-        <ToolbarButton icon="ri:zoom-in-line" label={t('image.zoomIn')} onClick={handleZoomIn} disabled={state.scale >= 4.9} />
+        <ToolbarButton
+          icon="ri:zoom-in-line"
+          label={t('image.zoomIn')}
+          onClick={handleZoomIn}
+          disabled={scale >= MAX_SCALE - 0.1}
+        />
         <m.button
           type="button"
           onClick={handleResetAll}
@@ -147,7 +156,7 @@ export default function ImageLightbox() {
           icon="ri:zoom-out-line"
           label={t('image.zoomOut')}
           onClick={handleZoomOut}
-          disabled={state.scale <= 0.55}
+          disabled={scale <= MIN_SCALE + 0.05}
         />
         <div className="h-px tablet:h-5 tablet:w-px w-5 bg-white/20" />
         <ToolbarButton icon="ri:clockwise-line" label={t('image.rotate')} onClick={handleRotate} />
@@ -155,39 +164,30 @@ export default function ImageLightbox() {
         <ToolbarButton icon="ri:close-line" label={t('image.close')} onClick={() => closeModal()} />
       </m.div>
 
-      {/* Image viewport with zoom/pan */}
+      {/* Image viewport with zoom/pan (transforms driven imperatively by useZoomPan) */}
       <div
-        ref={containerRef}
+        ref={viewportRef}
         role="img"
         className="flex h-full w-full touch-none select-none items-center justify-center p-4"
         onDoubleClick={handleDoubleClick}
       >
-        <m.div
-          className="flex items-center justify-center"
-          initial={{ scale: 0.95 }}
-          animate={{ scale: 1 }}
-          exit={{ scale: 0.95 }}
-          transition={{ duration: 0.2 }}
-        >
+        <div ref={contentRef} className="flex items-center justify-center will-change-transform">
           <m.img
             src={data.src}
             alt={data.alt}
-            className="max-h-[80vh] max-w-[90vw] origin-center rounded-lg object-contain shadow-2xl will-change-transform"
-            animate={{ scale: state.scale, rotate: rotation, opacity: imageLoaded ? 1 : 0 }}
+            className="max-h-[80vh] max-w-[90vw] origin-center rounded-lg object-contain shadow-2xl"
+            animate={{ rotate: rotation, opacity: imageLoaded ? 1 : 0 }}
             transition={{
-              scale: { type: 'tween', duration: 0.15, ease: 'easeOut' },
               rotate: { type: 'spring', stiffness: 300, damping: 25 },
               opacity: { duration: 0.2 },
             }}
             style={{
-              x: state.translateX,
-              y: state.translateY,
-              cursor: state.scale > 1.05 ? 'grab' : 'zoom-in',
+              cursor: scale > 1.05 ? 'grab' : 'zoom-in',
             }}
             onLoad={() => setImageLoaded(true)}
             draggable={false}
           />
-        </m.div>
+        </div>
       </div>
 
       {/* Navigation bar */}
