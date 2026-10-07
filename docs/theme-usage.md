@@ -105,7 +105,7 @@ cover: /img/cover/1.webp # 封面图
 tags: [JavaScript, React]
 categories: [笔记]
 subtitle: 副标题
-catalog: true            # 是否显示目录，默认 true
+catalog: true            # 是否计入分类页统计，默认 true
 tocNumbering: true       # 目录是否自动编号，默认 true
 draft: false             # 草稿，默认 false
 sticky: false            # 置顶，默认 false

@@ -603,7 +603,7 @@ cover: /img/cover/1.webp        # 封面图
 tags: [标签一, 标签二]
 categories: [笔记]              # 嵌套写法 [笔记, 前端]
 subtitle: 副标题
-catalog: true                   # 显示目录，默认 true
+catalog: true                   # 计入分类页统计，默认 true
 tocNumbering: true              # 目录自动编号，默认 true
 draft: false                    # 草稿
 sticky: false                   # 置顶
