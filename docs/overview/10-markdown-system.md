@@ -71,7 +71,7 @@ const blogCollection = defineCollection({
       .optional(),
     // Hexo 兼容性字段
     subtitle: z.string().optional(),
-    catalog: z.boolean().optional(),
+    catalog: z.boolean().optional(),  // 是否计入分类统计（非目录显隐）
     sticky: z.boolean().optional(),
   }),
 });
