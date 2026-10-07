@@ -7,9 +7,10 @@ import Cover from '@components/ui/cover/Cover.astro';
 import { defaultContentConfig } from '@constants/content-config';
 import { HomeSiderType } from '@constants/enum';
 import { CONTENT_PADDING } from '@constants/layout';
-import { siteConfig } from '@constants/site-config';
+import { devConfig, siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { postActionsConfig } from '@lib/config/site';
 import {
   buildCategoryPath,
   getCategoryArr,
@@ -20,12 +21,13 @@ import {
   getPostSummary,
   translateCategoryName,
 } from '@lib/content';
+import { getLocalEditorHref, getPostSourceFilename, getPostSourcePath, isPostSourcePublic } from '@lib/content/post-source';
 import { formatForSeo } from '@lib/date';
 import { encodeSlug } from '@lib/route';
 import { getOgImageUrl } from '@lib/seo/og-image';
 import { Icon } from 'astro-icon/components';
 import { Comment } from '@/components/comment';
-import EditButton from '@/components/EditButton';
+import PostMarkdownActions from '@/components/post/PostMarkdownActions';
 import { defaultLocale, getLocaleLabel, localizedPath, t } from '@/i18n';
 import { extractTextFromMarkdown } from '@/lib/sanitize';
 import { postRoute } from '../_shared/routes';
@@ -132,6 +134,16 @@ const breadcrumbJsonLd = {
 
 // 确定显示的摘要内容和来源类型
 const postSlug = getPostSlug(post);
+const postSourcePath = getPostSourcePath(localizedPath(`/post/${encodeSlug(postSlug)}`, locale));
+const localEditors =
+  import.meta.env.DEV && devConfig.localProjectPath && postRelativePath
+    ? devConfig.editors.map(({ id, name, icon, urlTemplate }) => ({
+        id,
+        name,
+        icon,
+        href: getLocalEditorHref({ urlTemplate }, devConfig, postRelativePath),
+      }))
+    : [];
 let summaryText: string | null = null;
 let summarySource: SummarySource | null = null;
 
@@ -198,8 +210,16 @@ if (post.data.description) {
           }
         </div>
         {
-          import.meta.env.DEV && postRelativePath && (
-            <EditButton client:only="react" postRelativePath={postRelativePath} />
+          isPostSourcePublic(post.data, post.body, import.meta.env.PROD) && (
+            <PostMarkdownActions
+              client:idle
+              locale={locale}
+              sourcePath={postSourcePath}
+              filename={getPostSourceFilename(postSlug)}
+              copy={postActionsConfig.copyMarkdown}
+              download={postActionsConfig.downloadMarkdown}
+              localEditors={localEditors}
+            />
           )
         }
       </nav>
