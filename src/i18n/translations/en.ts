@@ -377,6 +377,7 @@ export const uiStrings: UIStrings = {
 
   // ── Table of Contents ───────────────────────────────────────
   'toc.title': 'Table of Contents',
+  'toc.sectionProgress': 'Section reading progress',
   'toc.expand': 'Expand table of contents',
   'toc.empty': 'No headings',
 
