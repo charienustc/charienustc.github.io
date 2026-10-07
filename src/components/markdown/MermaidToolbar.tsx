@@ -9,6 +9,7 @@ import { MacToolbar } from '@components/markdown/shared/MacToolbar';
 import { ViewSourceToggle } from '@components/markdown/shared/ViewSourceToggle';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
+import { readMermaidSource } from '@lib/mermaid-source';
 import { openModal } from '@store/modal';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -23,7 +24,7 @@ export function MermaidToolbar({ preElement }: MermaidToolbarProps) {
   const renderedSvgRef = useRef<string | null>(null);
   const sourceContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const source = useMemo(() => preElement.getAttribute('data-diagram') || preElement.textContent || '', [preElement]);
+  const source = useMemo(() => readMermaidSource(preElement), [preElement]);
 
   // Wait for mermaid to process the diagram
   useEffect(() => {
