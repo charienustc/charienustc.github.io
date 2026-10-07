@@ -261,6 +261,14 @@ export const animation = {
     spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)', // Spring-like easing
   },
 
+  // The same curves as Motion `ease` arrays (mirror the --ease-* CSS variables)
+  bezier: {
+    outQuart: [0.25, 1, 0.5, 1] as const,
+    outExpo: [0.16, 1, 0.3, 1] as const,
+    inQuart: [0.5, 0, 0.75, 0] as const,
+    inOutQuart: [0.76, 0, 0.24, 1] as const,
+  },
+
   // Spring configurations for Motion library
   spring: {
     // Default spring (balanced)
@@ -309,6 +317,13 @@ export const animation = {
       type: 'spring' as const,
       stiffness: 200,
       damping: 9,
+    },
+
+    // Menus and popovers: quick, settled entrance
+    popover: {
+      type: 'spring' as const,
+      stiffness: 460,
+      damping: 32,
     },
 
     // Component-specific springs

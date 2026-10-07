@@ -13,9 +13,10 @@ import { normalizeColophonConfig } from './colophon';
 import { normalizeContentConfig } from './content';
 import { enabledFeaturedSeriesSlugs, normalizeFeaturedSeries } from './featured-series';
 import { normalizeFriendGroups } from './friends';
+import { normalizeMotionConfig } from './motion';
 import { normalizePostActionsConfig } from './post-actions';
 import { RESERVED_ROUTES } from './reserved-routes';
-import type { I18nConfig, ResolvedContentConfig, ResolvedSiteConfig } from './types';
+import type { I18nConfig, ResolvedContentConfig, ResolvedMotionConfig, ResolvedSiteConfig } from './types';
 
 /** Category name → URL slug map, e.g. `{ '随笔': 'life' }`. */
 export const categoryMap: Record<string, string> = yamlConfig.categoryMap ?? {};
@@ -42,6 +43,9 @@ export const enabledLocaleCodes = i18nConfig.locales.flatMap((locale) => (locale
 
 /** Content processing flags with field-level defaults applied. */
 export const contentConfig: ResolvedContentConfig = normalizeContentConfig(yamlConfig.content);
+
+/** Default motion level and sakura effect switches with field-level defaults applied. */
+export const motionConfig: ResolvedMotionConfig = normalizeMotionConfig(yamlConfig.motion);
 
 /** Markdown copy / download actions on post pages; gates the `<post url>.md` endpoint. */
 export const postActionsConfig = normalizePostActionsConfig(yamlConfig.postActions);

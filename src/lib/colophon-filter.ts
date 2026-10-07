@@ -1,5 +1,5 @@
 import { resolveMarkFilter, rowHasMark } from '@lib/content/colophon-view';
-import { masterMotionEnabled } from '@store/settings';
+import { isMotionDisabled } from '@lib/motion-level';
 
 const PARAM = 'mark';
 
@@ -41,8 +41,8 @@ export function setupColophonFilter(): void {
         const count = year.querySelector<HTMLElement>('[data-count-template]');
         if (count) count.textContent = count.dataset.countTemplate?.replace('#', String(visible)) ?? '';
       }
-      // masterMotionEnabled=true means reduced motion (html.motion-off), so animate only when it is off.
-      if (animate && list && !masterMotionEnabled.get()) {
+      // Animate only while motion is enabled; the OS reduced-motion preference caps the level at `reduced`.
+      if (animate && list && !isMotionDisabled()) {
         list.animate({ opacity: [0, 1] }, { duration: 180, easing: 'ease-out' });
       }
     };

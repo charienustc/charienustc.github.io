@@ -1,13 +1,8 @@
-/**
- * ProgressCircle Component
- *
- * SVG circular progress indicator showing overall article scroll progress.
- * Uses Motion's useScroll for tracking and useSpring for smooth animation.
- */
-
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useStore } from '@nanostores/react';
-import { masterMotionEnabled, scrollProgressEnabled } from '@store/settings';
-import { m, useReducedMotion, useScroll, useSpring } from 'motion/react';
+import { scrollProgressEnabled } from '@store/settings';
+import { type MotionValue, m, useScroll, useSpring, useTransform } from 'motion/react';
+import { useId } from 'react';
 
 interface ProgressCircleProps {
   /** Circle size in pixels (default: 28) */
@@ -18,24 +13,17 @@ interface ProgressCircleProps {
   className?: string;
 }
 
-export function ProgressCircle({ size = 28, strokeWidth = 2, className }: ProgressCircleProps) {
-  const shouldReduceMotion = useReducedMotion();
-  const enabled = useStore(scrollProgressEnabled);
-  const masterMotion = useStore(masterMotionEnabled);
-  const { scrollYProgress } = useScroll();
+interface CircleDrawingProps extends ProgressCircleProps {
+  progress: MotionValue<number>;
+}
 
-  const springProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001,
-  });
-
-  const progress = shouldReduceMotion || masterMotion ? scrollYProgress : springProgress;
-
-  if (!enabled) return null;
-
+function ProgressCircleDrawing({ size = 28, strokeWidth = 2, className, progress }: CircleDrawingProps) {
+  const gradientId = `progress-thread-${useId().replace(/[^\w-]/g, '')}`;
   const radius = (size - strokeWidth) / 2;
   const center = size / 2;
+  const beadX = useTransform(progress, (value) => center + radius * Math.cos(value * 2 * Math.PI));
+  const beadY = useTransform(progress, (value) => center + radius * Math.sin(value * 2 * Math.PI));
+  const beadOpacity = useTransform(progress, (value) => (value > 0.005 ? 1 : 0));
 
   return (
     <svg
@@ -46,7 +34,12 @@ export function ProgressCircle({ size = 28, strokeWidth = 2, className }: Progre
       role="progressbar"
       style={{ transform: 'rotate(-90deg)' }}
     >
-      {/* Background circle (track) */}
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" style={{ stopColor: 'var(--gradient-shoka-button-start)' }} />
+          <stop offset="1" style={{ stopColor: 'var(--gradient-shoka-button-end)' }} />
+        </linearGradient>
+      </defs>
       <circle
         cx={center}
         cy={center}
@@ -54,22 +47,50 @@ export function ProgressCircle({ size = 28, strokeWidth = 2, className }: Progre
         fill="transparent"
         stroke="currentColor"
         strokeWidth={strokeWidth}
-        className="opacity-20"
+        className="opacity-15"
       />
-      {/* Progress circle */}
       <m.circle
         cx={center}
         cy={center}
         r={radius}
         fill="transparent"
-        stroke="currentColor"
+        stroke={`url(#${gradientId})`}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
-        className="text-primary"
         style={{
           pathLength: progress,
         }}
       />
+      <m.circle
+        cx={beadX}
+        cy={beadY}
+        r={strokeWidth * 0.95}
+        style={{ fill: 'var(--gradient-shoka-button-end)', opacity: beadOpacity }}
+      />
     </svg>
   );
+}
+
+function SmoothProgressCircle({ progress, ...props }: CircleDrawingProps) {
+  const springProgress = useSpring(progress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+  return <ProgressCircleDrawing {...props} progress={springProgress} />;
+}
+
+function ScrollProgressCircle(props: ProgressCircleProps) {
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
+  const { scrollYProgress } = useScroll();
+  return shouldReduceMotion ? (
+    <ProgressCircleDrawing {...props} progress={scrollYProgress} />
+  ) : (
+    <SmoothProgressCircle {...props} progress={scrollYProgress} />
+  );
+}
+
+export function ProgressCircle(props: ProgressCircleProps) {
+  const enabled = useStore(scrollProgressEnabled);
+  return enabled ? <ScrollProgressCircle {...props} /> : null;
 }
