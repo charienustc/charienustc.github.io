@@ -13,6 +13,7 @@ catalog: true
 tocNumbering: true
 math: true
 quiz: true
+sticky: true
 ---
 
 这篇文章演示本站（astro-koharu 主题）支持的**全部**写作语法。所有示例都经过实测，语法说明依据仓库里的解析器源码（`src/lib/markdown/`、`src/lib/quiz/`）整理。
