@@ -53,7 +53,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
             where the browser cannot cache or parallelise it. The mobile
             header already used `<img src={logoSrc}>` for the same logo, so
             this also removes the last divergence between the two. */}
-        {showLogo ? <img src={logoSrc} alt={alternate || title} class="h-8" height={32} /> : <p class="logo-text">{alternate || title}</p>}
+        {showLogo ? <img src={logoSrc} alt={alternate || title} class="h-10" height={40} /> : <p class="logo-text">{alternate || title}</p>}
       </a>
       <!-- Mobile: MobilePostHeader (shows heading on post pages, logo otherwise) -->
       <div class="tablet:flex tablet:grow hidden items-center justify-center">

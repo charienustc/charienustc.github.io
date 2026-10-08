@@ -40,7 +40,7 @@ function Logo({ logoElement, logoText, logoSrc }: Pick<MobilePostHeaderProps, 'l
   return (
     <a href="/" className="flex items-center gap-1">
       {logoElement === 'svg' && logoSrc ? (
-        <img src={logoSrc} alt={siteConfig?.alternate ?? siteConfig?.name} className="h-8" height={32} />
+        <img src={logoSrc} alt={siteConfig?.alternate ?? siteConfig?.name} className="h-10" height={40} />
       ) : (
         <span className="logo-text">{logoText}</span>
       )}

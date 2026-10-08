@@ -11,11 +11,11 @@
 # Site Basic Information
 # =============================================================================
 site:
-  title: Charien的小窝 # 网站名称
+  title: Charien's Yard # 网站名称
   # alternate: Charien's Nest # 网站英文名称 用于页脚、Logo、@ handle 等
-  subtitle: 一个努力做科研的土豆 # 网站副标题
+  subtitle: 在无限的熵增里，维持一小块有序 # 网站副标题
   name: Charien # 作者名称 - 请修改为你的名字
-  description: 记录科研、代码与生活的自留地 # 网站描述
+  description: 记忆是思考的外存，外存要常做备份 # 网站描述
   avatar: /img/avatar.webp # 网站头像
   showLogo: true # 是否显示 Logo
   author: Charien # 作者名称 - 请修改为你的名字
@@ -217,17 +217,17 @@ friends:
     - id: site
       title: 本站
       description: 站长自己的相关站点
-    - id: theme
-      title: 主题作者
-      description: astro-koharu 主题的原作者
     - id: buddies
       title: 好友
       description: 好朋友们的博客
+    - id: theme
+      title: 主题作者
+      description: astro-koharu 主题的原作者
   data: # 友链列表
-    - site: Charien的小窝
+    - site: Charien's Yard
       url: https://charienustc.github.io
       owner: Charien
-      desc: 一个努力做科研的土豆 / 王者荣耀
+      desc: 一个努力做科研的土豆
       image: https://charienustc.github.io/img/avatar.webp
       color: '#55acd5'
       group: site
@@ -238,6 +238,13 @@ friends:
       image: https://blog.cosine.ren/img/avatar.webp
       color: '#e9546b'
       group: theme
+    - site: Leisuer
+      url: https://blowingwind.top/
+      owner: Leisuer
+      desc: 我的好朋友，USTC计科大佬
+      image: https://blowingwind.top/img/avatar.jpg
+      color: '#e9546b'
+      group: buddies
 
 # =============================================================================
 # Announcements
