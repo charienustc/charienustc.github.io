@@ -33,7 +33,7 @@ const readState = data ? getPostReadingTime(data) : null;
 const isDraft = import.meta.env.DEV && draft === true;
 
 // 获取横幅图片的 LQIP 样式
-const bannerLqipStyle = compact ? undefined : getLqipStyle('/img/site_header_1920.webp');
+const bannerLqipStyle = compact ? undefined : getLqipStyle('/img/site_cover_1920.webp');
 
 const locale = getLocaleFromUrl(Astro.url.pathname);
 
@@ -150,11 +150,11 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
     style={bannerLqipStyle}
   >
     <img
-      src="/img/site_header_1920.webp"
+      src="/img/site_cover_1920.webp"
       alt="cover"
       class="h-full w-full object-cover"
       sizes="50vw"
-      srcset="/img/site_header_800.webp 800w,/img/site_header_1920.webp 1200w"
+      srcset="/img/site_cover_800.webp 800w,/img/site_cover_1920.webp 1920w"
       loading="eager"
       fetchpriority="high"
       decoding="async"

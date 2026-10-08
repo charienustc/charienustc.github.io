@@ -2,8 +2,11 @@
   "weekly_header.webp": "edbdcef1cad4eac6d3",
   "site_header_800.webp": "625d475f5b3f7c8075",
   "site_header_1920.webp": "635e495e5b3f7d7f74",
+  "site_cover_800.webp": "5d7cb26989bc4b667d",
+  "site_cover_1920.webp": "5d7cb26989bc4b667d",
+  "site_cover.jpg": "5a70845776ad5f7fb6",
   "avatar.webp": "8897908992915d6f74",
-  "effects/holo.webp": "0d14250f15250c1118",
+  "moments/20261004-192356-7be2fdef14851fead45e3f2f42ed4f27.jpg": "a092708a7c64927e70",
   "cover/9.webp": "6e6da75c62a04e4864",
   "cover/8.webp": "453a32312f2e413a36",
   "cover/7.webp": "fab709e9a320915e37",
@@ -16,5 +19,6 @@
   "cover/12.webp": "4f443c60584f4d443d",
   "cover/11.webp": "c9914dc58e5396633d",
   "cover/10.webp": "5d6fa69595b5353553",
-  "cover/1.webp": "865568d88b7c863c3d"
+  "cover/1.webp": "865568d88b7c863c3d",
+  "effects/holo.webp": "0d14250f15250c1118"
 }
