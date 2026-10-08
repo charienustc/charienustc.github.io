@@ -34,8 +34,8 @@
 
     /* No full-width surface behind the header. The elements that need to stay
        readable over scrolled content now carry their own pill: the nav sits in
-       `.header-capsule`, each icon control in `.header-icon-button`. A bar
-       spanning the viewport would be redundant with those.
+       `.header-capsule`. A bar spanning the viewport would be redundant with
+       it.
 
        `::before` is still cancelled because the base rule paints
        `background-image` (bg-gradient-header), which is the *unscrolled*

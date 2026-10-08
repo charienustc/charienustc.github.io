@@ -156,8 +156,8 @@ html.theme-transition .header-content {
    backdrop-filter of everything inside it (the blur then samples only up to the
    named box and renders as a flat tint). That is why `transition:name` was
    removed from `#site-header`, and why the header and `.header-content` stay
-   unnamed: local child glass (the `.header-icon-button` discs, the mobile
-   heading pill) must keep sampling the page behind the header.
+   unnamed: local child glass (the mobile heading pill) must keep sampling the
+   page behind the header.
 
    The capsule itself IS named on desktop (`site-header-capsule`, below). An
    element's OWN backdrop-filter survives being named (upstream runs exactly
@@ -200,80 +200,6 @@ html.theme-transition .header-content {
   opacity: 0;
   scale: 0.96 0.85;
   pointer-events: none;
-}
-
-/* ---------------------------------------------------------------------------
-   Standalone round buttons for the icon controls on the right of the header.
-
-   Each control gets its own circular surface instead of sharing the bar-wide
-   background the header used to paint. The glass is a `::before` behind the
-   icon, shown and hidden by OPACITY — never by adding/removing the surface
-   itself. Fading `background-color` while `backdrop-filter` snaps off (it is
-   not transitioned) produced a flat white disc floating over the cover image
-   for the whole exit fade; fading the opacity of the whole glass layer takes
-   tint, blur and shadow out together, and opacity animates on the compositor.
-   --------------------------------------------------------------------------- */
-.header-icon-button {
-  /* Sized explicitly: the three controls otherwise self-size differently — two
-     inherit 34px from their inner icon span's line box, search is exactly 32px —
-     so the three circles came out mismatched. Fixing the box here makes them
-     uniform without touching each component's own markup. */
-  position: relative;
-  /* Stacking-context anchor: scopes the glass pseudo (z-index: 0) to this
-     button so it can never layer into the header row behind it. */
-  isolation: isolate;
-  inline-size: 2.25rem;
-  block-size: 2.25rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-}
-
-.header-icon-button::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  /* z-index: 0, NOT -1: a negative z-index silences `backdrop-filter` in
-     Chromium — the pseudo then samples only the parent background and the
-     glass renders as a flat tint (verified with a stripe probe, 2026-10).
-     The icons are lifted back above the glass via the `> *` rule below. */
-  z-index: 0;
-  border-radius: inherit;
-  /* Borderless frosted glass, same as `.header-capsule`: tint + blur + a soft
-     shadow carry the disc; an outline ring was tried and rejected — the
-     floating capsule state reads cleaner with no border. */
-  background-color: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
-  backdrop-filter: blur(16px) saturate(1.5);
-  box-shadow: 0 0.125rem 0.5rem -0.25rem rgb(0 0 0 / 0.18);
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* The glass pseudo now paints at z-index 0, above the button's inline
-   content — keep every direct-child icon on top of it. */
-.header-icon-button > * {
-  position: relative;
-  z-index: 1;
-}
-
-#site-header.with-background .header-icon-button::before {
-  opacity: 1;
-}
-
-/* Asymmetric fade: the after-change transition wins, so entering
-   `.with-background` uses the slower curve and leaving it the quick one. */
-@media (prefers-reduced-motion: no-preference) {
-  .header-icon-button::before {
-    transition: opacity 0.18s ease-in;
-  }
-
-  #site-header.with-background .header-icon-button::before {
-    transition: opacity 0.32s var(--ease-out-quart);
-  }
-}
-
-#site-header.with-background .header-icon-button:hover::before {
-  background-color: color-mix(in oklab, var(--gradient-bg-start) 92%, transparent);
 }
 
 #site-header.with-background .header-capsule {
@@ -502,8 +428,8 @@ html.theme-transition .header-content {
   content: "";
   position: absolute;
   inset: 0;
-  /* z-index: 0 for the same reason as `.header-icon-button::before` — a
-     negative z-index would silence the backdrop-filter (flat tint). */
+  /* z-index: 0, NOT -1: a negative z-index silences the backdrop-filter
+     (flat tint) — the pseudo would sample only the parent background. */
   z-index: 0;
   border-radius: inherit;
   background-color: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
