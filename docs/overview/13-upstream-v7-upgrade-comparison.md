@@ -69,7 +69,7 @@ build: {
 | B5 | 图表全屏增强：滚轮 / 双指缩放、拖动平移、双击放大、键盘快捷键 | 旧全屏 | `lib/zoom-pan.ts` | 低 | P1 | ✅ 36404f4 |
 | B6 | 图表 PNG 导出（按当前主题；浏览器不支持时存 SVG） | 无 | `lib/diagram-export.ts` | 低 | P2 | ✅ 36404f4 |
 | B7 | 樱花视觉系统：头图樱花飘落 + 点击迸出花瓣 | 无 | `lib/sakura/`（3 文件） | 低 | P2 | ✅ 6324152 |
-| B8 | 页面入场编排 + 滚动浮现 + 共享元素过渡 | 部分 | `lib/scroll-reveal.ts` 等 | 中 | P2 | ✅ 9da22d3 |
+| B8 | 页面入场编排 + 滚动浮现 + 共享元素过渡 | 部分 | `lib/scroll-reveal.ts` 等 | 中 | P2 | ✅ 9da22d3；后续修复：嵌套 slug 含 `/` 使 `view-transition-name` 非法被 CSS 解析丢弃（`postTitleMorphName` 现 sanitize 非 ident 字符），且本地 React 卡片标题名字只在内联样式、上游「配对成功即清空内联」逻辑会把它清掉（改为显式写回名字） |
 | B9 | 图标包按需打包 `BUNDLED_ICON_SETS` | 硬编码 4 套 | `lib/config/icon-sets.ts` | 小 | P3 | ✅ 49ee9a2（含 lucide 扩展） |
 | B10 | Shiki 主题抽常量 + 代码高亮改 **Catppuccin Latte / Mocha** | `github-light` / `github-dark` | `lib/markdown/shiki-themes.ts` | 小 | P2 | ✅ b0d7b87（常量已移植，主题保留 github 对，未切 Catppuccin） |
 | B11 | 顶部导航条胶囊动效编排（header.css 重写：hide/reveal 非对称、blur 随滚动态淡入、内容下沉、view-transition 连续命名 + `header-continuity.ts`） | 自研 `header-capsule.css` | `styles/components/header-capsule.css` / `theme-transition.css` | 中 | P2 | ✅ 0ad8e3c（动效对齐上游 v7；**命名只给胶囊**——被命名元素是 backdrop root，会把本地子元素玻璃（图标药丸）截成平色，故 `#site-header` / `.header-content` 不命名；移动端保留本地方案，不引入上游 `::before` 整栏毛玻璃条） |

@@ -13,7 +13,11 @@ import { isMotionDisabled, subscribeMotionLevel } from '@lib/motion-level';
 const MORPH_SELECTOR = '[data-morph]';
 
 export function postTitleMorphName(slug: string): string {
-  return `post-title-${slug}`;
+  // view-transition-name is a <custom-ident>: nested slugs ('note/demo') or
+  // punctuation in link overrides would make the declaration invalid and the
+  // CSS parser would silently drop it. Letters and digits (any language), '_'
+  // and '-' are valid ident code points; everything else becomes '-'.
+  return `post-title-${slug.replace(/[^\p{L}\p{N}_-]/gu, '-')}`;
 }
 
 function morphElements(root: ParentNode): NodeListOf<HTMLElement> {
@@ -71,10 +75,17 @@ export function setupMorphTransitions(): void {
       const incoming = new Set(Array.from(morphElements(event.newDocument), (element) => element.dataset.morph));
       pairs = new Set();
       for (const element of morphElements(document)) {
-        element.style.viewTransitionName = '';
         const name = element.dataset.morph ?? '';
-        if (incoming.has(name) && isOnScreen(element)) pairs.add(name);
-        else unname(element);
+        // Set the paired name explicitly instead of clearing the inline style
+        // (upstream's `transition:name` is stylesheet-backed, so clearing works
+        // there): the React post card carries its name inline only, and clearing
+        // it would leave the old end unnamed — no morph at all.
+        if (incoming.has(name) && isOnScreen(element)) {
+          pairs.add(name);
+          element.style.viewTransitionName = name;
+        } else {
+          unname(element);
+        }
       }
     };
   });
