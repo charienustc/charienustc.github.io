@@ -220,6 +220,12 @@ friends:
       desc: 一个努力做科研的土豆 / 王者荣耀
       image: https://charienustc.github.io/img/avatar.webp
       color: '#55acd5'
+    - site: 余弦の博客
+      url: https://blog.cosine.ren
+      owner: cosine
+      desc: astro-koharu 主题作者 / FE / ACG / 手工 / 深色模式强迫症
+      image: https://blog.cosine.ren/img/avatar.webp
+      color: '#e9546b'
 
 # =============================================================================
 # Announcements
