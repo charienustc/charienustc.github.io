@@ -424,27 +424,31 @@
     justify-content: center;
     border: 0;
     border-radius: 0 0 0.75rem 0.75rem;
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.625rem;
     background: linear-gradient(to bottom, transparent, hsl(var(--card) / 0.9) 60%, hsl(var(--card)));
     color: hsl(var(--muted-foreground));
   }
 
-  .code-block-expand-overlay-icon {
-    display: flex;
-    width: 1.75rem;
-    height: 1.75rem;
+  /* Capsule pill carrying the expand label; the overlay above is its hit area. */
+  .code-block-expand-overlay-pill {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
+    gap: 0.25rem;
     border: 1px solid hsl(var(--border));
     border-radius: 9999px;
+    padding: 0.25rem 0.875rem;
     background-color: hsl(var(--card) / 0.85);
     box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    backdrop-filter: blur(8px);
     transition:
       color 0.2s ease,
       transform 0.2s ease;
   }
 
-  .code-block-expand-overlay:hover .code-block-expand-overlay-icon {
+  .code-block-expand-overlay:hover .code-block-expand-overlay-pill {
     color: hsl(var(--primary));
     transform: translateY(0.125rem);
   }

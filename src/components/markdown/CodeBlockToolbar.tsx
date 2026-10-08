@@ -10,7 +10,41 @@ import { Icon } from '@iconify/react';
 import { extractCode, extractCodeClassName, extractCodeHTML, extractLanguage } from '@lib/content-enhancer-utils';
 import { cn } from '@lib/utils';
 import { openModal } from '@store/modal';
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+
+const EXPAND_DURATION = 480;
+const EXPAND_EASING = 'cubic-bezier(0.25, 1, 0.5, 1)';
+
+/**
+ * Animate the code body's max-height between the collapsed preview height and
+ * the full height. The wrapper class is toggled synchronously so the final
+ * state comes from CSS; inline max-height only carries the animation.
+ */
+function animateHeight(
+  wrapper: HTMLElement,
+  codeEl: HTMLElement,
+  expanding: boolean,
+  running: React.RefObject<Animation | null>,
+): void {
+  running.current?.cancel();
+  const from = codeEl.getBoundingClientRect().height;
+  wrapper.classList.toggle('code-collapsed', !expanding);
+  const to = codeEl.getBoundingClientRect().height;
+  if (from === to) return;
+
+  codeEl.style.overflow = 'hidden';
+  codeEl.style.maxHeight = `${from}px`;
+  const anim = codeEl.animate([{ maxHeight: `${from}px` }, { maxHeight: `${to}px` }], {
+    duration: EXPAND_DURATION,
+    easing: EXPAND_EASING,
+  });
+  running.current = anim;
+  anim.onfinish = () => {
+    codeEl.style.removeProperty('max-height');
+    codeEl.style.removeProperty('overflow');
+    running.current = null;
+  };
+}
 
 interface CodeBlockToolbarProps {
   preElement: HTMLElement;
@@ -38,13 +72,33 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
   // The build-time transformer owns the collapsibility decision; the wrapper class is its output.
   const collapsible = useMemo(() => preElement.parentElement?.classList.contains('code-collapsible') ?? false, [preElement]);
   const [collapsed, setCollapsed] = useState(collapsible);
+  const runningAnim = useRef<Animation | null>(null);
 
   useLayoutEffect(() => {
     const wrapper = preElement.parentElement;
     if (!wrapper || !collapsible) return;
     wrapper.classList.toggle('code-collapsed', collapsed);
-    return () => wrapper.classList.remove('code-collapsed');
+    return () => {
+      wrapper.classList.remove('code-collapsed');
+      runningAnim.current?.cancel();
+    };
   }, [preElement, collapsible, collapsed]);
+
+  /** Flip collapsed state, animating the code body height when motion is allowed. */
+  const toggleCollapsed = useCallback(() => {
+    const wrapper = preElement.parentElement;
+    const codeEl = preElement.querySelector('code');
+    // The wrapper class is the source of truth (the layout effect keeps it in sync),
+    // so this stays correct even when called from a stale event-listener closure.
+    const isCollapsed = wrapper?.classList.contains('code-collapsed') ?? true;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!wrapper || !codeEl || reduced) {
+      setCollapsed((prev) => !prev);
+      return;
+    }
+    animateHeight(wrapper, codeEl, isCollapsed, runningAnim);
+    setCollapsed(!isCollapsed);
+  }, [preElement]);
 
   // Make the full toolbar clickable while preserving button and link behavior.
   useEffect(() => {
@@ -54,11 +108,11 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
     const handleBarClick = (event: Event) => {
       // Buttons and title links keep their own behavior instead of toggling the block.
       if ((event.target as HTMLElement).closest('button, a')) return;
-      setCollapsed((prev) => !prev);
+      toggleCollapsed();
     };
     toolbar?.addEventListener('click', handleBarClick);
     return () => toolbar?.removeEventListener('click', handleBarClick);
-  }, [preElement, collapsible]);
+  }, [preElement, collapsible, toggleCollapsed]);
 
   const handleFullscreen = () => {
     openModal('codeFullscreen', info);
@@ -76,7 +130,7 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
         {collapsible && (
           <button
             type="button"
-            onClick={() => setCollapsed((prev) => !prev)}
+            onClick={toggleCollapsed}
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
             aria-label={collapsed ? t('code.expand') : t('code.collapse')}
             aria-expanded={!collapsed}
@@ -109,12 +163,13 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
         <button
           type="button"
           className="code-block-expand-overlay"
-          onClick={() => setCollapsed(false)}
+          onClick={toggleCollapsed}
           aria-label={t('code.expand')}
           title={t('code.expand')}
         >
-          <span className="code-block-expand-overlay-icon">
-            <Icon icon="ri:arrow-down-s-line" className="size-5" />
+          <span className="code-block-expand-overlay-pill">
+            <Icon icon="ri:arrow-down-s-line" className="size-4" />
+            {t('code.expand')}
           </span>
         </button>
       )}
