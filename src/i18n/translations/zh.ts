@@ -71,6 +71,7 @@ export const uiStrings = {
   'category.totalCategories': '共 {count} 个分类',
   'category.categoryLabel': '分类',
   'index.tags': '个标签',
+  'index.years': '年',
   'index.mostUsed': '最常用',
   'tag.allTags': '所有标签',
   'tag.postsWithTag': '标签「{name}」下的文章',
@@ -347,6 +348,9 @@ export const uiStrings = {
   'series.rss': 'RSS 订阅',
   'series.chromeExtension': 'Chrome 插件',
   'series.docs': '文档',
+  'series.issues': '期',
+  'series.latestIssue': '最新一期',
+  'series.readIssue': '阅读本期',
 
   // ── Home Info ───────────────────────────────────────────────
   'homeInfo.articles': '文章',
