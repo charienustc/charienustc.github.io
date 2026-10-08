@@ -213,6 +213,13 @@ friends:
         desc: 站点简介 # 站点简介
         image: https://your-blog.com/avatar.jpg # 头像链接
         color: "#55acd5" # 主题色（可选）
+  groups: # 友链分组（配置后页面显示分组页签）
+    - id: site
+      title: 本站
+      description: 站长自己的相关站点
+    - id: theme
+      title: 主题作者
+      description: astro-koharu 主题的原作者
   data: # 友链列表
     - site: Charien的小窝
       url: https://charienustc.github.io
@@ -220,12 +227,14 @@ friends:
       desc: 一个努力做科研的土豆 / 王者荣耀
       image: https://charienustc.github.io/img/avatar.webp
       color: '#55acd5'
+      group: site
     - site: 余弦の博客
       url: https://blog.cosine.ren
       owner: cosine
       desc: astro-koharu 主题作者 / FE / ACG / 手工 / 深色模式强迫症
       image: https://blog.cosine.ren/img/avatar.webp
       color: '#e9546b'
+      group: theme
 
 # =============================================================================
 # Announcements
