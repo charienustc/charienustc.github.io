@@ -104,7 +104,7 @@ build: {
 | C5 | 友链改静态横排名片，配置色体现在头像外圈与悬停反馈 | 旧卡片 | `friends/FriendCard.tsx` | 中 | P2 | ✅ 82640f7（静态 .astro 网格 + friends-interactions；FriendCard.tsx 磁吸版保留给 markdown FriendLinksGrid） |
 | C6 | 期刊目录页重设计 + 期数从标题自动解析（`Vol.35` / `No.3` / `#12` / `第 1 期`） | 旧系列页 | `lib/series-issue.ts` | 中 | P2 | ✅ 349eaf4（index-groups 同时落地；系列页改 index-surface + PageIntro 期数/年份统计） |
 | C7 | 系列头图共用遮罩 / 樱花 / 入场动画 / 滚动视差，链接改磨砂胶囊按钮 | 旧 | 系列页 | 中 | P2 | 待做 |
-| C8 | 系列阅读进度尺（悬停或触摸拖动预览并跳转）+ 上下篇改翻页卡片 | 旧 `SeriesNavigation` | `lib/series-rail.ts` | 中 | P2 | 待做 |
+| C8 | 系列阅读进度尺（悬停或触摸拖动预览并跳转）+ 上下篇改翻页卡片 | 旧 `SeriesNavigation` | `lib/series-rail.ts` | 中 | P2 | ✅ d13e02b（series-rail 数学库+测试；SeriesProgress 刻度尺/悬停波浪/就地预览/触摸滑动；PostPagination 翻页卡片；SeriesNavigation 与 ScrollProgress 移除） |
 | C9 | 碎碎念：同一作者连续消息合并，操作按钮收进悬停工具条 | 旧 | `moments/` | 中 | P3 | 待做 |
 | C10 | 追番改海报书架，只用粉色角标标出「在看」 | 旧 | `bangumi/` | 中 | P3 | 待做 |
 | C11 | 移动导航抽屉重做：跟手拖动关闭、焦点约束与返回、背景交互隔离、安全区 | 旧 `MobileDrawer` | `lib/drawer-gesture.ts` | 中 | P2 | 待做 |
