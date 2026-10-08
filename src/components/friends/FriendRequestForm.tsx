@@ -55,7 +55,7 @@ color: "${formData.color || '#55acd5'}"`;
     <div className="mb-4 w-full">
       <div className="relative overflow-hidden rounded-3xl border-2 border-gray-100 bg-white p-6 shadow-sm md:p-3 dark:border-gray-800 dark:bg-gray-900">
         {/* Cute Corner Decor */}
-        <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-pink-100/50 dark:bg-pink-900/20" />
+        <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-primary/10 dark:bg-primary/20" />
         <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-blue-100/50 dark:bg-blue-900/20" />
 
         <div className="grid grid-cols-2 gap-12 md:grid-cols-1 md:gap-8">
@@ -63,7 +63,7 @@ color: "${formData.color || '#55acd5'}"`;
           <div className="relative z-10">
             <div className="mb-6">
               <h2 className="mb-2 flex items-center gap-2 font-black text-2xl text-gray-800 dark:text-white">
-                <SakuraSVG className="size-6 animate-spin text-[#FFC0CB] duration-10000" />
+                <SakuraSVG className="size-6 animate-spin text-primary duration-10000" />
                 {t('friends.applyTitle')}
               </h2>
               <p className="font-medium text-gray-500 text-sm dark:text-gray-400">{friendsIntro.applyDesc}</p>
@@ -81,7 +81,7 @@ color: "${formData.color || '#55acd5'}"`;
                     name="site"
                     value={formData.site}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-gray-100 bg-gray-50/50 px-4 py-2.5 font-bold text-gray-700 text-sm transition-all focus:border-pink-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-100 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:focus:border-pink-700 dark:focus:bg-gray-800 dark:focus:ring-pink-900/30"
+                    className="w-full rounded-xl border-2 border-gray-100 bg-gray-50/50 px-4 py-2.5 font-bold text-gray-700 text-sm transition-all focus:border-primary/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/15 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:focus:border-primary/60 dark:focus:bg-gray-800 dark:focus:ring-primary/25"
                     placeholder={t('friends.sitePlaceholder')}
                   />
                 </div>
@@ -98,7 +98,7 @@ color: "${formData.color || '#55acd5'}"`;
                     name="owner"
                     value={formData.owner}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-gray-100 bg-gray-50/50 px-4 py-2.5 font-bold text-gray-700 text-sm transition-all focus:border-pink-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-100 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:focus:border-pink-700 dark:focus:bg-gray-800 dark:focus:ring-pink-900/30"
+                    className="w-full rounded-xl border-2 border-gray-100 bg-gray-50/50 px-4 py-2.5 font-bold text-gray-700 text-sm transition-all focus:border-primary/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/15 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:focus:border-primary/60 dark:focus:bg-gray-800 dark:focus:ring-primary/25"
                     placeholder={t('friends.ownerPlaceholder')}
                   />
                 </div>
@@ -114,7 +114,7 @@ color: "${formData.color || '#55acd5'}"`;
                   name="url"
                   value={formData.url}
                   onChange={handleChange}
-                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50/50 px-4 py-2.5 font-bold text-gray-700 text-sm transition-all focus:border-pink-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-100 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:focus:border-pink-700 dark:focus:bg-gray-800 dark:focus:ring-pink-900/30"
+                  className="w-full rounded-xl border-2 border-gray-100 bg-gray-50/50 px-4 py-2.5 font-bold text-gray-700 text-sm transition-all focus:border-primary/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/15 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:focus:border-primary/60 dark:focus:bg-gray-800 dark:focus:ring-primary/25"
                   placeholder="https://your-site.com"
                 />
               </div>
@@ -129,7 +129,7 @@ color: "${formData.color || '#55acd5'}"`;
                   value={formData.desc}
                   onChange={handleChange}
                   rows={2}
-                  className="w-full resize-none rounded-xl border-2 border-gray-100 bg-gray-50/50 px-4 py-2.5 font-bold text-gray-700 text-sm transition-all focus:border-pink-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-100 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:focus:border-pink-700 dark:focus:bg-gray-800 dark:focus:ring-pink-900/30"
+                  className="w-full resize-none rounded-xl border-2 border-gray-100 bg-gray-50/50 px-4 py-2.5 font-bold text-gray-700 text-sm transition-all focus:border-primary/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/15 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:focus:border-primary/60 dark:focus:bg-gray-800 dark:focus:ring-primary/25"
                   placeholder={t('friends.descPlaceholder')}
                 />
               </div>
@@ -148,7 +148,7 @@ color: "${formData.color || '#55acd5'}"`;
                     name="image"
                     value={formData.image}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-gray-100 bg-gray-50/50 px-4 py-2.5 font-bold text-gray-700 text-sm transition-all focus:border-pink-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-100 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:focus:border-pink-700 dark:focus:bg-gray-800 dark:focus:ring-pink-900/30"
+                    className="w-full rounded-xl border-2 border-gray-100 bg-gray-50/50 px-4 py-2.5 font-bold text-gray-700 text-sm transition-all focus:border-primary/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/15 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:focus:border-primary/60 dark:focus:bg-gray-800 dark:focus:ring-primary/25"
                     placeholder="https://..."
                   />
                 </div>
@@ -175,7 +175,7 @@ color: "${formData.color || '#55acd5'}"`;
                       type="text"
                       value={formData.color}
                       onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                      className="flex-1 rounded-xl border-2 border-gray-100 bg-gray-50/50 px-4 py-2.5 font-bold text-gray-700 text-sm transition-all focus:border-pink-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-100 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:focus:border-pink-700 dark:focus:bg-gray-800 dark:focus:ring-pink-900/30"
+                      className="flex-1 rounded-xl border-2 border-gray-100 bg-gray-50/50 px-4 py-2.5 font-bold text-gray-700 text-sm transition-all focus:border-primary/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/15 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 dark:focus:border-primary/60 dark:focus:bg-gray-800 dark:focus:ring-primary/25"
                     />
                   </div>
                 </div>
