@@ -245,6 +245,13 @@ friends:
       image: https://blowingwind.top/img/avatar.jpg
       color: '#e9546b'
       group: buddies
+    - site: Jingwen's Homepage
+      url: https://shirakawasanae.github.io
+      owner: Jingwen Sun
+      desc: 既漂亮又超有爱心超有实力的学姐
+      image: https://shirakawasanae.github.io/assets/images/IzumiKonata.svg
+      color: '#55acd5'
+      group: buddies
 
 # =============================================================================
 # Announcements
