@@ -220,6 +220,9 @@ friends:
     - id: theme
       title: 主题作者
       description: astro-koharu 主题的原作者
+    - id: buddies
+      title: 好友
+      description: 好朋友们的博客
   data: # 友链列表
     - site: Charien的小窝
       url: https://charienustc.github.io
