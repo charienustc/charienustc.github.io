@@ -119,7 +119,7 @@ featuredSeries:
     fullName: 我的技术周刊 # 完整名称
     description: | # 支持多行 Markdown
       记录一些值得回看的零散发现。
-    cover: /img/site_header_1920.webp # 系列页面头图
+    cover: /img/site_cover_1920.webp # 系列页面头图
     enabled: true # 启用此系列
     icon: lucide:newspaper # 导航图标
     links: # 相关链接（可选）
