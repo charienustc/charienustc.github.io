@@ -1,19 +1,22 @@
 ---
+import PageIntro from '@components/common/PageIntro.astro';
+import PostYears from '@components/common/PostYears.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import Cover from '@components/ui/cover/Cover.astro';
-import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
+import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { getPostSlug, getSortedPosts } from '@lib/content';
+import { siteTimezone } from '@lib/config/site';
+import { getSortedPosts } from '@lib/content';
 import { colophonMarkIds } from '@lib/content/colophon';
 import { colophonFilterChips } from '@lib/content/colophon-view';
+import { bucketPostsByMonth, groupPostsByYear, monthIntensity } from '@lib/content/index-groups';
 import { getColophonConfig, getPostColophon } from '@lib/content/post-colophon';
-import { displayDate } from '@lib/date';
-import { encodeSlug } from '@lib/route';
+import { PETAL_MASK } from '@lib/sakura/petal';
 import { Icon } from 'astro-icon/components';
+import { formatInTimeZone } from 'date-fns-tz';
 import type { BlogPost } from 'types/blog';
-import { defaultLocale, localizedPath, t } from '@/i18n';
-import Layout from '../layouts/Layout.astro';
+import { defaultLocale, t } from '@/i18n';
 
 interface Props {
   locale?: string;
@@ -22,102 +25,66 @@ interface Props {
 // Root pages render the default locale; `[lang]/` mirrors pass their locale in explicitly.
 const { locale = defaultLocale } = Astro.props;
 const posts = await getSortedPosts(locale);
-
-// 按年份对文章进行分组
-const postsByYear = posts.reduce(
-  (acc, post) => {
-    const year = new Date(post.data.date).getFullYear();
-    if (!acc[year]) {
-      acc[year] = [];
-    }
-    acc[year].push(post);
-    return acc;
-  },
-  {} as Record<number, typeof posts>,
-);
-
-const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
+const months = bucketPostsByMonth(posts, siteTimezone);
+const years = groupPostsByYear(posts, siteTimezone);
+const peak = Math.max(0, ...months.map(({ posts }) => posts.length));
+const monthMap = new Map(months.map((bucket) => [bucket.key, bucket]));
+// Months after the build month have not happened yet; they render as open outlines, not as empty months.
+const currentMonth = formatInTimeZone(new Date(), siteTimezone, 'yyyy-MM');
+const range = years.length ? `${years.at(-1)?.year}–${years[0].year}` : '—';
+const stats = [
+  { value: posts.length, label: t(locale, 'index.posts') },
+  { value: range, label: t(locale, 'index.years') },
+];
 
 // Colophon mark filter: chips only appear when at least one listed post carries a dictionary mark.
 const markIds = new Map<BlogPost, string[]>(posts.map((post) => [post, colophonMarkIds(getPostColophon(post, locale))]));
 const markChips = colophonFilterChips(getColophonConfig(locale).marks, [...markIds.values()]);
-const countTemplate = t(locale, 'post.yearPosts', { count: '#' });
+const marksOf = markChips.length ? (post: BlogPost) => markIds.get(post) ?? [] : undefined;
 ---
 
 <Layout locale={locale} title={`${t(locale, 'archives.title')} | ${siteConfig.title}`} description={t(locale, 'archives.title')}>
-  <TwoColumnLayout>
-    <Cover slot="cover" title={t(locale, 'archives.title')} />
+  <TwoColumnLayout showPostFooter={false}>
+    <Cover compact slot="cover" title={t(locale, 'archives.title')} />
     <HomeSider slot="sider" />
-    <div class={`shadow-box bg-gradient-start mx-0 flex w-full flex-col ${CONTENT_PADDING.standard}`} data-colophon-filter-root>
-      <h2 class="shoka-decoration-circle group relative h-19 px-6 py-5 text-2xl/9 font-bold md:text-xl/9">
-        <a href={localizedPath('/', locale)} class="dashed-border text-muted-foreground group-hover:border-blue group-hover:text-blue border-b">{t(locale, 'nav.home')}</a>
-        <span class="text-muted-foreground text-lg md:text-base"> / </span>
-        {t(locale, 'post.totalPosts', { count: posts.length })}
-      </h2>
-      {
-        markChips.length > 0 && (
-          <div class="flex flex-wrap gap-2 px-6 pb-2" role="group" aria-label={t(locale, 'colophon.filter')}>
-            <button
-              type="button"
-              data-colophon-filter=""
-              aria-pressed="true"
-              class="rounded-full bg-primary px-3 py-1 text-white text-xs transition-colors"
-            >
-              {t(locale, 'tag.all')}
-              <sup class="ml-1">{posts.length}</sup>
-            </button>
-            {markChips.map((chip) => (
-              <button
-                type="button"
-                data-colophon-filter={chip.id}
-                aria-pressed="false"
-                class="rounded-full bg-muted px-3 py-1 text-muted-foreground text-xs transition-colors hover:bg-muted/70"
-              >
-                <Icon name={chip.icon} class="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
-                {chip.label}
-                <sup class="ml-1">{chip.count}</sup>
-              </button>
-            ))}
+    <div class="index-surface shadow-box" data-archive data-colophon-filter-root>
+      <PageIntro stats={stats}>
+        {markChips.length > 0 && <div class="index-tabs index-tabs-quiet colophon-filter" slot="tools" role="group" aria-label={t(locale, 'colophon.filter')}>
+          <button type="button" data-colophon-filter="" aria-pressed="true">{t(locale, 'tag.all')}<sup>{posts.length}</sup></button>
+          {markChips.map((chip) => <button type="button" data-colophon-filter={chip.id} aria-pressed="false"><Icon name={chip.icon} aria-hidden="true" />{chip.label}<sup>{chip.count}</sup></button>)}
+        </div>}
+      </PageIntro>
+      {years.length > 0 && <section class="archive-calendar" aria-labelledby="calendar-title" style={{ '--petal-mask': PETAL_MASK }}>
+        <div class="archive-calendar-head">
+          <h2 id="calendar-title">{t(locale, 'archives.calendar')}</h2>
+          <div class="archive-calendar-legend" aria-hidden="true">
+            {t(locale, 'archives.legendFew')}
+            {[0, 1, 2, 3, 4].map((tier) => <span class="archive-month-cell" data-tier={tier}></span>)}
+            {t(locale, 'archives.legendMany')}
           </div>
-        )
-      }
-      <div class="post-years flex flex-col gap-4 md:gap-5">
-        {
-          years.map((year) => (
-            <div data-post-year>
-              <h3 class="text-xl font-bold md:text-base">
-                {year}
-                <span class="text-muted-foreground ml-2 text-base md:text-sm" data-count-template={countTemplate}>
-                  {t(locale, 'post.yearPosts', { count: postsByYear[Number(year)].length })}
-                </span>
-              </h3>
-              <div class="mt-2">
-                {postsByYear[Number(year)].map((post) => (
-                  <p
-                    class="shoka-decoration-circle group text-primary hover:text-blue post-row relative px-6 py-2 text-base/9 md:flex md:flex-col md:items-stretch md:text-sm/9"
-                    data-colophon={markIds.get(post)?.length ? markIds.get(post)?.join(' ') : undefined}
-                  >
-                    <span class="text-muted-foreground mr-2 text-xs">
-                      {displayDate.date(post.data.date)}
-                    </span>
-                    <a
-                      href={localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, locale)}
-                      class="dashed-border text-primary hover:text-blue truncate transition-colors"
-                    >
-                      {post.data.title}
-                    </a>
-                  </p>
-                ))}
-              </div>
-            </div>
-          ))
-        }
-      </div>
+        </div>
+        <div class="archive-calendar-grid">
+          <div class="archive-calendar-row archive-month-labels" aria-hidden="true"><span></span>{Array.from({ length: 12 }, (_, i) => <span>{i + 1}</span>)}</div>
+          {years.map(({ year }) => <div class="archive-calendar-row">
+            <a class="archive-calendar-year" href={`#year-${year}`} aria-label={t(locale, 'archives.jumpToYear', { year })}><span class="calendar-full-year">{year}</span><span class="calendar-short-year">'{String(year).slice(-2)}</span></a>
+            {Array.from({ length: 12 }, (_, i) => {
+              const key = `${year}-${String(i + 1).padStart(2, '0')}`;
+              const count = monthMap.get(key)?.posts.length ?? 0;
+              const label = t(locale, 'archives.monthLabel', { year, month: i + 1, count });
+              if (count) return <a class="archive-month-cell" data-tier={monthIntensity(count, peak)} href={`#month-${key}`} title={label} aria-label={label}></a>;
+              return <span class="archive-month-cell" data-tier={key > currentMonth ? 'future' : '0'} title={key > currentMonth ? undefined : label}></span>;
+            })}
+          </div>)}
+        </div>
+      </section>}
+      <PostYears posts={posts} locale={locale} anchors marksOf={marksOf} />
     </div>
   </TwoColumnLayout>
 </Layout>
 
 <script>
+  import { setupArchiveNavigation } from '@lib/archive-navigation';
   import { setupColophonFilter } from '@lib/colophon-filter';
+  setupArchiveNavigation();
   setupColophonFilter();
 </script>

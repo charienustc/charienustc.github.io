@@ -88,6 +88,12 @@ export const uiStrings = {
   // ── Archives ────────────────────────────────────────────────
   'archives.title': '归档',
   'archives.totalPosts': '共 {count} 篇',
+  'index.posts': '篇文章',
+  'archives.calendar': '写作日历',
+  'archives.legendFew': '少',
+  'archives.legendMany': '多',
+  'archives.jumpToYear': '跳到 {year} 年',
+  'archives.monthLabel': '{year} 年 {month} 月 · {count} 篇',
 
   // ── Search ──────────────────────────────────────────────────
   'search.placeholder': '请输入关键词搜索',

@@ -89,6 +89,12 @@ export const uiStrings: UIStrings = {
   // ── Archives ────────────────────────────────────────────────
   'archives.title': 'Archives',
   'archives.totalPosts': '{count} posts',
+  'index.posts': 'posts',
+  'archives.calendar': 'Writing calendar',
+  'archives.legendFew': 'Less',
+  'archives.legendMany': 'More',
+  'archives.jumpToYear': 'Jump to {year}',
+  'archives.monthLabel': '{year}, month {month} · {count} posts',
 
   // ── Search ──────────────────────────────────────────────────
   'search.placeholder': 'Search by keyword',
