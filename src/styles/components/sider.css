@@ -1,0 +1,411 @@
+/*
+  Sider additions for the series progress rail (C8, ported from upstream v7.7.1 sider.css).
+
+  Extracted rules only — the local sider keeps its own layout styles (HomeSider.astro still owns
+  the column classes). What lives here: the series-progress ruler and the series-thread post list.
+  --sider-surface matches the page background so the current-post halo blends into the column.
+*/
+
+.sider-column,
+.drawer-sider {
+  --sider-surface: var(--gradient-bg-start);
+}
+
+/* ── Series progress (SeriesProgress.astro) ──────────────── */
+
+/*
+  The sider's footer: one tick per post on the silk thread, a haloed bead for this post. Under the
+  pointer the ticks swell in a wave (--wave, written per tick by the script), and the meta line
+  above trades the series name for the targeted post's title in place, so nothing covers the panel.
+*/
+.series-progress {
+  position: relative;
+  flex-shrink: 0;
+  margin-top: 0.5rem;
+  padding-top: 0.875rem;
+}
+
+.series-progress::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  inset-inline: 0.5rem;
+  height: 1px;
+  background: linear-gradient(to right, transparent, hsl(var(--primary) / 0.2) 20%, hsl(var(--primary) / 0.2) 80%, transparent);
+}
+
+.series-progress-meta {
+  display: grid;
+  padding-inline: 0.375rem;
+}
+
+/* Out, then in: the leaving line clears in 100ms before the arriving one fades up, so they never overlap. */
+.series-progress-default,
+.series-progress-preview {
+  display: flex;
+  grid-area: 1 / 1;
+  min-width: 0;
+  align-items: baseline;
+  gap: 0.5rem;
+  transition:
+    opacity 180ms var(--ease-out-quart) 100ms,
+    translate 260ms var(--ease-out-quart) 100ms;
+}
+
+.series-progress[data-previewing] .series-progress-default,
+.series-progress:not([data-previewing]) .series-progress-preview {
+  transition-delay: 0ms;
+  transition-duration: 100ms;
+}
+
+.series-progress-default {
+  justify-content: space-between;
+}
+
+.series-progress-preview {
+  opacity: 0;
+  translate: 0 0.25rem;
+  pointer-events: none;
+}
+
+.series-progress[data-previewing] .series-progress-default {
+  opacity: 0;
+  translate: 0 -0.25rem;
+}
+
+.series-progress[data-previewing] .series-progress-preview {
+  opacity: 1;
+  translate: none;
+}
+
+.series-progress-name,
+.series-progress-preview-title {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.series-progress-name {
+  color: hsl(var(--foreground) / 0.78);
+  font-weight: 500;
+}
+
+.series-progress-preview-title {
+  color: hsl(var(--foreground) / 0.88);
+}
+
+.series-progress-count,
+.series-progress-preview-label {
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.series-progress-count {
+  color: hsl(var(--muted-foreground));
+}
+
+.series-progress-preview-label {
+  color: hsl(var(--primary));
+}
+
+.series-progress-track {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  margin-top: 0.25rem;
+}
+
+.series-progress-arrow {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  color: hsl(var(--primary) / 0.7);
+  font-size: 1.125rem;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 200ms var(--ease-out-quart),
+    color 200ms var(--ease-out-quart);
+}
+
+.series-progress-arrow > svg {
+  transition: translate 320ms var(--ease-out-expo);
+}
+
+span.series-progress-arrow {
+  color: hsl(var(--muted-foreground) / 0.3);
+}
+
+/*
+  A ruler: each post is a major tick in its own slice of the track (full height, so the pointer always
+  targets the nearest post), and short series fill the gaps with fine minor ticks so the ruler reads
+  equally dense at 3 posts or 40. The read stretch of the ruler is dyed, minors included.
+*/
+.series-progress-rail {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  height: 2.25rem;
+  /* Horizontal finger drags scrub the rail; without this a touch screen at desktop width pans instead. */
+  touch-action: pan-y;
+}
+
+.series-progress-rail::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  inset-inline: 0;
+  height: 1px;
+  background: hsl(var(--primary) / 0.16);
+  translate: 0 -50%;
+  pointer-events: none;
+}
+
+/* A windowed long series fades out at the clipped end(s): the series continues past what is shown. */
+.series-progress-rail[data-clipped-start] {
+  mask-image: linear-gradient(to right, transparent, #000 1.5rem);
+}
+
+.series-progress-rail[data-clipped-end] {
+  mask-image: linear-gradient(to left, transparent, #000 1.5rem);
+}
+
+.series-progress-rail[data-clipped-start][data-clipped-end] {
+  mask-image: linear-gradient(to right, transparent, #000 1.5rem, #000 calc(100% - 1.5rem), transparent);
+}
+
+.series-progress-rail > li {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.series-progress-tick {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.series-progress-tick {
+  justify-content: space-evenly;
+}
+
+/* --wave (1 at rest → 2.6 under the pointer) is written per mark by the script: the ruler ripples. */
+.series-progress-mark {
+  position: relative;
+  flex-shrink: 0;
+  width: 1px;
+  height: 0.375rem;
+  border-radius: 1px;
+  background: hsl(var(--foreground) / 0.14);
+  scale: 1 var(--wave, 1);
+  transition:
+    scale 220ms var(--ease-out-quart),
+    background-color 160ms var(--ease-out-quart);
+  pointer-events: none;
+}
+
+.series-progress-major {
+  width: 2px;
+  height: 0.75rem;
+  background: hsl(var(--foreground) / 0.34);
+}
+
+.series-progress-tick[data-read] .series-progress-mark {
+  background: hsl(var(--primary) / 0.25);
+}
+
+.series-progress-tick[data-read] .series-progress-major {
+  background: hsl(var(--primary) / 0.65);
+}
+
+/*
+  This post: the ruler's needle. Still a line like every other mark, only taller, glowing and capped
+  with a small bead; it stays still while the wave ripples around it.
+*/
+.series-progress-tick[aria-current="page"] .series-progress-major {
+  width: 2px;
+  height: 1.25rem;
+  background: hsl(var(--primary));
+  box-shadow: 0 0 0.375rem hsl(var(--primary) / 0.55);
+  scale: none;
+}
+
+.series-progress-tick[aria-current="page"] .series-progress-major::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+  translate: -50% -50%;
+}
+
+.series-progress-tick[data-targeted]:not([aria-current]) .series-progress-major {
+  background: hsl(var(--primary));
+}
+
+html:is([data-motion="reduced"], .motion-off) .series-progress-mark {
+  scale: none;
+  transition: background-color 160ms;
+}
+
+@media (hover: hover) {
+  .series-progress-arrow:is(a):hover {
+    background: hsl(var(--primary) / 0.08);
+    color: hsl(var(--primary));
+  }
+
+  .series-progress-arrow[data-dir="prev"]:hover > svg {
+    translate: -2px 0;
+  }
+
+  .series-progress-arrow[data-dir="next"]:hover > svg {
+    translate: 2px 0;
+  }
+}
+
+.series-progress-arrow:is(a):active {
+  background: hsl(var(--primary) / 0.12);
+}
+
+:is(.series-progress-arrow, .series-progress-tick):focus-visible {
+  outline-offset: -2px;
+}
+
+.series-progress-tick:focus-visible {
+  border-radius: 0.375rem;
+}
+
+html:is([data-motion="reduced"], .motion-off) :is(.series-progress-default, .series-progress-preview) {
+  translate: none;
+}
+
+/* Drawer: thumb-sized arrows and a taller rail to scrub along. */
+.drawer-sider .series-progress-arrow {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.drawer-sider .series-progress-rail {
+  height: 2.75rem;
+}
+
+/* The chevron glyphs sit ~1.0625rem inside their 2.75rem buttons; the meta line starts where they do. */
+.drawer-sider .series-progress-meta {
+  padding-inline: 1.0625rem;
+}
+
+/* ── Series posts (SeriesPostList.tsx): one thread, a bead per post ── */
+
+.series-thread {
+  --bead-x: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0.75rem;
+}
+
+.series-thread-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  border-radius: 0.875rem;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 200ms var(--ease-out-quart);
+}
+
+.series-thread-item::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: calc(var(--bead-x) - 0.75px);
+  width: 1.5px;
+  background: hsl(var(--primary) / 0.22);
+}
+
+.series-thread-item:first-child::before {
+  top: calc(0.5rem + 0.875rem * 0.8);
+}
+
+.series-thread-item:last-child::before {
+  bottom: auto;
+  height: calc(0.5rem + 0.875rem * 0.8);
+}
+
+.series-thread-item:only-child::before {
+  display: none;
+}
+
+.series-thread-bead {
+  position: relative;
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-inline-start: calc(var(--bead-x) - 0.25rem);
+  /* Centred on the first line of the title (0.875rem × 1.6), so a wrapped title keeps its bead up top. */
+  margin-top: calc((0.875rem * 1.6 - 0.5rem) / 2);
+  border-radius: 9999px;
+  background: var(--sider-surface);
+  box-shadow: inset 0 0 0 1.5px hsl(var(--primary) / 0.45);
+  transition:
+    box-shadow 200ms var(--ease-out-quart),
+    scale 260ms var(--ease-out-expo);
+}
+
+.series-thread-title {
+  display: -webkit-box;
+  flex: 1;
+  overflow: hidden;
+  color: hsl(var(--foreground) / 0.8);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  transition: color 200ms var(--ease-out-quart);
+}
+
+.series-thread-item[aria-current="page"] .series-thread-bead {
+  background: hsl(var(--primary));
+  box-shadow:
+    0 0 0 3px var(--sider-surface),
+    0 0 0 4.5px hsl(var(--primary) / 0.3);
+}
+
+.series-thread-item[aria-current="page"] .series-thread-title {
+  color: hsl(var(--primary));
+  font-weight: 500;
+}
+
+@media (hover: hover) {
+  .series-thread-item:not([aria-current]):hover {
+    background: hsl(var(--foreground) / 0.04);
+  }
+
+  .series-thread-item:not([aria-current]):hover .series-thread-title {
+    color: hsl(var(--primary));
+  }
+
+  .series-thread-item:not([aria-current]):hover .series-thread-bead {
+    scale: 1.25;
+    box-shadow: inset 0 0 0 1.5px hsl(var(--primary));
+  }
+}
+
+.series-thread-item:focus-visible {
+  outline-offset: -2px;
+}
