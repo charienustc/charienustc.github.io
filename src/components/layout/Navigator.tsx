@@ -12,7 +12,7 @@ import { useIsTablet } from '@hooks/useMediaQuery';
 import { useScrollTrigger } from '@hooks/useScrollTrigger';
 import { Icon } from '@iconify/react';
 import { filterNavItems } from '@lib/utils';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { defaultLocale, localizedPath, resolveNavName, stripLocaleFromPath } from '@/i18n';
 import DropdownNav from './DropdownNav';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -71,49 +71,50 @@ function ButtonLink({ url, label, isActive, children }: ButtonLinkProps) {
  * Hover is delegated to the container so the dropdown trigger (rendered by
  * `DropdownNav` as a `<button>`) is covered without touching that component.
  */
-function useNavIndicator<T extends HTMLElement>(activePath: string) {
+function useNavIndicator<T extends HTMLElement>(activePath: string, openKey: string | null) {
   const navRef = useRef<T>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
 
+  // The nav is `tablet:hidden`; measuring a display:none element yields 0.
+  const isHidden = useCallback(() => navRef.current?.offsetParent === null, []);
+
+  // Move the pill onto `el`, or hide it when no element is given.
+  // The geometry goes into custom properties rather than `left`/`width`
+  // directly, so the stylesheet can transition them (see header-capsule.css).
+  const place = useCallback((el: HTMLElement | null, instant = false) => {
+    const indicator = indicatorRef.current;
+    if (!indicator) return;
+    if (!el) {
+      indicator.setAttribute('data-visible', 'false');
+      return;
+    }
+    if (instant) indicator.setAttribute('data-instant', 'true');
+    indicator.style.setProperty('--ind-x', `${el.offsetLeft}px`);
+    indicator.style.setProperty('--ind-w', `${el.offsetWidth}px`);
+    indicator.setAttribute('data-visible', 'true');
+    if (instant) {
+      // Drop `data-instant` once the un-animated value has been committed, so
+      // the next hover glides from here instead of flying in from the left.
+      void indicator.offsetWidth;
+      indicator.removeAttribute('data-instant');
+    }
+  }, []);
+
+  const activeItem = useCallback(() => navRef.current?.querySelector<HTMLElement>('[aria-current="page"]') ?? null, []);
+
+  const syncToActive = useCallback(() => {
+    // On first paint (and on resize) snap without animating, so the pill does
+    // not fly in from the left edge.
+    place(isHidden() ? null : activeItem(), true);
+  }, [place, activeItem, isHidden]);
+
   useEffect(() => {
     const nav = navRef.current;
-    const indicator = indicatorRef.current;
-    if (!nav || !indicator) return;
-
-    // The nav is `tablet:hidden`; measuring a display:none element yields 0.
-    const isHidden = () => nav.offsetParent === null;
+    if (!nav) return;
 
     const itemFor = (target: EventTarget | null): HTMLElement | null => {
       if (!(target instanceof Element)) return null;
       return target.closest('a, button');
-    };
-
-    // Move the pill onto `el`, or hide it when no element is given.
-    // The geometry goes into custom properties rather than `left`/`width`
-    // directly, so the stylesheet can transition them (see header-capsule.css).
-    const place = (el: HTMLElement | null, instant = false) => {
-      if (!el) {
-        indicator.setAttribute('data-visible', 'false');
-        return;
-      }
-      if (instant) indicator.setAttribute('data-instant', 'true');
-      indicator.style.setProperty('--ind-x', `${el.offsetLeft}px`);
-      indicator.style.setProperty('--ind-w', `${el.offsetWidth}px`);
-      indicator.setAttribute('data-visible', 'true');
-      if (instant) {
-        // Drop `data-instant` once the un-animated value has been committed, so
-        // the next hover glides from here instead of flying in from the left.
-        void indicator.offsetWidth;
-        indicator.removeAttribute('data-instant');
-      }
-    };
-
-    const activeItem = () => nav.querySelector<HTMLElement>('[aria-current="page"]');
-
-    const syncToActive = () => {
-      // On first paint (and on resize) snap without animating, so the pill does
-      // not fly in from the left edge.
-      place(isHidden() ? null : activeItem(), true);
     };
 
     const onPointerOver = (event: PointerEvent) => {
@@ -122,10 +123,14 @@ function useNavIndicator<T extends HTMLElement>(activePath: string) {
     };
 
     // Returning to the active item on leave mirrors the original site: the pill
-    // rests on the current page rather than disappearing.
+    // rests on the current page rather than disappearing. Exception: with a
+    // hover menu open the pointer can rest inside the portaled panel, which
+    // lives OUTSIDE this nav — hold the pill on the expanded trigger instead
+    // (the "open menu anchors the pill" rule upstream's openKey implements).
     const onPointerLeave = () => {
       if (isHidden()) return;
-      place(activeItem());
+      const openTrigger = nav.querySelector<HTMLElement>('button[aria-expanded="true"]');
+      place(openTrigger ?? activeItem());
     };
 
     syncToActive();
@@ -140,7 +145,7 @@ function useNavIndicator<T extends HTMLElement>(activePath: string) {
       window.removeEventListener('resize', syncToActive);
       document.removeEventListener('astro:page-load', syncToActive);
     };
-  }, []);
+  }, [place, activeItem, syncToActive, isHidden]);
 
   // Re-snap the pill whenever the route changes, so it lands on the new active
   // item before the pointer touches anything.
@@ -148,22 +153,29 @@ function useNavIndicator<T extends HTMLElement>(activePath: string) {
   useEffect(() => {
     if (activePathRef.current === activePath) return;
     activePathRef.current = activePath;
+    if (isHidden()) return;
+    place(activeItem(), true);
+  }, [activePath, place, activeItem, isHidden]);
 
+  // Follow the shared hover-menu state (Navigator's openKey). An open dropdown
+  // holds the pill on its trigger — this also covers keyboard opens, where no
+  // pointer event ever places it. Once the menu closes with the pointer
+  // outside the nav the pill glides back to the active item; while the pointer
+  // is over another nav item the close is a no-op because pointerover already
+  // parked the pill under the cursor.
+  const prevOpenKeyRef = useRef(openKey);
+  useEffect(() => {
     const nav = navRef.current;
-    const indicator = indicatorRef.current;
-    if (!nav || !indicator || nav.offsetParent === null) return;
+    const hadOpenMenu = prevOpenKeyRef.current !== null;
+    prevOpenKeyRef.current = openKey;
+    if (!nav || isHidden()) return;
 
-    const active = nav.querySelector<HTMLElement>('[aria-current="page"]');
-    indicator.setAttribute('data-instant', 'true');
-    if (active) {
-      indicator.style.left = `${active.offsetLeft}px`;
-      indicator.style.width = `${active.offsetWidth}px`;
-      indicator.setAttribute('data-visible', 'true');
-    } else {
-      indicator.setAttribute('data-visible', 'false');
+    if (openKey !== null) {
+      place(nav.querySelector<HTMLElement>('button[aria-expanded="true"]'));
+    } else if (hadOpenMenu && !nav.matches(':hover')) {
+      place(activeItem());
     }
-    requestAnimationFrame(() => indicator.removeAttribute('data-instant'));
-  }, [activePath]);
+  }, [openKey, place, activeItem, isHidden]);
 
   return { navRef, indicatorRef };
 }
@@ -184,8 +196,9 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
   const [openKey, setOpenKey] = useState<string | null>(null);
   const languageMenuKey = 'language-menu';
 
-  // Re-measure when the route changes.
-  const { navRef, indicatorRef } = useNavIndicator<HTMLElement>(currentPath);
+  // Re-measure when the route changes; openKey lets the pill hold on an open
+  // menu's trigger instead of snapping back to the active item.
+  const { navRef, indicatorRef } = useNavIndicator<HTMLElement>(currentPath, openKey);
 
   const firstScrollRef = useRef(true);
 
