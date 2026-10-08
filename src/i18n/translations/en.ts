@@ -71,6 +71,8 @@ export const uiStrings: UIStrings = {
   'category.postsInCategory': 'Posts in {name}',
   'category.totalCategories': '{count} categories',
   'category.categoryLabel': 'Category',
+  'index.categories': 'categories',
+  'category.filter': 'Subcategories',
   'index.tags': 'tags',
   'index.years': 'years',
   'index.mostUsed': 'most used',

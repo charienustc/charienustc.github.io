@@ -70,6 +70,8 @@ export const uiStrings = {
   'category.postsInCategory': '{name} 分类下的文章',
   'category.totalCategories': '共 {count} 个分类',
   'category.categoryLabel': '分类',
+  'index.categories': '个分类',
+  'category.filter': '子分类',
   'index.tags': '个标签',
   'index.years': '年',
   'index.mostUsed': '最常用',

@@ -8,15 +8,16 @@
 import { PAGINATION } from '@constants/layout';
 import { postActionsConfig } from '@lib/config/site';
 import {
-  getCategoryByLink,
   getCategoryLinks,
   getCategoryList,
+  getCategoryNameByLink,
   getEnabledSeries,
   getNonFeaturedPosts,
   getPostSlug,
   getSortedPosts,
   normalizeTag,
 } from '@lib/content';
+import { categoryAtPath } from '@lib/content/index-categories';
 import { isPostSourceEnabled, isPostSourcePublic } from '@lib/content/post-source';
 import { localePaths } from './utils';
 
@@ -48,10 +49,10 @@ export const tagRoute = localePaths(async ({ locale }) => {
 
 export const categoryRoute = localePaths(async ({ locale }) => {
   const { categories } = await getCategoryList(locale);
-  return getCategoryLinks(categories, '').map((link) => ({
-    params: { slug: link },
-    props: { category: getCategoryByLink(categories, link) },
-  }));
+  return getCategoryLinks(categories, '').map((link) => {
+    const path = link.split('/').map(getCategoryNameByLink);
+    return { params: { slug: link }, props: { category: categoryAtPath(categories, path), path } };
+  });
 });
 
 export const seriesRoute = localePaths(() =>
