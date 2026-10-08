@@ -98,11 +98,11 @@ build: {
 | 编号 | 功能 / 变更 | 你的现状 | 涉及文件 | 冲突面 | 优先级 | 最终解决方案 |
 | --- | --- | --- | --- | --- | --- | --- |
 | C1 | 归档 / 分类 / 标签 / 系列页统一换成首页樱花视觉（紧凑封面 + 文字页签） | 旧样式（你改过配色） | 多个页面 | 高 | P2 | **⛔ 不做**（护住蓝色主题） |
-| C2 | 写作日历：归档页按月展示发文量，对数分档，点击跳转年月 | 无 | `archives.astro` | 中 | P2 | 待做 |
-| C3 | 分类首页改书本目录式列表，详情页用文字页签切换子分类 | 旧样式 | `category/` 系列 | 中 | P2 | 待做 |
-| C4 | 标签改纯文字标签云 + 本地过滤 | 旧 `CollapsibleTags` / `TagItem` | `lib/tag-filter.ts` | 中 | P2 | 待做 |
-| C5 | 友链改静态横排名片，配置色体现在头像外圈与悬停反馈 | 旧卡片 | `friends/FriendCard.tsx` | 中 | P2 | 待做 |
-| C6 | 期刊目录页重设计 + 期数从标题自动解析（`Vol.35` / `No.3` / `#12` / `第 1 期`） | 旧系列页 | `lib/series-issue.ts` | 中 | P2 | 待做 |
+| C2 | 写作日历：归档页按月展示发文量，对数分档，点击跳转年月 | 无 | `archives.astro` | 中 | P2 | ✅ d288d9e（共享 PostYears/PostRow + archive-navigation；index-groups 随 C6 落地） |
+| C3 | 分类首页改书本目录式列表，详情页用文字页签切换子分类 | 旧样式 | `category/` 系列 | 中 | P2 | ✅ b97b929（index-categories 全前缀匹配；旧 CategoryTitle/SubCategory 删除；子分类需有 categoryMap 条目，否则空 slug 是上游同款限制） |
+| C4 | 标签改纯文字标签云 + 本地过滤 | 旧 `CollapsibleTags` / `TagItem` | `lib/tag-filter.ts` | 中 | P2 | ✅ 1acf03f（共享 PageIntro + index-pages.css 随本项落地；旧 pill 版 TagItem.tsx/CollapsibleTags.tsx 删除） |
+| C5 | 友链改静态横排名片，配置色体现在头像外圈与悬停反馈 | 旧卡片 | `friends/FriendCard.tsx` | 中 | P2 | ✅ 82640f7（静态 .astro 网格 + friends-interactions；FriendCard.tsx 磁吸版保留给 markdown FriendLinksGrid） |
+| C6 | 期刊目录页重设计 + 期数从标题自动解析（`Vol.35` / `No.3` / `#12` / `第 1 期`） | 旧系列页 | `lib/series-issue.ts` | 中 | P2 | ✅ 349eaf4（index-groups 同时落地；系列页改 index-surface + PageIntro 期数/年份统计） |
 | C7 | 系列头图共用遮罩 / 樱花 / 入场动画 / 滚动视差，链接改磨砂胶囊按钮 | 旧 | 系列页 | 中 | P2 | 待做 |
 | C8 | 系列阅读进度尺（悬停或触摸拖动预览并跳转）+ 上下篇改翻页卡片 | 旧 `SeriesNavigation` | `lib/series-rail.ts` | 中 | P2 | 待做 |
 | C9 | 碎碎念：同一作者连续消息合并，操作按钮收进悬停工具条 | 旧 | `moments/` | 中 | P3 | 待做 |
