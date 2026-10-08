@@ -25,12 +25,12 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 >
   <!-- Do NOT reinstate `transition:name="site-header"` here: a named element is
        a backdrop root, so ANY view-transition-name on the header would clip the
-       child glass (`.header-icon-button` discs, mobile heading pill) to a flat
-       tint — their backdrop-filter must sample the page behind the header.
-       Upstream v7 names `.header-content` + `.header-capsule` instead; locally
-       only the capsule is named (an element's OWN backdrop-filter survives
-       naming), keeping it live across ClientRouter navigations. See
-       header-capsule.css and theme-transition.css (which drops the name). -->
+       child glass (the mobile heading pill) to a flat tint — its
+       backdrop-filter must sample the page behind the header. Upstream v7
+       names `.header-content` + `.header-capsule` instead; locally only the
+       capsule is named (an element's OWN backdrop-filter survives naming),
+       keeping it live across ClientRouter navigations. See header-capsule.css
+       and theme-transition.css (which drops the name). -->
   <!-- `.header-inner` carries the horizontal padding and owns the positioning
        context; `.header-content` is the flex row. They are kept separate so the
        capsule (inset against the inner box) can extend past the content row to

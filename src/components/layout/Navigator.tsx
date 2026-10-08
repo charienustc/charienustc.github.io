@@ -288,22 +288,19 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
       </nav>
 
       <div className="ml-auto flex items-center gap-2">
-        {/* Each control paints its own round surface once the header is
-            scrolled; `.header-icon-button` owns that. It is applied here rather
-            than inside the components so the header's styling stays in one
-            place. */}
-        <SearchTrigger className="header-icon-button" />
+        {/* Upstream v7 renders these bare — no per-button glass discs; the
+            `.header-capsule` behind the whole header carries them on scroll. */}
+        <SearchTrigger />
         <div className="tablet:hidden flex-center">
           <LanguageSwitcher
             locale={locale}
-            className="header-icon-button"
             open={openKey === languageMenuKey}
             onOpenChange={(open) =>
               setOpenKey((current) => (open ? languageMenuKey : current === languageMenuKey ? null : current))
             }
           />
         </div>
-        <ThemeToggle className="header-icon-button" />
+        <ThemeToggle />
       </div>
     </div>
   );
