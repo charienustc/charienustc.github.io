@@ -605,13 +605,13 @@ comment:
 # -----------------------------------------------------------------------------
 analytics:
   umami:
-    enabled: false # 未接入统计服务，填好 id/endpoint 后再改为 true
-    id: your-umami-id
-    endpoint: https://stats.example.com
-    # statistics_display:
-    #   token: your-umami-share-token
-    #   article_page_views: true
-    #   footer_site_stats: true
+    enabled: true
+    id: caa99148-f033-4811-a69f-0009c68110f3
+    endpoint: https://cloud.umami.is
+    statistics_display:
+      token: 6Y9d1iRBJpqEuCgS
+      article_page_views: true
+      footer_site_stats: true
 
 # =============================================================================
 # SEO Configuration
