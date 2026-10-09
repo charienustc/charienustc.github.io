@@ -1,0 +1,22 @@
+# Enforce LF for all text files, regardless of core.autocrlf.
+# Biome requires LF (lineEnding: "lf"); without this, branch checkouts
+# on Windows rewrite the working tree to CRLF and fail pnpm lint.
+
+* text=auto eol=lf
+
+# Explicit binary types (belt-and-suspenders alongside git's detection)
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.woff  binary
+*.woff2 binary
+*.ttf  binary
+*.otf  binary
+*.eot  binary
+*.mp3  binary
+*.mp4  binary
+*.webm binary
+*.zip  binary
