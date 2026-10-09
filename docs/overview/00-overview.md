@@ -52,7 +52,7 @@ astro-koharu 是一个基于 **Astro 7.x** 构建的现代化静态博客系统�
 | `astro`          | 7.1.3    | 核心框架，静态站点生成         |
 | `react`          | ^19.2.1  | 交互组件开发                   |
 | `tailwindcss`    | ^4.3.3   | 原子化 CSS 框架                |
-| `motion`         | ^11.18.2 | 动画库（Framer Motion 后继者） |
+| `motion`         | ^12.43.0 | 动画库（Framer Motion 后继者） |
 | `nanostores`     | -        | 轻量级状态管理                 |
 | `astro-pagefind` | -        | 静态全文搜索                   |
 | `astro-icon`     | 1.1.5    | 图标系统（Iconify）            |

@@ -35,11 +35,11 @@
 | **A2** | KaTeX 浏览器端渲染需要的 Vite alias（`hast-util-from-html-isomorphic` / `decode-named-character-reference`）。**本仓库实测为潜在隐患**：两个包无 alias 时 `require.resolve` 均 `MODULE_NOT_FOUND`，但当前客户端图中无人 import，故配置前后产物**逐字节相同**（见 I 节） | 无 | `astro.config.mjs` | 小 | **P0** | **✅ 已做** `739b9df` |
 | A3 | 同一行多段注音的 `^` 被上标预处理跨表达式错配（假名错位、残留花括号） | 旧实现 | `src/lib/markdown/` | 小 | P1 | **✅ 已做** `e3388db` |
 | A4 | Mermaid 渲染失败提示 + 源码回退误把已渲染 SVG 内部 CSS 当成源码 | 旧实现 | `content-enhancer-utils.ts` | 小 | P1 | **✅ 已做** `9a20439`（仅摘 `readMermaidSource` 源码判读守卫；读者侧失败提示 UI 属于工具栏重写，未摘） |
-| A5 | 代码全屏弹层入场动画结束时闪烁（需 `motion` 钉到 12.43.0） | `motion ^11.18.2` | `package.json` | 中 | P1 | 待做 |
-| A6 | 移动端目录展开时闪回关闭状态（同 A5 依赖 motion 12.43.0） | 旧实现 | 目录组件 | 中 | P1 | 待做 |
-| A7 | 移动端改用稳定小视口高度，修手机地址栏伸缩导致文章位置跳动 | 无 | 布局层 | 中 | P2 | 待做 |
-| A8 | 移动端代码全屏：短内容被撑满屏 → 改为随内容增高的底部面板 | 旧实现 | `src/components/markdown/` | 小 | P2 | 待做 |
-| A9 | 图片灯箱：点空白关闭、拖动后不误关闭、双指跟随触点、下滑关闭 | 旧实现 | 灯箱组件 | 中 | P2 | 待做 |
+| **A5** | 代码全屏弹层入场动画结束时闪烁（需 `motion` 钉到 12.43.0） | `motion ^11.18.2` | `package.json` | 中 | P1 | **✅ 已做** `07cf446`（motion 升 12.43.0 + spring 预设改 `satisfies Transition`） |
+| A6 | 移动端目录展开时闪回关闭状态（同 A5 依赖 motion 12.43.0） | 旧实现 | 目录组件 | 中 | P1 | **✅ 已做** `eab30be`（MobileTOCDropdown 换上游实现）+ `07cf446`（motion 12.43.0 依赖就位） |
+| A7 | 移动端改用稳定小视口高度，修手机地址栏伸缩导致文章位置跳动 | 无 | 布局层 | 中 | P2 | **✅ 已做** `36404f4`（ModalLayer 与上游一致：`dvh`/`svh`/`env(safe-area-inset-*)`） |
+| A8 | 移动端代码全屏：短内容被撑满屏 → 改为随内容增高的底部面板 | 旧实现 | `src/components/markdown/` | 小 | P2 | **✅ 已做** `36404f4`（CodeBlockFullscreen `variant="sheet"` + 底部关闭按钮，与上游一致） |
+| A9 | 图片灯箱：点空白关闭、拖动后不误关闭、双指跟随触点、下滑关闭 | 旧实现 | 灯箱组件 | 中 | P2 | **✅ 已做** `6531b3e`（手势 hook + FLIP 进出动画 + 失败重试，四文件与上游 v7.7.1 逐字节一致） |
 | A10 | 侧栏社交图标掉行 / 头像问候气泡被裁 / 长简介行首出现斜杠 | 部分（问候气泡已做 `27a5c39`；图标掉行 / 简介斜杠仍旧实现） | `Social.astro` | 小 | P3 | 待做 |
 | A11 | 不同父分类下的同名子分类显示错误的文章 | 旧实现 | `src/lib/content/` | 小 | P2 | 待做 |
 | A12 | 日 / 韩文案缺失，非中文页友链申请表水合不一致 | 只开 zh + en | `config/i18n-content.yaml` | 小 | P3 | 待做 |
@@ -141,7 +141,7 @@ build: {
 | E2 | `site.showLogo` 默认 `true` → `false`（默认显示站点名而非图形 logo） | 已显式写 `showLogo: true` | `config/site.yaml` | 低 | 受保护 | **🛡️ 已受保护**（`showLogo: true` 已显式写死） |
 | E3 | 系列页卡片移除 `isSimple` / `hideCover` / `showTags` 属性 | 未使用 | 系列页 | 低 | 无影响 | **— 无影响**（本仓库未使用） |
 | E4 | `cms:install` 改 `--filter`；主站与 CMS 合并到根 `pnpm-workspace.yaml`；`pnpm install` 现在会装 CMS 依赖 | `cms/` 改动很多 | `package.json` / workspace | 高 | **高风险** | **⛔ 不做** |
-| E5 | `motion` `^11.18.2` → 钉死 **12.43.0** | `^11.18.2` | `package.json` | 中 | 需回归 | 待做 |
+| E5 | `motion` `^11.18.2` → 钉死 **12.43.0** | `^11.18.2` | `package.json` | 中 | 需回归 | **✅ 已做** `07cf446` |
 | E6 | `@blocknote/*` 全部移除，改用 CodeMirror 6 全家桶 | 仅影响 CMS / 编辑器 | `package.json` | 中 | 随 D4 | 待做 |
 | E7 | 上游删除 `CLAUDE.md`、`src/components/tag/*`、`category/CategoryTitle.astro`、`SubCategory.astro`、`control/ButtonLink.astro`、`friends/FriendsGrid.tsx` | 这些文件你也有 | 多处 | 中 | 注意连带 | 待做 |
 
@@ -263,7 +263,7 @@ setMotionLevel('lively');
 | 2 | **A3 + A4**（markdown 解析层修复） | 独立 | `src/lib/markdown/` | 小 | P1 | **A3 ✅ 已做** `e3388db`；**A4 ✅ 已做** `9a20439` |
 | 3 | **B4 + B5 + B6**（图表能力） | 独立，纯增量 | 新 lib 模块 | 低 | P1 | ✅ 36404f4 |
 | 4 | **B2**（滑动指示器） | 需先确认视觉一致 | `Navigator.tsx` | 高 | P1 | **部分采用**（B12：菜单内高亮已对齐，头部 pill 保留自研） |
-| 5 | **A5 + E5**（motion 升级到 12.43.0） | 需全站动效回归 | `package.json` | 中 | P1 | 待做 |
+| 5 | **A5 + E5**（motion 升级到 12.43.0） | 需全站动效回归 | `package.json` | 中 | P1 | **✅ 已做** `07cf446` |
 | 6 | **D1 + D3**（低风险增量功能） | 独立 | friends / 面包屑 | 低 | P2 | **✅ D1** b9cb4be；**✅ D3** 0ec8045；**D2** 49ee9a2、**D5** 0225d16、**D6** a1b64b7 一并落地 |
 | 7 | **B1 + B7 + B8**（动效系统） | 会改变整站观感，最后做 | 多文件 | 中 | P2 | ✅ 5907e24 / 6324152 / 9da22d3 |
 

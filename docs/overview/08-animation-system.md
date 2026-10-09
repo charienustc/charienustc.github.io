@@ -6,7 +6,7 @@ astro-koharu 使用 **Motion**（Framer Motion 的继任者）作为动画库，
 
 ### 动画层次
 
-```
+```plain
 ┌─────────────────────────────────────────────────────────────┐
 │                      动画系统架构                            │
 ├─────────────────────────────────────────────────────────────┤
@@ -159,10 +159,24 @@ export const animation = {
       damping: 25,
     },
 
+    popover: {
+      type: 'spring',
+      stiffness: 460,
+      damping: 32,
+    },
+
     popoverContent: {
       type: 'spring',
       stiffness: 300,
       damping: 20,
+    },
+
+    // 图片灯箱 FLIP 进出（质量略降，回落更稳）
+    lightbox: {
+      type: 'spring',
+      stiffness: 300,
+      damping: 32,
+      mass: 0.9,
     },
   },
 
@@ -177,7 +191,7 @@ export const animation = {
 
 ### Spring 参数说明
 
-```
+```plain
                     Spring 物理模型
 
                     ┌─────────┐
@@ -261,7 +275,7 @@ useEffect(() => {
 
 **动画效果**：
 
-```
+```plain
 关闭状态（三条横线）          打开状态（X）
     ─────────                    ╲
     ─────────         →          ╱
@@ -289,7 +303,7 @@ useEffect(() => {
 
 **动画效果**：
 
-```
+```plain
 进入动画：
 opacity: 0 → 1
 scale: 0.85 → 1
