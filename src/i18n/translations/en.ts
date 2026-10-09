@@ -16,7 +16,7 @@ export const uiStrings: UIStrings = {
   'nav.friends': 'Friends',
   'nav.about': 'About',
   'nav.music': 'Music',
-  'nav.weekly': 'Weekly',
+  'nav.series': 'Series',
   'nav.bangumi': 'Bangumi',
 
   // ── Common ──────────────────────────────────────────────────

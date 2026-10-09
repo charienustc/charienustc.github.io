@@ -15,7 +15,7 @@ export const uiStrings = {
   'nav.friends': '友链',
   'nav.about': '关于',
   'nav.music': '歌单',
-  'nav.weekly': '周刊',
+  'nav.series': '系列文章',
   'nav.bangumi': '追番',
 
   // ── Common ──────────────────────────────────────────────────

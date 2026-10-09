@@ -113,7 +113,7 @@ featuredCategories:
 #   links: 相关链接配置（可选）
 # -----------------------------------------------------------------------------
 featuredSeries:
-  - slug: weekly # URL 路径: /weekly
+  - slug: series # URL 路径: /series
     categoryName: 周刊 # 必须与 categoryMap 中的分类名匹配
     label: 我的周刊 # 简短名称
     fullName: 我的技术周刊 # 完整名称
@@ -400,10 +400,6 @@ navigation:
     icon: lucide:house-heart # 图标
   # - name: 书摘
   #   path: /reading
-  - name: 周刊
-    nameKey: nav.weekly
-    path: /weekly
-    icon: lucide:newspaper
   # Optional explicit Moments position. When omitted, enabled Moments is inserted after Archives.
   # - feature: moments
   #   icon: lucide:message-circle
@@ -411,6 +407,10 @@ navigation:
     nameKey: nav.posts
     icon: lucide:pen-tool
     children: # 子菜单列表
+      - name: 系列文章
+        nameKey: nav.series
+        path: /series
+        icon: lucide:newspaper
       - name: 分类
         nameKey: nav.categories
         path: /categories
@@ -423,14 +423,14 @@ navigation:
         nameKey: nav.archives
         path: /archives
         icon: lucide:archive
-  - name: 友链
-    nameKey: nav.friends
-    path: /friends
-    icon: lucide:link-2
   - name: 碎碎念
     nameKey: nav.moments
     path: /moments
     icon: lucide:message-circle
+  - name: 友链
+    nameKey: nav.friends
+    path: /friends
+    icon: lucide:link-2
   - name: 关于
     nameKey: nav.about
     path: /about

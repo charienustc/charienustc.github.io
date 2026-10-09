@@ -287,7 +287,7 @@ export const siteConfig = {
 ├── /tags/                  # 标签首页
 │   └── /tags/[tag]         # 标签页面
 ├── /archives               # 归档页面
-├── /weekly                 # 周刊专栏
+├── /series                 # 系列文章专栏
 ├── /friends                # 友链页面
 ├── /about                  # 关于页面
 └── /rss.xml                # RSS 订阅源
