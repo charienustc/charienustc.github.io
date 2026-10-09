@@ -27,7 +27,7 @@ Biome is authoritative: two-space indentation, LF endings, 128-column lines, sin
 
 ## Commit & Pull Request Guidelines
 
-Recent history favors short imperative subjects and Conventional Commit prefixes such as `fix:`, `feat:`, and `chore:`. Work lands on `dev` first, then merges into `main` to publish — GitHub Pages deploys from `main`, so keep `main` releasable at all times. Keep each commit focused and include generated assets when the source change requires them. Pull requests should explain the user-visible effect, list validation commands, link related issues, and include screenshots or recordings for visual changes. Call out configuration, migration, performance, or i18n impact explicitly.
+Recent history favors short imperative subjects and Conventional Commit prefixes such as `fix:`, `feat:`, and `chore:`. Work happens directly on `main` (the former `dev` branch is retired) — GitHub Pages deploys from `main`, so every commit must keep `main` releasable, and pushes happen only on explicit instruction. Keep each commit focused and include generated assets when the source change requires them. Pull requests should explain the user-visible effect, list validation commands, link related issues, and include screenshots or recordings for visual changes. Call out configuration, migration, performance, or i18n impact explicitly.
 
 ## Configuration & Generated Data
 
