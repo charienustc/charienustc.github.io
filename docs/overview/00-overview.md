@@ -94,7 +94,7 @@ astro-koharu/
 │   │       ├── note/          # 笔记
 │   │       │   ├── front-end/ # 前端笔记
 │   │       │   └── ...
-│   │       ├── weekly/        # 周刊
+│   │       ├── series/        # 系列文章
 │   │       └── ...
 │   │
 │   ├── constants/              # 常量配置

@@ -140,7 +140,7 @@ category_map:
   前端: front-end
   React: react
   工具: tools
-  周刊: weekly
+  系列文章: series
   # ... 共 22 个分类映射
 ```
 
@@ -510,10 +510,10 @@ export async function getAdjacentSeriesPosts(currentPost: BlogPost): Promise<{
 ```yaml
 # config/site.yaml
 featuredSeries:
-  - slug: weekly            # URL 路径: /weekly
-    categoryName: 周刊       # 必须与分类名匹配
-    label: 我的周刊          # 简短名称（可选）
-    fullName: 我的技术周刊    # 完整名称（可选）
+  - slug: series            # URL 路径: /series
+    categoryName: 系列文章    # 必须与分类名匹配
+    label: 系列文章          # 简短名称（可选）
+    fullName: 系列文章       # 完整名称（可选）
     description: 记录一些值得回看的零散发现。 # 支持多行 Markdown（可选）
     cover: /img/site_cover_1920.webp        # 系列页头图（可选）
     enabled: true           # 启用此系列

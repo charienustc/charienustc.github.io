@@ -64,7 +64,7 @@ categoryMap:
   示例: sample
   随笔: life
   笔记: note
-  周刊: weekly
+  系列文章: series
   探索: explore
 
 # =============================================================================
@@ -90,10 +90,10 @@ featuredCategories:
     label: 探索
     image: /img/cover/3.webp
     description: 探索与尝试
-  - link: weekly # 对应 categoryMap 中 周刊: weekly
-    label: 周刊
+  - link: series # 对应 categoryMap 中 系列文章: series
+    label: 系列文章
     image: /img/cover/4.webp
-    description: 定期更新的周刊
+    description: 持续更新的系列内容
 
 # =============================================================================
 # Featured Series
@@ -114,9 +114,9 @@ featuredCategories:
 # -----------------------------------------------------------------------------
 featuredSeries:
   - slug: series # URL 路径: /series
-    categoryName: 周刊 # 必须与 categoryMap 中的分类名匹配
-    label: 我的周刊 # 简短名称
-    fullName: 我的技术周刊 # 完整名称
+    categoryName: 系列文章 # 必须与 categoryMap 中的分类名匹配
+    label: 系列文章 # 简短名称
+    fullName: 系列文章 # 完整名称
     description: | # 支持多行 Markdown
       记录一些值得回看的零散发现。
     cover: /img/site_cover_1920.webp # 系列页面头图
@@ -403,10 +403,15 @@ navigation:
   # Optional explicit Moments position. When omitted, enabled Moments is inserted after Archives.
   # - feature: moments
   #   icon: lucide:message-circle
-  - name: 文章 # 有子菜单时，path 可省略
+  - name: 文章 # 有子菜单；桌面端点击进 /posts，悬停展开子菜单
     nameKey: nav.posts
+    path: /posts
     icon: lucide:pen-tool
     children: # 子菜单列表
+      - name: 所有文章
+        nameKey: nav.allPosts
+        path: /posts
+        icon: lucide:library
       - name: 系列文章
         nameKey: nav.series
         path: /series
