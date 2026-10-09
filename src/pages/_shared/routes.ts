@@ -5,14 +5,12 @@
  * `<route>.root` and its `[lang]/` mirror exports `<route>.mirror`.
  */
 
-import { PAGINATION } from '@constants/layout';
 import { postActionsConfig } from '@lib/config/site';
 import {
   getCategoryLinks,
   getCategoryList,
   getCategoryNameByLink,
   getEnabledSeries,
-  getNonFeaturedPosts,
   getPostSlug,
   getSortedPosts,
   normalizeTag,
@@ -58,8 +56,3 @@ export const categoryRoute = localePaths(async ({ locale }) => {
 export const seriesRoute = localePaths(() =>
   getEnabledSeries().map((series) => ({ params: { seriesSlug: series.slug }, props: { series } })),
 );
-
-export const postListRoute = localePaths(async ({ locale, localeParams, paginate }) => {
-  const posts = await getNonFeaturedPosts(locale);
-  return paginate(posts, { pageSize: PAGINATION.pageSize, params: localeParams });
-});

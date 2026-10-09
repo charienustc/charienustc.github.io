@@ -24,11 +24,3 @@ export const MAX_WIDTH = {
   // Main content container (1400px)
   content: 'max-w-7xl',
 } as const;
-
-/**
- * Pagination settings
- */
-export const PAGINATION = {
-  // Posts per page for homepage and post listing
-  pageSize: 10,
-} as const;

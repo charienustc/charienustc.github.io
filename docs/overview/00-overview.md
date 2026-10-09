@@ -124,7 +124,7 @@ astro-koharu/
 │   ├── pages/                  # 页面路由
 │   │   ├── index.astro        # 首页
 │   │   ├── post/[...slug].astro    # 文章详情
-│   │   ├── posts/[...page].astro   # 文章列表
+│   │   ├── posts.astro           # 所有文章（按月分块）
 │   │   ├── categories/        # 分类页面
 │   │   ├── tags/              # 标签页面
 │   │   └── rss.xml.ts         # RSS 源
@@ -280,7 +280,7 @@ export const siteConfig = {
 
 ```plain
 /                           # 首页（最新文章 + 置顶）
-├── /posts/[page]           # 文章列表分页
+├── /posts                  # 所有文章（按月分块，导航"文章"入口）
 ├── /post/[slug]            # 文章详情页
 ├── /categories/            # 分类首页
 │   └── /categories/[...slug]  # 分类页面（支持多级）

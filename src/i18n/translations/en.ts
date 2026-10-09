@@ -10,6 +10,7 @@ export const uiStrings: UIStrings = {
   // ── Navigation ──────────────────────────────────────────────
   'nav.home': 'Home',
   'nav.posts': 'Posts',
+  'nav.allPosts': 'All Posts',
   'nav.categories': 'Categories',
   'nav.tags': 'Tags',
   'nav.archives': 'Archives',
@@ -42,6 +43,7 @@ export const uiStrings: UIStrings = {
   'post.totalPosts': '{count} posts',
   'post.stickyPosts': 'Pinned Posts',
   'post.postList': 'Posts',
+  'post.viewAll': 'All Posts',
   'post.featuredCategories': 'Featured Categories',
   'post.yearPosts': '{count} posts',
   'post.readingTime': '{time} min read',
@@ -90,6 +92,7 @@ export const uiStrings: UIStrings = {
 
   // ── Archives ────────────────────────────────────────────────
   'archives.title': 'Archives',
+  'posts.title': 'All Posts',
   'archives.totalPosts': '{count} posts',
   'index.posts': 'posts',
   'archives.calendar': 'Writing calendar',

@@ -140,75 +140,56 @@ const { category } = Astro.props;
 /categories/note/front-end/react → 笔记 > 前端 > React 分类
 ```
 
-### 3. 文章列表分页 `posts/[...page].astro`
+### 3. 所有文章 `posts.astro`
 
-使用 Astro 内置的 `paginate` 函数实现分页：
+`/posts` 是所有文章的归档式列表页，也是导航"文章"的入口。文章按发布时间倒序排列，
+用 `bucketPostsByMonth` 按月份分块（没有文章的月份不出现），每块用首页同款
+`Divider`（标题 + 横线）作为标题：
 
 ```astro
 ---
-// src/pages/posts/[...page].astro
+// src/pages/posts.astro
 
-import { getNonFeaturedPosts } from '@lib/content';
-import type { PaginateFunction } from 'astro';
+import { siteTimezone } from '@lib/config/site';
+import { getSortedPosts } from '@lib/content';
+import { bucketPostsByMonth } from '@lib/content/index-groups';
+import { toPostCardDataList } from '@lib/content/transforms';
 
-export async function getStaticPaths({ paginate }: { paginate: PaginateFunction }) {
-  // 获取所有非系列文章
-  const postCollections = await getNonFeaturedPosts();
-
-  // paginate 自动生成分页路由
-  return paginate(postCollections, { pageSize: 10 });
-}
-
-// page 对象包含分页信息
-const { page } = Astro.props;
+const posts = await getSortedPosts(locale);
+const months = bucketPostsByMonth(posts, siteTimezone);
 ---
 
-<Layout>
-  <PostList posts={page.data} page={page} />
+<Layout locale={locale} title={`${t(locale, 'posts.title')} | ${siteConfig.title}`}>
+  {months.map((bucket) => (
+    <section class="flex flex-col gap-4">
+      <Divider>
+        {t(locale, 'archives.monthLabel', { year: bucket.year, month: bucket.month, count: bucket.posts.length })}
+      </Divider>
+      <PostList posts={toPostCardDataList(bucket.posts, locale)} showPaginator={false} />
+    </section>
+  ))}
 </Layout>
-```
-
-**`page` 对象结构**：
-
-```typescript
-interface Page<T> {
-  data: T[];           // 当前页的数据
-  start: number;       // 起始索引
-  end: number;         // 结束索引
-  size: number;        // 每页大小
-  total: number;       // 总条目数
-  currentPage: number; // 当前页码
-  lastPage: number;    // 最后一页
-  url: {
-    current: string;   // 当前页 URL
-    prev?: string;     // 上一页 URL
-    next?: string;     // 下一页 URL
-    first: string;     // 第一页 URL
-    last: string;      // 最后一页 URL
-  };
-}
 ```
 
 **生成的页面**：
 
 ```plain
-/posts/1  → 第 1 页（10 篇文章）
-/posts/2  → 第 2 页（10 篇文章）
-/posts/3  → 第 3 页（10 篇文章）
-...
+/posts  → 所有文章，按"2026 年 10 月 · 3 篇"这样的月份分块
 ```
+
+> 历史版本曾用 `posts/[...page].astro` 的 `paginate` 分页路由；改为按月分块后分页已移除，
+> 首页也不再构造假的 `Page` 分页对象。`[lang]/posts.astro` 是其多语言镜像。
 
 ---
 
 ## 首页路由 `index.astro`
 
-首页是特殊的静态页面，手动构造分页数据：
+首页是特殊的静态页面，只展示最新 5 篇普通文章，更早的文章通过列表下方的「全部文章」按钮（`/posts`）按月浏览：
 
 ```astro
 ---
 // src/pages/index.astro
 
-import { PAGINATION } from '@constants/layout';
 import { getHomePagePosts } from '@lib/content';
 import { toPostCardDataList } from '@lib/content/transforms';
 
@@ -218,28 +199,10 @@ const { highlightedPosts, stickyPosts: normalStickyPosts, regularPosts } = await
 // 2. 系列高亮文章放在置顶列表开头（转换为卡片数据）
 const stickyPosts = toPostCardDataList([...highlightedPosts, ...normalStickyPosts], locale);
 
-// 3. 首页显示前 pageSize 篇普通文章（不含系列文章）
-const { pageSize } = PAGINATION;
-const regularPostsSlice = regularPosts.slice(0, pageSize);
-const posts = toPostCardDataList(regularPostsSlice, locale);
-
-// 4. 手动构造 Page 对象（用于分页组件）
-const page: Page<BlogPost> = {
-  data: regularPostsSlice,
-  start: 0,
-  end: Math.min(pageSize - 1, regularPostsSlice.length - 1),
-  size: pageSize,
-  total: regularPosts.length,
-  currentPage: 1,
-  lastPage: Math.ceil(regularPosts.length / pageSize),
-  url: {
-    current: '/',
-    prev: undefined,
-    next: regularPosts.length > pageSize ? '/posts/2' : undefined,
-    first: '/',
-    last: `/posts/${Math.ceil(regularPosts.length / pageSize)}`,
-  },
-};
+// 3. 首页只显示最新 5 篇普通文章（不含系列文章）
+const HOME_POST_COUNT = 5;
+const posts = toPostCardDataList(regularPosts.slice(0, HOME_POST_COUNT), locale);
+const allPostsUrl = localizedPath('/posts', locale);
 ---
 
 <Layout>
@@ -247,9 +210,12 @@ const page: Page<BlogPost> = {
   <Divider>置顶文章</Divider>
   <PostList posts={stickyPosts} showPaginator={false} />
 
-  <!-- 普通文章列表 -->
+  <!-- 最新文章列表（无分页器）+ 全部文章入口 -->
   <Divider>文章列表</Divider>
-  <PostList posts={posts} page={page} baseUrl="/posts" />
+  <PostList posts={posts} showPaginator={false} isHomePage={true} />
+  <a href={allPostsUrl} aria-label={t(locale, 'post.viewAll')}>
+    <Button variant="outline">{t(locale, 'post.viewAll')}</Button>
+  </a>
 
   <!-- 精选分类 -->
   <Divider>精选分类</Divider>
@@ -585,7 +551,7 @@ import Layout from '@layouts/Layout.astro';
 | -------------------------------------- | ---------------- |
 | `src/pages/index.astro`                | 首页             |
 | `src/pages/post/[...slug].astro`       | 文章详情页       |
-| `src/pages/posts/[...page].astro`      | 文章列表分页     |
+| `src/pages/posts.astro`                | 所有文章（按月分块） |
 | `src/pages/categories/[...slug].astro` | 分类页面         |
 | `src/pages/categories/index.astro`     | 分类首页         |
 | `src/pages/tags/[tag].astro`           | 标签页面         |

@@ -51,6 +51,32 @@ const DropdownNavComponent = ({
     [menuItems],
   );
 
+  // A dropdown parent may itself carry a path (e.g. 文章 → /posts): hovering still opens the
+  // menu, while clicking/Enter navigates to the page through the anchor.
+  const parentUrl = item.path ? (item.localeIndependent ? item.path : localizedPath(item.path, locale)) : undefined;
+  const triggerClassName = cn('relative inline-flex h-10 items-center py-2 pr-5 pl-3 text-base tracking-wider', className);
+  const triggerLabel = (
+    <>
+      {icon && (
+        <span className="mr-1.5 inline-flex h-4 w-4 shrink-0 items-center justify-center">
+          <Icon icon={icon} className="h-4 w-4" />
+        </span>
+      )}
+      {name}
+      <Icon
+        icon="ri:arrow-drop-down-fill"
+        className={cn('absolute right-0 size-6 transition-transform duration-300 ease-out-expo', {
+          'rotate-180': open,
+        })}
+      />
+    </>
+  );
+  const triggerAria = {
+    'aria-expanded': open,
+    'aria-haspopup': true,
+    'aria-label': t(locale, 'common.menuLabel', { name }),
+  } as const;
+
   return (
     <Popover
       open={open}
@@ -60,26 +86,15 @@ const DropdownNavComponent = ({
       render={renderDropdownContent}
       className="nav-popover"
     >
-      <button
-        type="button"
-        className={cn('relative inline-flex h-10 items-center py-2 pr-5 pl-3 text-base tracking-wider', className)}
-        aria-expanded={open}
-        aria-haspopup="true"
-        aria-label={t(locale, 'common.menuLabel', { name })}
-      >
-        {icon && (
-          <span className="mr-1.5 inline-flex h-4 w-4 shrink-0 items-center justify-center">
-            <Icon icon={icon} className="h-4 w-4" />
-          </span>
-        )}
-        {name}
-        <Icon
-          icon="ri:arrow-drop-down-fill"
-          className={cn('absolute right-0 size-6 transition-transform duration-300 ease-out-expo', {
-            'rotate-180': open,
-          })}
-        />
-      </button>
+      {parentUrl ? (
+        <a href={parentUrl} className={triggerClassName} {...triggerAria}>
+          {triggerLabel}
+        </a>
+      ) : (
+        <button type="button" className={triggerClassName} {...triggerAria}>
+          {triggerLabel}
+        </button>
+      )}
     </Popover>
   );
 };

@@ -9,6 +9,7 @@ export const uiStrings = {
   // ── Navigation ──────────────────────────────────────────────
   'nav.home': '首页',
   'nav.posts': '文章',
+  'nav.allPosts': '所有文章',
   'nav.categories': '分类',
   'nav.tags': '标签',
   'nav.archives': '归档',
@@ -41,6 +42,7 @@ export const uiStrings = {
   'post.totalPosts': '共 {count} 篇文章',
   'post.stickyPosts': '置顶文章',
   'post.postList': '文章列表',
+  'post.viewAll': '全部文章',
   'post.featuredCategories': '精选分类',
   'post.yearPosts': '{count} 篇文章',
   'post.readingTime': '{time} 分钟阅读',
@@ -89,6 +91,7 @@ export const uiStrings = {
 
   // ── Archives ────────────────────────────────────────────────
   'archives.title': '归档',
+  'posts.title': '所有文章',
   'archives.totalPosts': '共 {count} 篇',
   'index.posts': '篇文章',
   'archives.calendar': '写作日历',

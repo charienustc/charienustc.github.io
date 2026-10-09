@@ -1,15 +1,15 @@
 ---
 import HomeSider from '@components/layout/HomeSider.astro';
 import PostList from '@components/post/PostList.astro';
+import { Button } from '@components/ui/button';
 import Cover from '@components/ui/cover/Cover.astro';
-import { CONTENT_PADDING, PAGINATION } from '@constants/layout';
+import { CONTENT_PADDING } from '@constants/layout';
 import { seoConfig, siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { getHomePagePosts } from '@lib/content';
 import { toPostCardDataList } from '@lib/content/transforms';
-import type { Page } from 'astro';
-import type { BlogPost } from 'types/blog';
+import { Icon } from 'astro-icon/components';
 import CategoryCards from '@/components/post/CategoryCards.astro';
 import Divider from '@/components/ui/divider';
 import { defaultLocale, localizedPath, t } from '@/i18n';
@@ -27,31 +27,10 @@ const { highlightedPosts, stickyPosts: normalStickyPosts, regularPosts } = await
 // 将高亮系列文章放在置顶列表开头（转换为卡片数据）
 const stickyPosts = toPostCardDataList([...highlightedPosts, ...normalStickyPosts], locale);
 
-// 首页显示前N篇普通文章（不含系列文章）
-const { pageSize } = PAGINATION;
-const regularPostsSlice = regularPosts.slice(0, pageSize);
-const posts = toPostCardDataList(regularPostsSlice, locale);
-const totalRegularPosts = regularPosts.length;
-
-const homeUrl = localizedPath('/', locale);
-const postsBaseUrl = localizedPath('/posts', locale);
-
-const page: Page<BlogPost> = {
-  data: regularPostsSlice,
-  start: 0,
-  end: Math.min(pageSize - 1, regularPostsSlice.length - 1),
-  size: pageSize,
-  total: totalRegularPosts,
-  currentPage: 1,
-  lastPage: Math.ceil(totalRegularPosts / pageSize),
-  url: {
-    current: homeUrl,
-    prev: undefined,
-    next: totalRegularPosts > pageSize ? `${postsBaseUrl}/2` : undefined,
-    first: homeUrl,
-    last: `${postsBaseUrl}/${Math.ceil(totalRegularPosts / pageSize)}`,
-  },
-};
+// 首页只显示最新 5 篇普通文章（不含系列文章）；更早的文章走列表下方的「全部文章」入口按月浏览
+const HOME_POST_COUNT = 5;
+const posts = toPostCardDataList(regularPosts.slice(0, HOME_POST_COUNT), locale);
+const allPostsUrl = localizedPath('/posts', locale);
 ---
 
 <Layout locale={locale} title={seoConfig.title}>
@@ -68,7 +47,15 @@ const page: Page<BlogPost> = {
         </>
       )}
       <Divider>{t(locale, 'post.postList')}</Divider>
-      <PostList posts={posts} page={page} showPaginator={true} baseUrl={postsBaseUrl} isHomePage={true} />
+      <PostList posts={posts} showPaginator={false} isHomePage={true} />
+      <div class="flex justify-center pt-2">
+        <a href={allPostsUrl} aria-label={t(locale, 'post.viewAll')}>
+          <Button variant="outline" className="gap-1.5 rounded-full px-5">
+            {t(locale, 'post.viewAll')}
+            <Icon name="ri:arrow-right-line" class="size-4" />
+          </Button>
+        </a>
+      </div>
       {!!siteConfig?.featuredCategories?.length && (
         <>
           <Divider className="mt-6">{t(locale, 'post.featuredCategories')}</Divider>
