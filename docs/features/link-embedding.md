@@ -13,7 +13,7 @@
 - ✅ 支持 `twitter.com` 和 `x.com` 域名
 - ✅ 仅 16KB 大小 (vs Twitter 原生 iframe 560KB)
 - ✅ 自动适配深色/浅色主题
-- ✅ 服务端渲染,无需客户端 JavaScript 加载
+- ✅ 服务端渲染占位 + 客户端水合( EmbedHydrator 仅处理 tweets,无 iframe 重资源)
 - ✅ 无 iframe,避免布局偏移
 
 **示例:**
@@ -82,7 +82,7 @@ https://github.com/vercel/react-tweet
 https://react-tweet.vercel.app/
 ```
 
-### 3. 行内链接保持不变
+### 4. 行内链接保持不变
 
 段落中的链接不会被转换,保持原有样式:
 
@@ -160,6 +160,7 @@ src/
 ├── components/
 │   └── embed/
 │       ├── TweetEmbed.tsx            # Tweet 嵌入组件
+│       ├── CodePenEmbed.astro        # CodePen 嵌入组件(自监听 astro:page-load 初始化)
 │       └── EmbedHydrator.tsx         # 水合组件(仅处理 tweets)
 └── styles/
     └── components/

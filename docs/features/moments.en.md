@@ -1,5 +1,9 @@
 # Moments
 
+> **Status in this fork**: This article describes the template's dynamic suite version (disabled
+> here via `moments.enabled: false`). This site actually uses the static `src/content/moments/`
+> content collection — see the root [README](../../README.md).
+
 Moments is an optional dynamic archive backed by the public read API of
 [koharu-suite](https://github.com/cosZone/koharu-suite). It fetches channel messages at request time while existing
 blog posts remain statically generated. The feature is off by default. When disabled, it does not require suite,

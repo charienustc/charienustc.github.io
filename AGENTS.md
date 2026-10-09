@@ -23,12 +23,12 @@ Biome is authoritative: two-space indentation, LF endings, 128-column lines, sin
 
 ## Testing Guidelines
 
-There is currently no automated test script or coverage threshold. Before submitting changes, run `pnpm lint`, `pnpm check`, and `pnpm build`. Manually exercise affected routes and interactive components with `pnpm dev`; CMS changes should also be verified through `pnpm cms`. When adding test infrastructure, prioritize content utilities, transformations, scripts, hooks, and stores, using `*.test.ts` or `*.test.tsx` names.
+`pnpm test` runs the full node:test suites (config, markdown, toc, diagram, motion, glide, content, migrate, moments, cms). `pnpm test:content` runs the content-collection tests alone, and `pnpm test:moments:smoke` runs the moments smoke script. Baseline: `pnpm check` currently reports 6 pre-existing errors in `scripts/koharu/utils/tar.ts` and `src/components/layout/SearchPortal.astro` — treat that as the floor and never let it grow. Before committing, run `pnpm lint:fix`, `pnpm test`, and `pnpm build`. Manually exercise affected routes and interactive components with `pnpm dev`; CMS changes should also be verified through `pnpm cms`. When adding tests, prioritize content utilities, transformations, scripts, hooks, and stores, using `*.test.ts` or `*.test.tsx` names.
 
 ## Commit & Pull Request Guidelines
 
-Recent history favors short imperative subjects and Conventional Commit prefixes such as `fix:`, `feat:`, and `chore:`. Keep each commit focused and include generated assets when the source change requires them. Pull requests should explain the user-visible effect, list validation commands, link related issues, and include screenshots or recordings for visual changes. Call out configuration, migration, performance, or i18n impact explicitly.
+Recent history favors short imperative subjects and Conventional Commit prefixes such as `fix:`, `feat:`, and `chore:`. Work lands on `dev` first, then merges into `main` to publish — GitHub Pages deploys from `main`, so keep `main` releasable at all times. Keep each commit focused and include generated assets when the source change requires them. Pull requests should explain the user-visible effect, list validation commands, link related issues, and include screenshots or recordings for visual changes. Call out configuration, migration, performance, or i18n impact explicitly.
 
 ## Configuration & Generated Data
 
-Do not commit secrets from `.env`. Restart the dev server after changing `config/site.yaml`. Preserve the tracked `.cache/og-data.json`; it is an intentional build cache, unlike other ignored cache artifacts.
+Do not commit secrets from `.env`. Restart the dev server after changing `config/site.yaml`. Preserve the tracked `.cache/og-data.json`; it is an intentional build cache, unlike other ignored cache artifacts. Visitor analytics run through the built-in Umami integration (`analytics.umami` in `config/site.yaml`); the optional `statistics_display` share token is read-only and safe to commit.

@@ -10,7 +10,7 @@ astro-koharu 的 UI 组件库遵循 **shadcn/ui** 的设计理念：
 4. **Tailwind 样式**：使用 Tailwind CSS 原子类定义样式
 5. **类型安全**：完整的 TypeScript 支持
 
-```
+```plain
 ┌─────────────────────────────────────────────────────────────┐
 │                    组件层次结构                              │
 ├─────────────────────────────────────────────────────────────┤
@@ -327,7 +327,7 @@ export default React.memo(PopoverWithErrorBoundary);
 
 ### 架构分层
 
-```
+```plain
 ┌─────────────────────────────────────────────────────────────┐
 │                      Popover 组件                           │
 ├─────────────────────────────────────────────────────────────┤
@@ -405,135 +405,52 @@ const [isOpen, setIsOpen] = useState(false);
 
 ---
 
-## Card 组件
+## 文章卡片组件（PostItemCard）
 
-### Compound Component 模式
+项目没有通用的组合式 Card 组件，卡片模式由 `src/components/post/PostItemCard.tsx` 代表：一个 Props 驱动的 React 组件，配合 Motion 实现磁吸倾斜与光标跟随高亮。
 
-Card 采用组合组件模式，将复杂组件拆分为多个子组件：
+### Props 接口设计
 
 ```tsx
-// src/components/ui/card.tsx
-import * as React from 'react';
-import { cn } from '@lib/utils';
-
-// 主容器
-const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn(
-        'bg-card text-card-foreground rounded-lg border shadow-xs',
-        className
-      )}
-      {...props}
-    />
-  ),
-);
-Card.displayName = 'Card';
-
-// 头部区域
-const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('flex flex-col space-y-1.5 p-6', className)}
-      {...props}
-    />
-  ),
-);
-CardHeader.displayName = 'CardHeader';
-
-// 标题
-const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
-  ({ className, ...props }, ref) => (
-    <h3
-      ref={ref}
-      className={cn(
-        'text-2xl leading-none font-semibold tracking-tight',
-        className
-      )}
-      {...props}
-    />
-  ),
-);
-CardTitle.displayName = 'CardTitle';
-
-// 描述
-const CardDescription = React.forwardRef<HTMLParagraphElement, CardDescriptionProps>(
-  ({ className, ...props }, ref) => (
-    <p
-      ref={ref}
-      className={cn('text-muted-foreground text-sm', className)}
-      {...props}
-    />
-  ),
-);
-CardDescription.displayName = 'CardDescription';
-
-// 内容区域
-const CardContent = React.forwardRef<HTMLDivElement, CardContentProps>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />
-  ),
-);
-CardContent.displayName = 'CardContent';
-
-// 底部区域
-const CardFooter = React.forwardRef<HTMLDivElement, CardFooterProps>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('flex items-center p-6 pt-0', className)}
-      {...props}
-    />
-  ),
-);
-CardFooter.displayName = 'CardFooter';
-
-export {
-  Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardDescription,
-  CardContent,
-};
+// src/components/post/PostItemCard.tsx
+export interface PostItemCardProps {
+  data: PostCardData;          // 卡片数据（服务端预计算，避免传入原始 post 大对象）
+  leftClip?: boolean;          // 封面是否左侧斜切
+  randomCover: string;         // 无封面文章使用的随机封面
+  showTags?: boolean;          // 是否显示标签行
+  hideCover?: boolean;         // 隐藏图片，让内容铺满
+  isSimple?: boolean;          // 简单模式
+  isUniformPosition?: boolean; // 统一图片位置（非交替模式）
+}
 ```
 
 ### 使用示例
 
-```tsx
-// 完整卡片
-<Card>
-  <CardHeader>
-    <CardTitle>文章标题</CardTitle>
-    <CardDescription>这是文章的简短描述</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <p>文章内容在这里...</p>
-  </CardContent>
-  <CardFooter>
-    <Button>阅读更多</Button>
-  </CardFooter>
-</Card>
+```astro
+---
+// src/components/post/PostList.astro 中
+import PostItemCard from './PostItemCard';
+---
 
-// 简洁卡片
-<Card>
-  <CardContent className="pt-6">
-    <p>简单内容</p>
-  </CardContent>
-</Card>
-
-// 自定义样式
-<Card className="border-primary">
-  <CardHeader className="bg-primary/10">
-    <CardTitle className="text-primary">特色卡片</CardTitle>
-  </CardHeader>
-  <CardContent>
-    <p>内容</p>
-  </CardContent>
-</Card>
+{
+  posts.map((post, index) => (
+    <PostItemCard
+      client:load
+      data={post}
+      showTags={!isSimple}
+      leftClip={getLeftClip(index)}
+      randomCover={covers[index % covers.length]}
+      hideCover={isSimple}
+    />
+  ))
+}
 ```
+
+### 关键设计点
+
+1. **数据预计算**：`PostCardData` 由 `toPostCardDataList()` 在服务端转换好再传入，卡片组件不接收原始 post 大对象
+2. **动效局部化**：`LazyMotionProvider` + `m.div` 只在需要逐帧写入 motion value 的位置使用
+3. **SSR 同构**：服务端渲染的标记结构与 Astro 原版保持一致，客户端只做交互增强
 
 ---
 
@@ -677,22 +594,23 @@ const offset = offsetNum ?? 10;
 
 ## UI 组件列表
 
-```
+```plain
 src/components/ui/
-├── button.tsx      # 按钮组件（CVA 变体示例）
-├── card.tsx        # 卡片组件（组合组件示例）
-├── popover.tsx     # 弹出框（Floating UI 示例）
-├── tooltip.tsx     # 工具提示
-├── badge.tsx       # 徽章
-├── avatar.tsx      # 头像
-├── divider.tsx     # 分割线
-├── segmented.tsx   # 分段控制器
-├── MenuIcon.tsx    # 菜单图标（动画）
-├── dialog/         # 对话框
-├── cover/          # 封面组件
-├── loading/        # 加载组件
-├── navigator/      # 导航组件
-└── segmented/      # 分段控制器
+├── button.tsx          # 按钮组件（CVA 变体示例）
+├── badge.tsx           # 徽章
+├── divider.tsx         # 分割线
+├── input.tsx           # 输入框
+├── switch.tsx          # 开关（Radix Switch 封装）
+├── sonner.tsx          # Toast 通知（Sonner 封装）
+├── dialog.tsx          # 对话框（Radix Dialog 封装）
+├── dropdown-menu.tsx   # 下拉菜单（Radix 封装）
+├── popover.tsx         # 弹出框（Floating UI 示例）
+├── MenuIcon.tsx        # 菜单图标（动画）
+├── ModalLayer.tsx      # 全屏查看器共享模态壳（代码 / 图表 / 灯箱）
+├── ScrollableRow.tsx   # 横向滚动行（两侧渐隐遮罩）
+├── segmented.tsx       # 分段控制器
+├── cover/              # 封面组件（Cover / SakuraPetals / SeriesCover / wave）
+└── segmented/          # 分段控制器组合实现
 ```
 
 ---
@@ -701,7 +619,7 @@ src/components/ui/
 
 1. **CVA 变体系统**：使用 class-variance-authority 管理样式变体
 2. **cn() 函数**：clsx + tailwind-merge 智能合并类名
-3. **组合组件模式**：Card 拆分为多个子组件，灵活组合
+3. **Props 驱动模式**：以 `PostItemCard` 为代表的卡片组件通过明确的 Props 接口组合，数据在服务端预计算
 4. **受控/非受控统一**：useControlledState 让组件支持两种模式
 5. **Floating UI 集成**：Popover 展示浮动定位的最佳实践
 6. **forwardRef**：所有 UI 组件都应转发 ref
@@ -714,7 +632,7 @@ src/components/ui/
 | 文件 | 说明 |
 |------|------|
 | `src/components/ui/button.tsx` | 按钮组件 |
-| `src/components/ui/card.tsx` | 卡片组件 |
+| `src/components/post/PostItemCard.tsx` | 文章卡片组件 |
 | `src/components/ui/popover.tsx` | 弹出框组件 |
 | `src/lib/utils.ts` | cn() 工具函数 |
 | `src/hooks/useControlledState.ts` | 受控状态 Hook |

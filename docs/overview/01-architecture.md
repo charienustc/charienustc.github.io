@@ -101,20 +101,24 @@ const posts = await getSortedPosts();
 
 ```javascript
 // astro.config.mjs
+import node from '@astrojs/node';
 import react from '@astrojs/react';
-import { siteConfig } from './src/constants/site-config';
-import icon from 'astro-icon';
-import { defineConfig } from 'astro/config';
-import svgr from 'vite-plugin-svgr';
-import umami from '@yeskunall/astro-umami';
+import sitemap from '@astrojs/sitemap';
+import yaml from '@rollup/plugin-yaml';
 import tailwindcss from '@tailwindcss/vite';
-import rehypeSlug from 'rehype-slug';
-import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import { defineConfig } from 'astro/config';
+import icon from 'astro-icon';
+import mermaid from 'astro-mermaid';
 import pagefind from 'astro-pagefind';
+import robotsTxt from 'astro-robots-txt';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import rehypeSlug from 'rehype-slug';
+import Sonda from 'sonda/vite';
+import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
   // 1. 站点 URL（用于生成绝对路径）
-  site: siteConfig.site, // 'https://blog.cosine.ren/'
+  site: 'https://charienustc.github.io', // 实际读取自 config/site.yaml 的 site.url
 
   // 2. Markdown 处理配置
   markdown: {
@@ -142,22 +146,22 @@ export default defineConfig({
   // 3. Astro 集成
   integrations: [
     react(), // React 支持
+    sitemap(), // 站点地图
     icon({
       // 图标系统
       include: {
         gg: ['*'], // gg 图标集
         'fa6-regular': ['*'],
         'fa6-solid': ['*'],
+        lucide: ['*'],
         ri: ['*'], // Remix Icon
       },
     }),
-    umami({
-      // 访问统计
-      id: '14de13b0-3220-4beb-8f0b-e08b17724991',
-      endpointUrl: 'https://stats.cosine.ren',
-      hostUrl: 'https://stats.cosine.ren',
-    }),
     pagefind(), // 静态搜索
+    mermaid({ autoTheme: true }), // Mermaid 图表
+    robotsTxt(), // robots.txt 生成
+    // 碎碎念（moments）启用时还会追加 momentsRoutes 动态路由，
+    // 并以 @astrojs/node 作为适配器（standalone 模式）
   ],
 
   // 4. 开发工具栏
@@ -169,7 +173,9 @@ export default defineConfig({
   vite: {
     plugins: [
       svgr(), // SVG 转 React 组件
+      yaml(), // YAML 文件导入
       tailwindcss(), // Tailwind CSS
+      // ANALYZE=true 构建时追加 Sonda() 进行包体分析
     ],
   },
 
@@ -177,6 +183,8 @@ export default defineConfig({
   trailingSlash: 'ignore', // /about 和 /about/ 都有效
 });
 ```
+
+> **访问统计（Umami）说明**：项目不再使用 `@yeskunall/astro-umami` 集成，改为本地组件方案——`config/site.yaml` 的 `analytics.umami`（Umami Cloud）提供 `id` / `endpoint` 配置，`src/components/analytics/UmamiAnalytics.astro` 负责在 `Layout.astro` 中挂载追踪脚本，文章页 PV 与全站统计展示由 `src/components/umami/UmamiPVSpan.tsx` 与 `src/lib/umami-stats.ts` 完成。
 
 ### 关键配置说明
 
@@ -198,7 +206,7 @@ Markdown 文件
 
 #### 图标系统配置
 
-`astro-icon` 集成了 Iconify 图标库，配置中包含 4 个图标集：
+`astro-icon` 集成了 Iconify 图标库，配置中包含 5 个图标集：
 
 ```jsx
 // 使用方式
@@ -208,6 +216,7 @@ import { Icon } from 'astro-icon/components';
 <Icon name="fa6-solid:house" />       // Font Awesome 6 Solid
 <Icon name="fa6-regular:heart" />     // Font Awesome 6 Regular
 <Icon name="gg:menu" />               // css.gg 图标
+<Icon name="lucide:sparkles" />       // Lucide
 ```
 
 ### tsconfig.json

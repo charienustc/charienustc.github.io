@@ -1,5 +1,9 @@
 # ひとこと（Moments）
 
+> **このフォークでの状態**：本文はテンプレート標準の動的 suite 版（本リポジトリでは
+> `moments.enabled: false` で**無効**）について述べます。本サイト実際には `src/content/moments/`
+> の静的コンテンツコレクションを使用しています。詳細はルートの [README](../../README.md) を参照。
+
 ひとことは [koharu-suite](https://github.com/cosZone/koharu-suite) の公開 Read API を利用する、任意の
 動的アーカイブです。チャンネルのメッセージはリクエスト時に取得し、既存のブログ記事は引き続き静的生成されます。
 初期状態では無効で、無効時は suite も `KOHARU_SUITE_URL` も動的ルートも必要ありません。

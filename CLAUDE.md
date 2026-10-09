@@ -65,6 +65,11 @@ pnpm lint             # Run Biome linter and formatter
 pnpm lint:fix         # Auto-fix linting issues
 pnpm knip             # Find unused files/dependencies
 
+# Testing
+pnpm test             # All node:test suites (config, markdown, toc, diagram, motion, glide, content, migrate, moments, cms)
+pnpm test:content     # Content collection tests only
+pnpm generate:lqips   # Regenerate LQIP placeholders into src/assets/lqips.json
+
 # Koharu CLI (Interactive TUI)
 pnpm koharu              # Interactive menu
 pnpm koharu backup       # Backup blog content and config (--full for complete backup)
@@ -87,7 +92,7 @@ pnpm koharu list         # List all backups
 ## Architecture
 
 ### Tech Stack
-- **Framework**: Astro 6.x with React integration
+- **Framework**: Astro 7.x with React integration
 - **Styling**: Tailwind CSS 4.x with plugins
 - **Content**: Astro Content Collections (`src/content/blog/`)
 - **i18n**: Custom translation system (`src/i18n/`) with Astro i18n routing
@@ -147,6 +152,8 @@ pages/ → components/ → hooks/ → lib/ → constants/
 **Featured Series**: Special category-based content series with dedicated pages and homepage highlights. Configured via `featuredSeries` in `config/site.yaml`. Each series requires a unique `slug` (must not conflict with reserved routes) and `categoryName`. Supports multiple series, individual enable/disable, and homepage highlight control. Dynamic routes generated at `[seriesSlug].astro`.
 
 **Bangumi Page**: Optional media tracking page integrating [Bangumi API](https://api.bgm.tv). Configured via `bangumi` section in `config/site.yaml` — comment out to disable (page + navigation auto-hidden). Data fetched client-side in React (`BangumiCollection` component with `client:load`). Types in `src/types/bangumi.ts`, API client in `src/lib/bangumi/`, data hook in `src/hooks/useBangumiData.ts`. Navigation item auto-injected via `routers` in `src/constants/site-config.ts`.
+
+**Analytics (Umami)**: Visitor analytics via the built-in Umami integration (`analytics.umami` in `config/site.yaml`). Tracking script injected site-wide by `src/components/analytics/UmamiAnalytics.astro`; dev visits are auto-excluded (`localStorage.umami.disabled`). Optional pageview display (footer site total + per-article counts via `UmamiPVSpan`) reads Umami's public share API in `src/lib/umami-stats.ts`; assembly in `src/constants/site-config.ts` (`umamiSiteStatsConfig`, `createArticleStatsConfig`). The `statistics_display.token` is a read-only share slug — safe to commit. Caveat: Umami Cloud share links expire (~90 days); when footer PV flips to N/A, regenerate the share link and update the token — tracking itself is unaffected.
 
 **Theme System**: Dark/light toggle with localStorage, inline check in `<head>` prevents FOUC.
 

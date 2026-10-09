@@ -1,5 +1,8 @@
 # 碎碎念（Moments）
 
+> **本站状态**：本文描述模板自带的动态 suite 版（本仓库 `moments.enabled: false`，**未启用**）。
+> 本站实际使用的是 `src/content/moments/` 静态内容集合方案，见根 [README](../../README.md) 的碎碎念一节。
+
 碎碎念是一个可选的动态归档页面。它在请求时从
 [koharu-suite](https://github.com/cosZone/koharu-suite) 的公开读取 API 获取频道消息，同时保留
 astro-koharu 现有文章的静态构建方式。功能默认关闭；未启用时不需要 suite、不读取

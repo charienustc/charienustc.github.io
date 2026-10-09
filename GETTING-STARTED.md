@@ -1,12 +1,17 @@
 # 快速开始
 
+> **本仓库说明**：本文档是上游 astro-koharu 主题面向"主题新用户"的上手指南（随上游合并被动更新）。
+> 本站的部署与开发流程以 [README](./README.md) 为准——推 `main` 到 GitHub Pages 即部署，
+> 无需 Vercel / Docker。本文档独有的价值是「主题更新」（`pnpm koharu update/backup/restore`）
+> 与上游同步工作流。
+
 欢迎使用 astro-koharu 博客主题！本文档将帮助你在 5 分钟内启动你的博客。
 
 ## 1. 环境准备
 
 确保你的电脑已安装：
 
-- **Node.js** 22.12.0 或更高版本
+- **Node.js** 22.20.0 或更高版本（以 `package.json` 的 `engines` 字段为准）
 - **pnpm** 包管理器
 
 如果没有安装 pnpm，运行：

@@ -497,42 +497,77 @@ export async function getAdjacentSeriesPosts(currentPost: BlogPost): Promise<{
 
 ---
 
-## 周刊专栏功能
+## 精选系列功能（Featured Series）
 
-项目支持特殊的"周刊"分类，与普通文章分开展示：
+项目支持将特定分类标记为"精选系列"，与普通文章分开展示：系列文章有独立的系列页，首页也只将系列最新文章放进置顶区，普通列表则排除系列文章。
+
+### 配置方式
+
+`config/site.yaml` 中的 `featuredSeries` 是一个数组，支持配置多个系列。每项必填 `slug` 与 `categoryName`，其余字段可选：
+
+```yaml
+# config/site.yaml
+featuredSeries:
+  - slug: weekly            # URL 路径: /weekly
+    categoryName: 周刊       # 必须与分类名匹配
+    label: 我的周刊          # 简短名称（可选）
+    fullName: 我的技术周刊    # 完整名称（可选）
+    description: 记录一些值得回看的零散发现。 # 支持多行 Markdown（可选）
+    cover: /img/site_cover_1920.webp        # 系列页头图（可选）
+    enabled: true           # 启用此系列
+    icon: lucide:newspaper  # 导航图标（可选）
+    highlightOnHome: true   # 是否在首页置顶区高亮该系列最新文章
+    links:                  # 相关链接（可选）
+      rss: /rss.xml
+  # 可继续添加第二个系列（取消注释启用）
+  # - slug: reading
+  #   categoryName: 书摘
+  #   ...
+```
+
+系列页面由 `src/pages/[seriesSlug].astro` 动态路由承担（如 `/weekly`），新增系列只需在配置里加一项，无需新建页面。
+
+### 核心函数
 
 ```typescript
 // src/lib/content/posts.ts
 
-// 获取所有周刊文章
-export async function getWeeklyPosts(): Promise<BlogPost[]> {
-  const { featuredSeries } = siteConfig;
-  if (!featuredSeries?.enabled || !featuredSeries.categoryName) {
-    return [];
-  }
-
-  return await getPostsByCategory(featuredSeries.categoryName);
+// 获取所有启用的系列配置
+export function getEnabledSeries(): FeaturedSeriesItem[] {
+  return siteConfig.featuredSeries.filter((series) => series.enabled !== false);
 }
 
-// 获取最新周刊
-export async function getLatestWeeklyPost(): Promise<BlogPost | null> {
-  const weeklyPosts = await getWeeklyPosts();
-  return weeklyPosts[0] ?? null;
+// 根据 slug 查找系列配置
+export function getSeriesBySlug(slug: string): FeaturedSeriesItem | undefined;
+
+// 获取某个系列的所有文章（按日期排序，最新的在前）
+export async function getPostsBySeriesSlug(slug: string, locale?: string): Promise<BlogPost[]> {
+  const series = getSeriesBySlug(slug);
+  if (!series) return [];
+
+  return await getPostsByCategory(series.categoryName, locale);
 }
 
-// 获取非周刊文章（首页使用）
-export async function getNonWeeklyPosts(): Promise<BlogPost[]> {
-  const { featuredSeries } = siteConfig;
-  if (!featuredSeries?.enabled || !featuredSeries.categoryName) {
-    return await getSortedPosts();
+// 获取所有系列所在的分类名
+export function getFeaturedCategoryNames(): string[] {
+  return getEnabledSeries().map((series) => series.categoryName);
+}
+
+// 获取所有非系列文章（首页普通列表使用）
+export async function getNonFeaturedPosts(locale?: string): Promise<BlogPost[]> {
+  const categoryNames = getFeaturedCategoryNames();
+  if (categoryNames.length === 0) {
+    return await getSortedPosts(locale);
   }
 
-  const allPosts = await getSortedPosts();
+  const allPosts = await getSortedPosts(locale);
   return allPosts.filter(
-    (post) => !isPostInCategory(post, featuredSeries.categoryName)
+    (post) => !categoryNames.some((catName) => isPostInCategory(post, catName))
   );
 }
 ```
+
+首页数据加载推荐使用 `getHomePagePosts(locale)`：单次遍历即可同时拿到系列高亮文章、置顶文章和普通文章（用法见 03 路由文档的首页路由一节）。
 
 ---
 

@@ -33,8 +33,8 @@
 |------|---------|------|
 | 页面布局 | Astro | `Layout.astro` |
 | 文章列表（静态） | Astro | `PostList.astro` |
-| 导航菜单 | Astro + React | `Navigator.astro` + `DropdownNav.tsx` |
-| 主题切换 | Astro（内联脚本） | `ThemeToggle.astro` |
+| 导航菜单 | React | `Navigator.tsx` + `DropdownNav.tsx` |
+| 主题切换 | React | `ThemeToggle.tsx` |
 | 搜索对话框 | React | `SearchDialog.tsx` |
 | 侧边栏目录 | React | `TableOfContents.tsx` |
 | 分页器 | Astro | `Paginator.astro` |
@@ -92,7 +92,7 @@
 <!-- src/components/layout/Header.astro -->
 ---
 import { MenuIcon } from '@components/ui/MenuIcon';
-import Navigator from './Navigator.astro';
+import Navigator from './Navigator';
 ---
 
 <!-- 静态导航栏 -->
@@ -396,7 +396,7 @@ const showSidebar = headings.length > 0; // catalog 字段不参与目录显隐�
 import { memo } from 'react';
 import Popover from '@components/ui/popover';
 import { type Router } from '@constants/router';
-import { useToggle } from '@hooks/useToggle';
+import { useControlledState } from '@hooks/useControlledState';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { withFloatingErrorBoundary } from '@components/common/FloatingErrorBoundary';
@@ -407,8 +407,8 @@ interface DropdownNavProps {
 }
 
 const DropdownNavComponent = ({ item, className }: DropdownNavProps) => {
-  // 1. 使用自定义 Hook 管理开关状态
-  const { isOpen, setIsOpen } = useToggle({ defaultOpen: false });
+  // 1. 使用自定义 Hook 管理开关状态（支持受控/非控两种模式）
+  const [isOpen = false, setIsOpen] = useControlledState<boolean>({ defaultValue: false });
   const { name, icon, children } = item;
 
   return (
@@ -478,7 +478,7 @@ export default DropdownNavWithErrorBoundary;
 
 ### 关键设计点
 
-1. **状态管理**：使用 `useToggle` 自定义 Hook
+1. **状态管理**：使用 `useControlledState` 自定义 Hook（同时支持受控/非控模式）
 2. **复合组件**：Popover + 触发器 + 内容
 3. **样式组合**：`cn()` 函数合并 Tailwind 类
 4. **无障碍**：ARIA 属性支持
@@ -498,7 +498,7 @@ src/components/
 │
 ├── layout/              # 布局组件
 │   ├── Header.astro         # 静态头部
-│   ├── Navigator.astro      # 导航容器
+│   ├── Navigator.tsx        # 导航容器
 │   ├── DropdownNav.tsx      # 下拉导航（交互）
 │   ├── HomeSider.astro      # 侧边栏
 │   └── MobileDrawer.astro   # 移动端抽屉
@@ -506,16 +506,15 @@ src/components/
 ├── ui/                  # 基础 UI 组件
 │   ├── button.tsx
 │   ├── popover.tsx
-│   ├── card.tsx
 │   └── ...
 │
 ├── post/                # 文章相关
 │   ├── PostList.astro       # 静态列表
-│   ├── PostItemCard.astro   # 静态卡片
-│   └── SeriesNavigation.tsx # 系列导航（交互）
+│   ├── PostItemCard.tsx     # 文章卡片（磁吸动效）
+│   └── SeriesProgress.astro # 系列阅读进度尺
 │
 └── theme/               # 主题组件
-    └── ThemeToggle.astro
+    └── ThemeToggle.tsx
 ```
 
 ---
@@ -551,6 +550,6 @@ src/components/
 | `src/components/common/FloatingErrorBoundary.tsx` | 浮动 UI 错误边界 |
 | `src/components/layout/Header.astro` | 页头组件 |
 | `src/components/layout/DropdownNav.tsx` | 下拉导航 |
-| `src/components/layout/Navigator.astro` | 导航容器 |
+| `src/components/layout/Navigator.tsx` | 导航容器 |
 | `src/store/ui.ts` | UI 状态管理 |
-| `src/hooks/useToggle.ts` | 开关状态 Hook |
+| `src/hooks/useControlledState.ts` | 受控/非控状态 Hook |

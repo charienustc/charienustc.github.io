@@ -6,7 +6,7 @@ astro-koharu 使用 **Tailwind CSS 4.x** 作为样式框架，结合**设计令�
 
 ### 样式系统架构
 
-```
+```plain
 ┌─────────────────────────────────────────────────────────────┐
 │                      样式系统层次                            │
 ├─────────────────────────────────────────────────────────────┤
@@ -46,51 +46,75 @@ astro-koharu 使用 **Tailwind CSS 4.x** 作为样式框架，结合**设计令�
 入口文件，按顺序导入所有样式：
 
 ```css
-/* 字体定义 */
-@import './theme/font.css';
-
-/* Tailwind 基础 */
-@import './global/tailwind.css';
-
 /* shadcn 主题变量 */
-@import './global/shadcn.css';
-
-/* 全局动画 */
-@import './global/animate.css';
-
-/* 组件样式 */
-@import './components/wave.css';
-@import './components/category.css';
-@import './components/post.css';
-@import './components/pagefind.css';
+@import "./theme/shadcn.css";
 
 /* 主题样式 */
-@import './theme/index.css';
-@import './theme/theme-transition.css';
-@import './theme/markdown.css';
+@import "./theme/index.css";
+@import "./theme/theme-transition.css";
+
+/* 圣诞主题 */
+@import "./christmas/christmas-theme.css";
+
+/* 全局样式 */
+@import "./global/animate.css";
+@import "./global/motion.css";
+@import "./global/scrollbar.css";
+@import "./global/tailwind.css";
+
+/* Markdown 与 shoka 迁移样式 */
+@import "./theme/markdown.css";
+@import "./theme/shoka-effects.css";
+@import "./theme/shoka-containers.css";
+@import "./theme/shoka-tabs.css";
+@import "./theme/shoka-quiz.css";
+@import "./theme/shoka-links.css";
+@import "./theme/shoka-media.css";
+@import "./theme/shoka-player-shared.css";
+@import "./theme/shoka-audio-player.css";
+@import "./theme/encrypted-block.css";
+
+/* 组件样式 */
+@import "./components/wave.css";
+@import "./components/category.css";
+@import "./components/post.css";
+@import "./components/colophon.css";
+@import "./components/pagefind.css";
+@import "./components/embed.css";
+@import "./components/lqip.css";
+@import "./components/bgm.css";
+@import "./components/header-capsule.css";
+@import "./components/toc.css";
+@import "./components/index-pages.css";
+@import "./components/tag-cloud.css";
+@import "./components/series-issues.css";
+@import "./components/index-archives.css";
+@import "./components/category-toc.css";
+@import "./components/sider.css";
 ```
 
 ### 目录结构
 
-```
+```plain
 src/styles/
-├── index.css              # 入口文件
+├── index.css              # 入口文件（35 个 @import）
 ├── global/
 │   ├── tailwind.css       # Tailwind 指令
-│   ├── shadcn.css         # shadcn 主题变量
 │   ├── animate.css        # 全局动画
+│   ├── motion.css         # 动效（含滚动驱动动画）
+│   ├── scrollbar.css      # 滚动条
 │   ├── reset.css          # CSS 重置
 │   └── utils.css          # 工具类
 ├── theme/
-│   ├── font.css           # 字体定义
-│   ├── index.css          # 主题变量
+│   ├── shadcn.css         # shadcn 主题变量
+│   ├── index.css          # 主题变量（渐变、shoka 色系）
 │   ├── theme-transition.css # 主题切换动画
-│   └── markdown.css       # Markdown 样式
-└── components/
-    ├── wave.css           # 波浪效果
-    ├── category.css       # 分类组件
-    ├── post.css           # 文章组件
-    └── pagefind.css       # 搜索样式
+│   ├── markdown.css       # Markdown 样式
+│   ├── shoka-*.css        # shoka 迁移样式（effects/containers/tabs/quiz/links/media/player）
+│   └── encrypted-block.css # 加密块
+├── components/            # 组件样式（wave/post/pagefind/toc/sider/header-capsule 等）
+└── christmas/
+    └── christmas-theme.css # 圣诞主题
 ```
 
 ---
@@ -100,25 +124,25 @@ src/styles/
 ### shadcn 主题变量
 
 ```css
-/* src/styles/global/shadcn.css */
+/* src/styles/theme/shadcn.css */
 
 @layer base {
   :root {
     /* 背景和前景 */
-    --background: 0 0% 100%;
+    --background: 0 12% 99%;
     --foreground: 0 0% 20%;
 
     /* 卡片 */
-    --card: 0 0% 100%;
+    --card: 0 12% 99%;
     --card-foreground: 240 10% 3.9%;
 
     /* 弹出框 */
-    --popover: 0 0% 100%;
+    --popover: 0 12% 99%;
     --popover-foreground: 240 10% 3.9%;
 
-    /* 主色调（粉红色主题） */
-    --primary: 351 77% 62%;
-    --primary-foreground: 355.7 100% 97.3%;
+    /* 主色调（蓝色主题） */
+    --primary: 207 78% 60%;
+    --primary-foreground: 0 0% 100%;
 
     /* 次要色 */
     --secondary: 240 4.8% 95.9%;
@@ -126,7 +150,7 @@ src/styles/
 
     /* 静音色 */
     --muted: 240 4.8% 95.9%;
-    --muted-foreground: 0 0% 20% / 0.5;
+    --muted-foreground: 0 0% 35%;
 
     /* 强调色 */
     --accent: 240 4.8% 95.9%;
@@ -139,30 +163,36 @@ src/styles/
     /* 边框和输入 */
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 346.8 77.2% 49.8%;
+    --ring: 207 78% 50%;
+
+    /* 徽标主色 */
+    --badge-primary: 207 55% 45%;
 
     /* 圆角 */
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
 
   /* 深色模式 */
   .dark {
-    --background: 20 14.3% 4.1%;
+    --background: 216 13% 15%;
     --foreground: 0 0% 95%;
 
-    --card: 0 0% 13%;
+    --card: 216 13% 15%;
     --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 9%;
+    --popover: 216 13% 15%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 350 77% 70%;
-    --primary-foreground: 355.7 100% 97.3%;
+    /* 主色调（深色下更亮） */
+    --primary: 207 72% 68%;
+    --primary-foreground: 216 30% 12%;
 
     /* ... 其他深色变量 */
   }
 }
 ```
+
+> 主题原为 shoka 粉红（`--primary: 351 77% 62%`），现为蓝色主题。`src/constants/design-tokens.ts` 中的 `shoka` 颜色 token 也已改为跟随 `--primary` 蓝色；粉色仅保留在 `shoka-button` 阴影等历史 token 中（`--gradient-shoka-button` 渐变本身同样是蓝色）。
 
 ### 使用 CSS 变量
 
@@ -335,11 +365,11 @@ export const colors = {
     foreground: 'hsl(var(--secondary-foreground))',
   },
 
-  // 主题色（Shoka 粉红）
+  // Shoka 主题强调色（已跟随蓝色主色 --primary，上游粉色仅留在 shoka-button 阴影等历史 token）
   shoka: {
-    DEFAULT: '#E95469',
-    light: '#FF6B7A',
-    dark: '#D63F55',
+    DEFAULT: 'hsl(var(--primary))',
+    light: 'hsl(var(--primary))',
+    dark: 'hsl(var(--primary))',
   },
 
   // 主题切换图标色
@@ -558,18 +588,22 @@ cn('text-red-500', 'text-blue-500')  // → 'text-blue-500'
 ### CSS 变量定义
 
 ```css
-:root {
-  --gradient-bg-start: #ed719a;
-  --gradient-bg-end: #ffffff;
-  --gradient-bg: linear-gradient(180deg, var(--gradient-bg-start), var(--gradient-bg-end));
+/* src/styles/theme/index.css */
 
-  --gradient-shoka-button: linear-gradient(135deg, #e9536a 0%, #f47c93 100%);
-  --gradient-header: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent);
+:root {
+  --gradient-bg-start: #f7fbff;
+  --gradient-bg-end: #e8f2fa;
+  --gradient-bg: linear-gradient(180deg, var(--gradient-bg-start) 10%, var(--gradient-bg-end) 100%);
+
+  --gradient-pink: linear-gradient(279deg, #6cb8f0 0%, #2e86c1 100%); /* 名字保留，值已为蓝色 */
+  --gradient-header: linear-gradient(-225deg, #e6f4fd 0, #dbeafe 100%);
+  --gradient-shoka-button: linear-gradient(135deg, var(--gradient-shoka-button-start), var(--gradient-shoka-button-end));
 }
 
 .dark {
-  --gradient-bg-start: #212832;
-  --gradient-bg-end: #3f4659;
+  --gradient-bg-start: #21252b;
+  --gradient-bg-end: #000;
+  --gradient-header: linear-gradient(-225deg, #1b2530 0, #202b38 100%);
 }
 ```
 
@@ -651,7 +685,7 @@ import { animation } from '@constants/design-tokens';
 | 文件 | 说明 |
 |------|------|
 | `src/styles/index.css` | 样式入口 |
-| `src/styles/global/shadcn.css` | 主题 CSS 变量 |
+| `src/styles/theme/shadcn.css` | 主题 CSS 变量 |
 | `src/styles/theme/index.css` | 自定义主题变量 |
 | `src/styles/theme/markdown.css` | Markdown 排版 |
 | `src/constants/design-tokens.ts` | 设计令牌定义 |

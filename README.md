@@ -10,7 +10,7 @@
 
 | 部分 | 说明 |
 | --- | --- |
-| 框架 | [Astro](https://astro.build/) 6.x，静态输出 |
+| 框架 | [Astro](https://astro.build/) 7.x，静态输出 |
 | 交互 | React 19 |
 | 样式 | Tailwind CSS 4.x |
 | 内容 | Astro Content Collections（文章 + 碎碎念两个集合） |
@@ -159,6 +159,8 @@ rm -rf backups/deleted/* backups/versions/*
 - `site` —— 站点标题、副标题、作者、头像、URL、关键词
 - `navigation` —— 顶部导航栏，支持子菜单
 - `comment` —— 评论系统，当前用 giscus
+- `friends` —— 友链列表与分组（buddies / theme 等）
+- `analytics.umami` —— Umami Cloud 访客统计（`statistics_display` 可开页脚/文章 PV 展示）
 - `moments` / `bangumi` / `featuredSeries` 等各功能开关
 
 改完 YAML **需要重启开发服务器或重新构建**，配置在构建期被缓存。

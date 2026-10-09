@@ -8,7 +8,7 @@ astro-koharu 是一个基于 **Astro 7.x** 构建的现代化静态博客系统�
 
 - **高性能**：Astro Islands 架构，默认零 JavaScript，按需加载
 - **现代化**：React 19 + Tailwind CSS 4 + Motion 动画库
-- **内容优先**：Astro Content Collections 管理 183+ 篇博客文章
+- **内容优先**：Astro Content Collections 管理博客文章（正文由私有内容仓库提供）
 - **全文搜索**：Pagefind 静态搜索，无需后端
 - **主题切换**：深色/浅色模式，支持 View Transitions 动画
 - **Hexo 兼容**：保留原有文章格式和分类结构
@@ -47,15 +47,15 @@ astro-koharu 是一个基于 **Astro 7.x** 构建的现代化静态博客系统�
 
 ### 核心依赖说明
 
-| 依赖             | 版本    | 用途                           |
-| ---------------- | ------- | ------------------------------ |
-| `astro`          | 5.2.3   | 核心框架，静态站点生成         |
-| `react`          | 19.0.0  | 交互组件开发                   |
-| `tailwindcss`    | 4.0.0   | 原子化 CSS 框架                |
-| `motion`         | 11.15.0 | 动画库（Framer Motion 后继者） |
-| `nanostores`     | -       | 轻量级状态管理                 |
-| `astro-pagefind` | -       | 静态全文搜索                   |
-| `astro-icon`     | 1.1.5   | 图标系统（Iconify）            |
+| 依赖             | 版本     | 用途                           |
+| ---------------- | -------- | ------------------------------ |
+| `astro`          | 7.1.3    | 核心框架，静态站点生成         |
+| `react`          | ^19.2.1  | 交互组件开发                   |
+| `tailwindcss`    | ^4.3.3   | 原子化 CSS 框架                |
+| `motion`         | ^11.18.2 | 动画库（Framer Motion 后继者） |
+| `nanostores`     | -        | 轻量级状态管理                 |
+| `astro-pagefind` | -        | 静态全文搜索                   |
+| `astro-icon`     | 1.1.5    | 图标系统（Iconify）            |
 
 ---
 
@@ -82,11 +82,14 @@ astro-koharu/
 │   │   ├── category/          # 分类组件
 │   │   ├── theme/             # 主题切换
 │   │   ├── friends/           # 友链组件
-│   │   └── comment/           # 评论组件
+│   │   ├── comment/           # 评论组件
+│   │   ├── analytics/         # 统计组件（UmamiAnalytics）
+│   │   ├── umami/             # Umami PV 展示
+│   │   └── ...
 │   │
 │   ├── content/                # Astro Content Collections
 │   │   ├── config.ts          # Schema 定义
-│   │   └── blog/              # 博客文章（183 篇）
+│   │   └── blog/              # 博客文章（正文由私有内容仓库提供，checkout 仅含示例）
 │   │       ├── life/          # 随笔
 │   │       ├── note/          # 笔记
 │   │       │   ├── front-end/ # 前端笔记
@@ -110,6 +113,7 @@ astro-koharu/
 │   │   └── TwoColumnLayout.astro
 │   │
 │   ├── lib/                    # 工具函数
+│   │   ├── config/            # 站点配置解析（content/moments/featured-series 等）
 │   │   ├── content/           # 内容操作
 │   │   │   ├── posts.ts       # 文章查询
 │   │   │   ├── categories.ts  # 分类处理
@@ -125,9 +129,18 @@ astro-koharu/
 │   │   ├── tags/              # 标签页面
 │   │   └── rss.xml.ts         # RSS 源
 │   │
+│   ├── features/               # 功能模块
+│   │   └── moments/           # 碎碎念（含动态路由集成）
+│   │
 │   ├── store/                  # Nanostores 状态
 │   │   ├── app.ts             # 应用状态
-│   │   └── ui.ts              # UI 状态
+│   │   ├── settings.ts        # 设置
+│   │   ├── locale.ts          # 语言
+│   │   ├── modal.ts           # 弹窗
+│   │   ├── player.ts          # 播放器
+│   │   ├── bgm.ts             # Bangumi 追番
+│   │   ├── christmas.ts       # 圣诞主题
+│   │   └── announcement.ts    # 公告
 │   │
 │   ├── styles/                 # 全局样式
 │   │   ├── index.css          # 入口
@@ -184,7 +197,7 @@ pnpm preview
 | `pnpm dev`         | 启动开发服务器         |
 | `pnpm build`       | 构建生产版本           |
 | `pnpm preview`     | 预览生产构建           |
-| `pnpm lint`        | 运行 ESLint 检查       |
+| `pnpm lint`        | 运行 Biome 检查        |
 | `pnpm lint-md`     | 检查 Markdown 文件     |
 | `pnpm lint-md:fix` | 自动修复 Markdown 问题 |
 | `pnpm knip`        | 查找未使用的代码和依赖 |
@@ -284,7 +297,7 @@ export const siteConfig = {
 
 ## 文档导航
 
-本系列文档共 13 篇，建议按顺序阅读：
+本系列文档共 14 篇，建议按顺序阅读：
 
 1. **[00-overview.md](./00-overview.md)**（当前） - 项目总览与快速开始
 2. **[01-architecture.md](./01-architecture.md)** - 架构设计与技术栈
@@ -299,6 +312,7 @@ export const siteConfig = {
 11. **[10-markdown-system.md](./10-markdown-system.md)** - Markdown 处理管线
 12. **[11-deployment-adapters.md](./11-deployment-adapters.md)** - 静态部署与适配器边界
 13. **[12-astro-7-upgrade.md](./12-astro-7-upgrade.md)** - Astro 7 升级、验证与回滚
+14. **[13-upstream-v7-upgrade-comparison.md](./13-upstream-v7-upgrade-comparison.md)** - 上游 v7 升级差异对比与合并决策
 
 ---
 

@@ -195,7 +195,7 @@ featuredSeries:
 
 ### 友链
 
-`/friends` —— 友链卡片 + 申请表单。友链数据配置见 `src/constants/friends-config.ts` 与 `config/site.yaml`。
+`/friends` —— 友链卡片 + 申请表单，支持分组页签（buddies / theme 等，详见 [friend-link-groups](./features/friend-link-groups.md)）。友链数据配置见 `src/constants/friends-config.ts` 与 `config/site.yaml`。
 
 ### LQIP（低质量图片占位符）
 

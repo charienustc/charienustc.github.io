@@ -10,8 +10,13 @@ src/pages/
 ├── about.md             →  /about
 ├── archives.astro       →  /archives
 ├── friends.astro        →  /friends
-├── weekly.astro         →  /weekly
+├── moments.astro        →  /moments
+├── bangumi.astro        →  /bangumi
+├── 404.astro            →  /404
+├── [seriesSlug].astro   →  /weekly 等精选系列页
 ├── rss.xml.ts           →  /rss.xml
+├── rss/
+│   └── feed.xsl.ts      →  /rss/cos-feed.xsl（RSS 样式表）
 ├── post/
 │   └── [...slug].astro  →  /post/*
 ├── posts/
@@ -19,10 +24,18 @@ src/pages/
 ├── categories/
 │   ├── index.astro      →  /categories
 │   └── [...slug].astro  →  /categories/*
-└── tags/
-    ├── index.astro      →  /tags
-    └── [...slug].astro  →  /tags/*
+├── tags/
+│   ├── index.astro      →  /tags
+│   └── [tag].astro      →  /tags/*
+└── [lang]/              →  非默认语言的镜像路由（如 /en/about）
+    ├── index.astro      →  /en/
+    ├── about.astro      →  /en/about
+    └── ...（与根目录基本一一对应）
 ```
+
+> 精选系列页由 `[seriesSlug].astro` 动态路由承担，`slug` 来自 `config/site.yaml` 的 `featuredSeries` 配置，无需为每个系列新建页面。
+>
+> `[lang]/` 目录是 i18n 镜像：默认语言不加坡前缀，其他语言在 `src/pages/[lang]/` 下放置对应镜像页（由 `getLocaleStaticPaths()` 生成静态路径）。
 
 ### 路由类型
 
@@ -135,12 +148,12 @@ const { category } = Astro.props;
 ---
 // src/pages/posts/[...page].astro
 
-import { getNonWeeklyPosts } from '@lib/content';
+import { getNonFeaturedPosts } from '@lib/content';
 import type { PaginateFunction } from 'astro';
 
 export async function getStaticPaths({ paginate }: { paginate: PaginateFunction }) {
-  // 获取所有非周刊文章
-  const postCollections = await getNonWeeklyPosts();
+  // 获取所有非系列文章
+  const postCollections = await getNonFeaturedPosts();
 
   // paginate 自动生成分页路由
   return paginate(postCollections, { pageSize: 10 });
@@ -195,35 +208,36 @@ interface Page<T> {
 ---
 // src/pages/index.astro
 
-import { getLatestWeeklyPost, getNonWeeklyPostsBySticky } from '@lib/content';
+import { PAGINATION } from '@constants/layout';
+import { getHomePagePosts } from '@lib/content';
+import { toPostCardDataList } from '@lib/content/transforms';
 
-// 1. 获取置顶文章和普通文章
-const { stickyPosts: normalStickyPosts, allPosts: allNonWeeklyPosts } = await getNonWeeklyPostsBySticky();
+// 1. 单次查询获取所有首页数据（系列高亮 + 置顶 + 普通文章）
+const { highlightedPosts, stickyPosts: normalStickyPosts, regularPosts } = await getHomePagePosts(locale);
 
-// 2. 获取最新周刊（特殊展示）
-const latestWeeklyPost = await getLatestWeeklyPost();
+// 2. 系列高亮文章放在置顶列表开头（转换为卡片数据）
+const stickyPosts = toPostCardDataList([...highlightedPosts, ...normalStickyPosts], locale);
 
-// 3. 周刊放在置顶列表开头
-const stickyPosts = latestWeeklyPost ? [latestWeeklyPost, ...normalStickyPosts] : normalStickyPosts;
+// 3. 首页显示前 pageSize 篇普通文章（不含系列文章）
+const { pageSize } = PAGINATION;
+const regularPostsSlice = regularPosts.slice(0, pageSize);
+const posts = toPostCardDataList(regularPostsSlice, locale);
 
-// 4. 首页显示前 10 篇普通文章
-const posts = allNonWeeklyPosts.slice(0, 10);
-
-// 5. 手动构造 Page 对象（用于分页组件）
+// 4. 手动构造 Page 对象（用于分页组件）
 const page: Page<BlogPost> = {
-  data: posts,
+  data: regularPostsSlice,
   start: 0,
-  end: Math.min(9, posts.length - 1),
-  size: 10,
-  total: allNonWeeklyPosts.length,
+  end: Math.min(pageSize - 1, regularPostsSlice.length - 1),
+  size: pageSize,
+  total: regularPosts.length,
   currentPage: 1,
-  lastPage: Math.ceil(allNonWeeklyPosts.length / 10),
+  lastPage: Math.ceil(regularPosts.length / pageSize),
   url: {
     current: '/',
     prev: undefined,
-    next: allNonWeeklyPosts.length > 10 ? '/posts/2' : undefined,
+    next: regularPosts.length > pageSize ? '/posts/2' : undefined,
     first: '/',
-    last: `/posts/${Math.ceil(allNonWeeklyPosts.length / 10)}`,
+    last: `/posts/${Math.ceil(regularPosts.length / pageSize)}`,
   },
 };
 ---
@@ -567,15 +581,20 @@ import Layout from '@layouts/Layout.astro';
 
 ## 相关文件
 
-| 文件                                   | 说明         |
-| -------------------------------------- | ------------ |
-| `src/pages/index.astro`                | 首页         |
-| `src/pages/post/[...slug].astro`       | 文章详情页   |
-| `src/pages/posts/[...page].astro`      | 文章列表分页 |
-| `src/pages/categories/[...slug].astro` | 分类页面     |
-| `src/pages/categories/index.astro`     | 分类首页     |
-| `src/pages/tags/[...slug].astro`       | 标签页面     |
-| `src/pages/rss.xml.ts`                 | RSS 源       |
-| `src/pages/archives.astro`             | 归档页面     |
-| `src/pages/weekly.astro`               | 周刊页面     |
-| `src/pages/friends.astro`              | 友链页面     |
+| 文件                                   | 说明             |
+| -------------------------------------- | ---------------- |
+| `src/pages/index.astro`                | 首页             |
+| `src/pages/post/[...slug].astro`       | 文章详情页       |
+| `src/pages/posts/[...page].astro`      | 文章列表分页     |
+| `src/pages/categories/[...slug].astro` | 分类页面         |
+| `src/pages/categories/index.astro`     | 分类首页         |
+| `src/pages/tags/[tag].astro`           | 标签页面         |
+| `src/pages/rss.xml.ts`                 | RSS 源           |
+| `src/pages/rss/feed.xsl.ts`            | RSS 样式表       |
+| `src/pages/archives.astro`             | 归档页面         |
+| `src/pages/[seriesSlug].astro`         | 精选系列页       |
+| `src/pages/moments.astro`              | 碎碎念页面       |
+| `src/pages/bangumi.astro`              | 追番页面         |
+| `src/pages/friends.astro`              | 友链页面         |
+| `src/pages/404.astro`                  | 404 页面         |
+| `src/pages/[lang]/`                    | i18n 镜像路由    |
