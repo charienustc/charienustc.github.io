@@ -148,12 +148,21 @@ export function getPageviews(config: UmamiStatsConfig): Promise<number | null> {
   const inflight = inflightRequests.get(key);
   if (inflight) return inflight;
 
-  const promise = getSessionStats(config)
-    .then((stats) => {
-      const pv = typeof stats.pageviews === 'number' ? stats.pageviews : stats.pageviews.value;
-      cache.set(key, { value: pv, expiresAt: Date.now() + CACHE_TTL });
-      return pv;
-    })
+  const promise = (async () => {
+    const variants = pathVariants(config.path);
+    const results = await Promise.all(
+      variants.map((path) =>
+        getSessionStats({ ...config, path })
+          .then((stats) => (typeof stats.pageviews === 'number' ? stats.pageviews : stats.pageviews.value))
+          .catch(() => null),
+      ),
+    );
+    // Only report failure when every variant failed; treat partial failures as 0.
+    if (results.every((r) => r === null)) throw new Error('All Umami path variant queries failed');
+    const pv = results.reduce<number>((sum, r) => sum + (r ?? 0), 0);
+    cache.set(key, { value: pv, expiresAt: Date.now() + CACHE_TTL });
+    return pv;
+  })()
     .catch((error) => {
       console.error('Failed to fetch Umami pageviews:', error);
       if (import.meta.env.DEV) {
@@ -173,6 +182,17 @@ export function getPageviews(config: UmamiStatsConfig): Promise<number | null> {
 /** Normalize path to strip trailing slash for consistent Umami matching */
 function normalizePath(path: string): string {
   return path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
+}
+
+/**
+ * Umami records a pageview under whatever pathname the tracker sent, and static hosts
+ * that serve `path/index.html` may redirect `path` -> `path/` before the tracker runs.
+ * Query both exact variants and sum — each is an exact match, so no double counting.
+ */
+function pathVariants(path?: string): (string | undefined)[] {
+  if (!path || path === '/') return [path];
+  const base = normalizePath(path);
+  return [base, `${base}/`];
 }
 
 export function createUmamiStatsConfig(config: UmamiConfig, path?: string): UmamiStatsConfig | null {

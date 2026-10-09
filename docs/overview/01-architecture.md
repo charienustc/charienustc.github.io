@@ -184,7 +184,7 @@ export default defineConfig({
 });
 ```
 
-> **访问统计（Umami）说明**：项目不再使用 `@yeskunall/astro-umami` 集成，改为本地组件方案——`config/site.yaml` 的 `analytics.umami`（Umami Cloud）提供 `id` / `endpoint` 配置，`src/components/analytics/UmamiAnalytics.astro` 负责在 `Layout.astro` 中挂载追踪脚本，文章页 PV 与全站统计展示由 `src/components/umami/UmamiPVSpan.tsx` 与 `src/lib/umami-stats.ts` 完成。
+> **访问统计（Umami）说明**：项目不再使用 `@yeskunall/astro-umami` 集成，改为本地组件方案——`config/site.yaml` 的 `analytics.umami`（Umami Cloud）提供 `id` / `endpoint` 配置，`src/components/analytics/UmamiAnalytics.astro` 负责在 `Layout.astro` 中挂载追踪脚本，文章页 PV 与全站统计展示由 `src/components/umami/UmamiPVSpan.tsx` 与 `src/lib/umami-stats.ts` 完成。注意 Umami 按带尾斜杠的路径记录 PV（GitHub Pages 会对无斜杠 URL 做 301 跳转），`getPageviews` 会同时查询 `/path` 与 `/path/` 两个变体并求和（精确匹配不会重复计数），避免文章页 PV 恒为 0。
 
 ### 关键配置说明
 
