@@ -501,6 +501,7 @@ src/components/
 │   ├── Navigator.tsx        # 导航容器
 │   ├── DropdownNav.tsx      # 下拉导航（交互）
 │   ├── HomeSider.astro      # 侧边栏
+│   ├── HomeInfo.astro       # 侧栏身份卡片（导航按钮仅在 isDrawer 抽屉渲染，桌面侧栏不重复顶栏导航）
 │   └── MobileDrawer.astro   # 移动端抽屉
 │
 ├── ui/                  # 基础 UI 组件

@@ -29,7 +29,7 @@ const allTags = Object.entries(tags).map(([tag, count]) => ({ tag, count }));
 
 // 生成唯一 ID 前缀
 const uniqueId = `home-info-${Math.random().toString(36).substring(2, 11)}`;
-const { className } = Astro.props;
+const { className, isDrawer = false } = Astro.props;
 
 // Filter navigation items to exclude disabled series
 const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSeriesSlugs, RESERVED_ROUTES);
@@ -79,9 +79,11 @@ const strippedPath = stripLocaleFromPath(Astro.url.pathname);
       {t(locale, 'homeInfo.tags')}
     </a>
   </div>
-  <div class="mt-6 flex w-full flex-col items-center gap-2.5">
-    {
-      filteredRouters.map((item, index) => {
+  <!-- 导航按钮与顶栏重复，仅保留在移动端抽屉里；桌面侧栏不再渲染 -->
+  {
+    isDrawer && (
+      <div class="mt-6 flex w-full flex-col items-center gap-2.5">
+        {filteredRouters.map((item, index) => {
         const displayName = resolveNavName(item.nameKey, item.name, locale);
         if (item.children?.length) {
           const collapseId = `${uniqueId}-collapse-${index}`;
@@ -147,9 +149,10 @@ const strippedPath = stripLocaleFromPath(Astro.url.pathname);
             {displayName}
           </ButtonLink>
         );
-      })
-    }
-  </div>
+        })}
+      </div>
+    )
+  }
 </div>
 
 <style>
