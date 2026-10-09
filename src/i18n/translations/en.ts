@@ -189,8 +189,12 @@ export const uiStrings: UIStrings = {
   'image.prev': 'Previous',
   'image.next': 'Next',
   'image.counter': '{current} / {total}',
-  'image.hintDesktop': 'Double-click to zoom · Scroll/pinch to scale',
-  'image.hintMobile': 'Double-tap to zoom · Pinch to scale',
+  'image.hintDesktop': 'Double-click to zoom · Scroll to scale · Click outside to close',
+  'image.hintMobile': 'Double-tap or pinch to zoom · Swipe down or tap outside to close',
+  'image.preview': 'Image preview',
+  'image.loadError': 'This image could not be loaded',
+  'image.retry': 'Retry',
+  'image.hintMobileGallery': 'Swipe to browse · Pinch to zoom · Swipe down to close',
 
   // ── Media Controls ──────────────────────────────────────────
   'media.play': 'Play',

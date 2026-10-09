@@ -343,6 +343,13 @@ export const animation = {
       stiffness: 300,
       damping: 20,
     },
+
+    lightbox: {
+      type: 'spring' as const,
+      stiffness: 300,
+      damping: 32,
+      mass: 0.9,
+    },
   },
 
   // Transition objects for CSS transitions

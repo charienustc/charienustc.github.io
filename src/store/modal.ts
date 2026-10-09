@@ -11,6 +11,7 @@
  * - Type-safe modal data
  */
 
+import type { LightboxOrigin } from '@lib/lightbox-flip';
 import { atom, computed } from 'nanostores';
 
 /**
@@ -40,7 +41,7 @@ export interface DiagramFullscreenData {
 export interface ImageLightboxData {
   src: string;
   alt: string;
-  images: { src: string; alt: string }[];
+  images: { src: string; alt: string; origin?: LightboxOrigin }[];
   currentIndex: number;
 }
 

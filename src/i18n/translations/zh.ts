@@ -187,8 +187,12 @@ export const uiStrings = {
   'image.prev': '上一张',
   'image.next': '下一张',
   'image.counter': '{current} / {total}',
-  'image.hintDesktop': '双击放大 · 滚轮/双指缩放',
-  'image.hintMobile': '双击放大 · 双指缩放',
+  'image.hintDesktop': '双击放大 · 滚轮缩放 · 点击空白关闭',
+  'image.hintMobile': '双击或双指缩放 · 下滑或轻点空白关闭',
+  'image.preview': '图片预览',
+  'image.loadError': '图片加载失败',
+  'image.retry': '重试',
+  'image.hintMobileGallery': '左右滑动切图 · 双指缩放 · 下滑关闭',
 
   // ── Media Controls ──────────────────────────────────────────
   'media.play': '播放',
