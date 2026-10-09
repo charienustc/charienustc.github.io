@@ -409,3 +409,115 @@ html:is([data-motion="reduced"], .motion-off) :is(.series-progress-default, .ser
 .series-thread-item:focus-visible {
   outline-offset: -2px;
 }
+
+/* ── Avatar ring + greeting (ported from upstream v7.7.1, themed blue) ──
+   The ring hugs the round avatar via a surface-colored base shadow plus a primary
+   halo. The shadows live on the <img> (not the wrapper) so the ring sways together
+   with the head during the wave; the pink upstream drops are re-themed to
+   hsl(var(--primary)). */
+
+.home-avatar > img {
+  transform-origin: 50% 92%;
+  box-shadow:
+    0 0 0 3px var(--sider-surface),
+    0 0 0 4.5px hsl(var(--primary) / 0.32),
+    0 0.75rem 1.5rem -0.75rem hsl(var(--primary) / 0.4);
+  transition: box-shadow 320ms var(--ease-out-quart);
+}
+
+@media (hover: hover) {
+  .home-avatar:hover > img {
+    box-shadow:
+      0 0 0 3px var(--sider-surface),
+      0 0 0 4.5px hsl(var(--primary) / 0.7),
+      0 0.75rem 1.75rem -0.5rem hsl(var(--primary) / 0.5);
+  }
+}
+
+/* A wave hello: the head sways from the neck, big first, then settling.
+   --motion-travel halves the sway under the subtle motion level. */
+@keyframes avatar-wave {
+  12% {
+    rotate: calc(-8deg * var(--motion-travel));
+  }
+  27% {
+    rotate: calc(7deg * var(--motion-travel));
+  }
+  42% {
+    rotate: calc(-5deg * var(--motion-travel));
+  }
+  57% {
+    rotate: calc(3deg * var(--motion-travel));
+  }
+  72% {
+    rotate: calc(-1.5deg * var(--motion-travel));
+  }
+  86% {
+    rotate: 0deg;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .home-avatar:hover > img {
+    animation: avatar-wave 1.2s var(--ease-in-out-quart);
+  }
+}
+
+/*
+  The greeting pops up over the crown of the avatar, centred so it never runs past the
+  narrow column (the sider scroller would clip it); its words follow the visitor's
+  clock (HomeInfo.astro script). The gradient/shadow reuse the blue shoka button theme.
+*/
+.home-greeting {
+  position: absolute;
+  bottom: 86%;
+  left: 50%;
+  z-index: 1;
+  display: none;
+  padding: 0.3125rem 0.75rem;
+  border-radius: 0.875rem;
+  background-image: var(--gradient-shoka-button);
+  box-shadow: 0 0.5rem 1rem -0.5rem hsl(var(--primary) / 0.55);
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  opacity: 0;
+  scale: 0.5;
+  translate: -50% 0.375rem;
+  transform-origin: 50% 100%;
+  pointer-events: none;
+  transition:
+    opacity 140ms var(--ease-in-quart),
+    scale 160ms var(--ease-in-quart),
+    translate 160ms var(--ease-in-quart);
+}
+
+/* The tail points down at the head it speaks for. */
+.home-greeting::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 0.75rem;
+  height: 0.375rem;
+  background: color-mix(in srgb, var(--gradient-shoka-button-start), var(--gradient-shoka-button-end));
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  translate: -50% 0;
+}
+
+@media (hover: hover) {
+  .home-greeting {
+    display: block;
+  }
+
+  .home-avatar:hover .home-greeting {
+    opacity: 1;
+    scale: 1;
+    translate: -50% 0;
+    transition:
+      opacity 200ms var(--ease-out-quart) 140ms,
+      scale 560ms cubic-bezier(0.34, 1.56, 0.64, 1) 140ms,
+      translate 560ms cubic-bezier(0.34, 1.56, 0.64, 1) 140ms;
+  }
+}

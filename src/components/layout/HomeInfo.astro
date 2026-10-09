@@ -37,15 +37,23 @@ const strippedPath = stripLocaleFromPath(Astro.url.pathname);
 ---
 
 <div class={cn('flex flex-col items-center md:py-2', className)} data-home-info-container={uniqueId}>
-  <div class="relative h-40 w-40 rounded-full" style={getLqipStyle(siteConfig.avatar ?? '/img/avatar.webp')}>
+  <div
+    class="home-avatar relative h-40 w-40 rounded-full"
+    style={getLqipStyle(siteConfig.avatar ?? '/img/avatar.webp')}
+    data-greet-morning={t(locale, 'homeInfo.greetingMorning')}
+    data-greet-afternoon={t(locale, 'homeInfo.greetingAfternoon')}
+    data-greet-evening={t(locale, 'homeInfo.greetingEvening')}
+    data-greet-night={t(locale, 'homeInfo.greetingNight')}
+  >
     <img
-      class="shadow-card-darker hover:animate-shake h-full w-full rounded-full transition"
+      class="h-full w-full rounded-full object-cover"
       src={siteConfig.avatar ?? '/img/avatar.webp'}
       alt={`${siteConfig.name ?? ''} avatar`}
       loading="eager"
       fetchpriority="high"
     />
     {christmasConfig.enabled && christmasConfig.features.christmasHat && <ChristmasHat />}
+    <span class="home-greeting" aria-hidden="true"></span>
   </div>
 
   <p class="mt-2">{siteConfig?.name}</p>
@@ -173,6 +181,27 @@ const strippedPath = stripLocaleFromPath(Astro.url.pathname);
 </style>
 <script>
   let collapseMutationObserver: MutationObserver | null = null;
+
+  /** The greeting follows the visitor's clock, so it is picked at hover time rather than at build time. */
+  function greetingKey(hour: number): 'greetMorning' | 'greetAfternoon' | 'greetEvening' | 'greetNight' {
+    if (hour >= 5 && hour < 12) return 'greetMorning';
+    if (hour >= 12 && hour < 18) return 'greetAfternoon';
+    if (hour >= 18 && hour < 23) return 'greetEvening';
+    return 'greetNight';
+  }
+
+  // Delegated listener on document; the window flag keeps ClientRouter navigations from
+  // stacking duplicate listeners (document persists across page swaps).
+  const w = window as Window & { __homeGreetingDelegated?: boolean };
+  if (!w.__homeGreetingDelegated) {
+    w.__homeGreetingDelegated = true;
+    document.addEventListener('pointerover', (event) => {
+      const avatar = (event.target as Element | null)?.closest?.<HTMLElement>('.home-avatar');
+      const bubble = avatar?.querySelector<HTMLElement>('.home-greeting');
+      if (!avatar || !bubble || avatar.contains(event.relatedTarget as Node | null)) return;
+      bubble.textContent = avatar.dataset[greetingKey(new Date().getHours())] ?? '';
+    });
+  }
 
   function initCollapsible() {
     // 找到所有 HomeInfo 容器

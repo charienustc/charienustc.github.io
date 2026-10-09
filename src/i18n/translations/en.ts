@@ -371,6 +371,10 @@ export const uiStrings: UIStrings = {
   'homeInfo.articles': 'Articles',
   'homeInfo.categories': 'Categories',
   'homeInfo.tags': 'Tags',
+  'homeInfo.greetingMorning': 'Good morning!',
+  'homeInfo.greetingAfternoon': 'Good afternoon!',
+  'homeInfo.greetingEvening': 'Good evening!',
+  'homeInfo.greetingNight': 'Up late? Rest well',
 
   // ── Drawer ──────────────────────────────────────────────────
   'drawer.navMenu': 'Navigation menu',
