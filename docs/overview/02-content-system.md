@@ -397,6 +397,8 @@ export async function getPostsBySticky(): Promise<{
 }
 ```
 
+> **置顶排序**：`stickyPosts` 保持 `getSortedPosts()` 的日期倒序，即 date 最新的置顶文章排在最前。要让某篇置顶固定排第一，给它晚于其他置顶文章的 `date`。
+
 ### 获取分类下的文章 `getPostsByCategory()`
 
 ```typescript
