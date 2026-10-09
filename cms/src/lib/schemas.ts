@@ -51,7 +51,7 @@ export const categorySlugSchema = z
 /**
  * Schema for category mapping dialog
  */
-const categoryMappingSchema = z.record(z.string(), categorySlugSchema);
+export const categoryMappingSchema = z.record(z.string(), categorySlugSchema);
 
 // Type exports
 export type CreatePostFormData = z.infer<typeof createPostSchema>;

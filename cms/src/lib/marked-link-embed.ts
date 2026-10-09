@@ -14,10 +14,9 @@ import { classifyLink, extractCodePenId, extractTweetId } from './link-utils';
  */
 function isStandaloneLinkToken(token: Tokens.Paragraph): { isStandalone: boolean; url: string } {
   // Check if paragraph has exactly one token and it's a link
-  if (token.tokens?.length === 1 && token.tokens[0].type === 'link') {
-    const linkToken = token.tokens[0] as Tokens.Link;
-    const linkText = linkToken.text;
-    const linkHref = linkToken.href;
+  const [first] = token.tokens ?? [];
+  if (token.tokens?.length === 1 && first?.type === 'link') {
+    const { text: linkText, href: linkHref } = first;
 
     // Check if link text matches the URL (standalone link)
     if (linkText === linkHref || linkHref.endsWith(linkText) || linkText.endsWith(linkHref)) {

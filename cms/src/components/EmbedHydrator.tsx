@@ -10,12 +10,23 @@ import { createPortal } from 'react-dom';
 import { loadCache } from '@/lib/og-service';
 import { CodePenEmbed, LinkPreview, TweetEmbed } from './embed';
 
-interface EmbedTarget {
+interface EmbedTargetBase {
   id: string;
-  type: 'tweet' | 'codepen' | 'link';
   element: HTMLElement;
-  data: Record<string, string>;
 }
+
+/**
+ * One hydrated placeholder.
+ *
+ * `data` is a per-type shape rather than `Record<string, string>`: with
+ * `noUncheckedIndexedAccess` every read of the latter is `string | undefined`,
+ * which cannot satisfy the embed components' required string props even though
+ * the values are always filled in (each site falls back to `''`).
+ */
+type EmbedTarget =
+  | (EmbedTargetBase & { type: 'tweet'; data: { tweetId: string; url: string } })
+  | (EmbedTargetBase & { type: 'codepen'; data: { user: string; penId: string; url: string } })
+  | (EmbedTargetBase & { type: 'link'; data: { url: string } });
 
 interface EmbedHydratorProps {
   containerRef: React.RefObject<HTMLElement | null>;

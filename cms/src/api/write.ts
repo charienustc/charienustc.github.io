@@ -16,7 +16,6 @@ import { serializeFrontmatter } from '@/lib/frontmatter';
 import { normalizeEscapedLineBreaks } from '@/lib/markdown-normalize';
 import { CONTENT_DIR } from '@/lib/paths';
 import { hasValidMarkdownExtension, isPathSafe } from '@/lib/validation';
-import type { BlogSchema } from '@/types';
 
 /** Zod schema for write post request validation */
 const writePostRequestSchema = z.object({
@@ -95,7 +94,7 @@ export async function writeHandler(c: Context) {
     }
 
     // Serialize frontmatter for YAML
-    const serializedFrontmatter = serializeFrontmatter(processedFrontmatter as unknown as BlogSchema);
+    const serializedFrontmatter = serializeFrontmatter(processedFrontmatter);
 
     // Repair the editor's escaped line breaks before writing. BlockNote's
     // markdown serializer writes an in-paragraph hard break as a trailing
