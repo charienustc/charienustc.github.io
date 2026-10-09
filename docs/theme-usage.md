@@ -380,6 +380,10 @@ pnpm cms            # 启动，访问 http://localhost:4322
 
 > ⚠️ CMS **直接读写 `src/content/blog/` 下的源文件**，没有中间层。使用前建议先 `git commit`，改坏了可用 `git checkout -- src/content/blog` 回滚。
 
+> ⚠️ **Publish 按钮 = `git add -A` + commit + push 当前分支**，而站点从 `main` 部署。所以请在 `main` 分支上启动 CMS，并保证工作区里没有不想一起提交的内容；在其他分支上 publish 只会推那个分支，站点不会更新。
+
+**类型检查：** CMS 是独立 package，不在根 `pnpm check` 覆盖范围内。改动 `cms/` 后跑 `pnpm --dir cms exec tsc --noEmit`，必须保持 0 错误。
+
 ### 本地编辑器跳转
 
 文章页的编辑按钮可一键用 VS Code / Cursor / Zed 打开对应文件，配置在 `config/site.yaml` 的 `dev` 部分：
