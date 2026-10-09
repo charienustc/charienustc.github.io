@@ -4,7 +4,15 @@ import ButtonLink from '@components/control/ButtonLink.astro';
 import type { HomeSiderType } from '@constants/enum';
 import { RESERVED_ROUTES } from '@constants/router';
 import { christmasConfig, configuredSeriesSlugs, enabledSeriesSlugs, routers, siteConfig } from '@constants/site-config';
-import { getAllTags, getCategoryList, getPostCount, getSortedPosts } from '@lib/content';
+import {
+  buildCategoryPath,
+  buildTagPath,
+  getAllTags,
+  getCategoryList,
+  getPostCount,
+  getSortedPosts,
+  translateCategoryName,
+} from '@lib/content';
 import { getLqipStyle } from '@lib/lqip';
 import { cn, filterNavItems } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
@@ -21,11 +29,13 @@ interface Props {
 
 const locale = getLocaleFromUrl(Astro.url.pathname);
 const postCount = await getPostCount(locale);
-const { countMap } = await getCategoryList(locale);
+const { categories, countMap } = await getCategoryList(locale);
 const posts = await getSortedPosts(locale);
 const tags = getAllTags(posts);
 
-const allTags = Object.entries(tags).map(([tag, count]) => ({ tag, count }));
+const allTags = Object.entries(tags)
+  .map(([tag, count]) => ({ tag, count }))
+  .sort((a, b) => b.count - a.count);
 
 // 生成唯一 ID 前缀
 const uniqueId = `home-info-${Math.random().toString(36).substring(2, 11)}`;
@@ -79,6 +89,43 @@ const strippedPath = stripLocaleFromPath(Astro.url.pathname);
       {t(locale, 'homeInfo.tags')}
     </a>
   </div>
+
+  {
+    categories.length > 0 && (
+      <div class="mt-6 w-full px-3">
+        <p class="text-muted-foreground/60 mb-2 text-xs tracking-widest">{t(locale, 'homeInfo.categories')}</p>
+        <div class="flex flex-wrap justify-center gap-1.5">
+          {categories.map((category) => (
+            <a
+              href={localizedPath(buildCategoryPath(category.name), locale)}
+              class="text-muted-foreground rounded-full border border-foreground/15 px-2.5 py-1 text-sm transition-colors hover:border-foreground/30 hover:text-foreground"
+            >
+              {translateCategoryName(category.name, locale)}
+              <span class="ml-1 text-xs opacity-60">{countMap[category.name]}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    )
+  }
+  {
+    allTags.length > 0 && (
+      <div class="mt-4 w-full px-3">
+        <p class="text-muted-foreground/60 mb-2 text-xs tracking-widest">{t(locale, 'homeInfo.tags')}</p>
+        <div class="flex flex-wrap justify-center gap-1.5">
+          {allTags.map(({ tag, count }) => (
+            <a
+              href={localizedPath(buildTagPath(tag), locale)}
+              class="text-muted-foreground rounded-full border border-foreground/15 px-2.5 py-1 text-sm transition-colors hover:border-foreground/30 hover:text-foreground"
+            >
+              {tag}
+              <span class="ml-1 text-xs opacity-60">{count}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    )
+  }
   <!-- 导航按钮与顶栏重复，仅保留在移动端抽屉里；桌面侧栏不再渲染 -->
   {
     isDrawer && (
