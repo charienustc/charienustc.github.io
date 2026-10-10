@@ -36,7 +36,7 @@ export interface UseMagneticTiltResult {
 
 const DEFAULT_PERSPECTIVE = '1000px';
 /** Matches the friend cards so both surfaces tilt identically. */
-const DEFAULT_MAX_ROTATE = 15;
+const DEFAULT_MAX_ROTATE = 8;
 
 export function useMagneticTilt({
   maxRotate = DEFAULT_MAX_ROTATE,

@@ -132,7 +132,7 @@ export default function PostItemCard({
                 src={finalCover}
                 loading="lazy"
                 alt="post cover"
-                className="h-full w-full cursor-pointer object-cover transition duration-500 group-hover:rotate-3 group-hover:scale-110"
+                className="h-full w-full cursor-pointer object-cover transition duration-500 group-hover:rotate-1 group-hover:scale-105"
               />
             </a>
           )}
