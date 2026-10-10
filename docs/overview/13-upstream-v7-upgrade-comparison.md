@@ -1,13 +1,15 @@
-# 上游 v7.7.1 功能差异对比与升级决策
+# 上游 v7 功能差异对比与升级决策
 
-本文逐项对比本仓库（astro-koharu **v6.3.0**）与上游 [cosZone/astro-koharu](https://github.com/cosZone/astro-koharu) **v7.7.1** 的功能差异，供决策哪些合并、哪些不做。
+本文逐项对比本仓库（astro-koharu **v6.3.0**）与上游 [cosZone/astro-koharu](https://github.com/cosZone/astro-koharu) **v7.7.1** 的功能差异，供决策哪些合并、哪些不做。**2026-10-10 复查**：上游已发到 **v7.7.4**，`v7.7.2–v7.7.4` 是加载性能批次（不包含在 A–J 各表中），增量、实测数据与分批建议见 **K 节**。
 
 - 本地仓库：`F:\myhomepage`（`charienustc/charienustc.github.io`）
-- 对比日期：2026-10-07
-- 对比依据：`v6.3.0 → v7.7.1` **全量 git diff 逐项核对**（非发布说明转述）
+- 对比日期：2026-10-07（2026-10-10 复查：补 v7.7.2–v7.7.4 增量、核销 E1 / E7）
+- 对比依据：`v6.3.0 → v7.7.1` **全量 git diff 逐项核对**（非发布说明转述）；复查用 `up/v7.7.1..up/v7.7.4` 增量 diff
 - 「你的现状」一列由读取本地 `config/site.yaml`、`package.json` 及文件系统实际清点得出
 
 > **规模**：落后 9 个版本（v7.0.0 / v7.1.0 / v7.2.0 / v7.3.0 / v7.4.0 / v7.5.0 / v7.6.0 / v7.7.0 / v7.7.1），共 **119 个 commit、462 个文件变更、+38845 / −14840 行**。
+>
+> **复查增量**：`up/v7.7.1..up/v7.7.4` 共 **13 个 commit、120 个文件、+2702 / −534**，只落在 `src/`、`tests/`、`public/img/`、`docs/`、`package.json`、`knip.json`、`astro.config.mjs`——**不碰 `cms/` 与 `config/`**。见 K 节。
 
 ## 图例
 
@@ -88,6 +90,7 @@ build: {
 | v7.6.0 | 期刊目录页重设计 + 期数自动解析；系列头图共用视觉 |
 | v7.7.0 | 文章落款 colophon；复制 Markdown / 下载 .md / 在写作室打开；新增 10 篇示例文章 |
 | v7.7.1 | 目录上移动画、折叠引导线、短页面滚动稳定 |
+| v7.7.2–v7.7.4 | 加载性能批次：搜索 / 查看器 / 评论 SDK 延迟加载、封面 srcset 与 1200/1600 候选、预取改 hover + 触摸预取、圆体字体复访缓存（详见 K 节） |
 
 ---
 
@@ -137,31 +140,42 @@ build: {
 
 | 编号 | 变更 | 你的现状 | 涉及文件 | 冲突面 | 处理 | 最终解决方案 |
 | --- | --- | --- | --- | --- | --- | --- |
-| **E1** | `masterMotionEnabled` / `setMasterMotionEnabled(bool)` → `motionLevel` / `setMotionLevel('lively'\|'subtle'\|'reduced')` | 自研 hooks | 自定义动效组件 | 高 | **必须改** | 待做 |
+| **E1** | `masterMotionEnabled` / `setMasterMotionEnabled(bool)` → `motionLevel` / `setMotionLevel('lively'\|'subtle'\|'reduced')` | 自研 hooks | 自定义动效组件 | 高 | 已核销 | **✅ 已做**（B1 `5907e24` 落地时一并迁移；2026-10-10 复查：`grep -r masterMotionEnabled src/` **零命中**，`setMotionLevel` 在 `store/settings.ts`） |
 | E2 | `site.showLogo` 默认 `true` → `false`（默认显示站点名而非图形 logo） | 已显式写 `showLogo: true` | `config/site.yaml` | 低 | 受保护 | **🛡️ 已受保护**（`showLogo: true` 已显式写死） |
 | E3 | 系列页卡片移除 `isSimple` / `hideCover` / `showTags` 属性 | 未使用 | 系列页 | 低 | 无影响 | **— 无影响**（本仓库未使用） |
 | E4 | `cms:install` 改 `--filter`；主站与 CMS 合并到根 `pnpm-workspace.yaml`；`pnpm install` 现在会装 CMS 依赖 | `cms/` 改动很多 | `package.json` / workspace | 高 | **高风险** | **⛔ 不做** |
 | E5 | `motion` `^11.18.2` → 钉死 **12.43.0** | `^11.18.2` | `package.json` | 中 | 需回归 | **✅ 已做** `07cf446` |
 | E6 | `@blocknote/*` 全部移除，改用 CodeMirror 6 全家桶 | 仅影响 CMS / 编辑器 | `package.json` | 中 | 随 D4 | 待做 |
-| E7 | 上游删除 `CLAUDE.md`、`src/components/tag/*`、`category/CategoryTitle.astro`、`SubCategory.astro`、`control/ButtonLink.astro`、`friends/FriendsGrid.tsx` | 这些文件你也有 | 多处 | 中 | 注意连带 | 待做 |
+| E7 | 上游删除 `CLAUDE.md`、`src/components/tag/*`、`category/CategoryTitle.astro`、`SubCategory.astro`、`control/ButtonLink.astro`、`friends/FriendsGrid.tsx` | 多数已不存在 / 本地自有 | 多处 | 中 | 已核销 | **— 无影响**（2026-10-10 复查核销，见下方说明） |
 
 > **E2 说明**：你已在 `config/site.yaml` 里显式写死 `showLogo: true`，所以不受上游改默认值的影响。但注意你的 logo 渲染方式已被本地优化过（`?react` 内联 → `<img>`），升级时**不要被上游版本覆盖回去**。
 
-### E1 的影响面（需逐个核对）
+### E1 的影响面（2026-10-10 复查：无遗留）
 
-随 v7.0.0 一起落地的动效接口重构。以下是本仓库中所有动效相关文件，升级前需逐一确认没有 import 旧接口：
+随 v7.0.0 一起落地的动效接口重构，在 B1 落地（`5907e24`）时已一并迁移。复查证据：
 
-- `src/hooks/useMagneticTilt.ts`（自研）
-- 任何直接读写 `store/settings.ts` 的组件
+- `grep -r "masterMotionEnabled" src/` —— **零命中**
+- `setMotionLevel` 定义于 `src/store/settings.ts:184`；`motionLevel` 被 7 个文件引用：`store/settings.ts`、`store/settings-constants.ts`、`layouts/BootScripts.astro`、`components/settings/SettingsPanelContent.tsx`、`components/settings/registry.ts`、`i18n/translations/{zh,en}.ts`
+- 自研 `src/hooks/useMagneticTilt.ts` 不读写 settings store，不受接口变更影响
 
 ```ts
-// 旧（v6）
+// 旧（v6）—— 本仓库已无引用
 setMasterMotionEnabled(true);   // 关
 setMasterMotionEnabled(false);  // 开
-// 新（v7）
+// 现（v7）
 setMotionLevel('reduced');
 setMotionLevel('lively');
 ```
+
+### E7 的核销说明（2026-10-10 复查）
+
+上游删掉的这几个文件在本仓库的对应情况各不相同，逐一对过之后**都不需要动作**：
+
+- `category/CategoryTitle.astro`、`SubCategory.astro` —— 已随 C3（`b97b929`）删除，本仓库不存在
+- `tag/TagItem.astro` —— 本地自有文件，被 tags 索引页引用中（上游删除的是旧的组件集，`TagItem.astro` 上游自己也还在用）
+- `control/ButtonLink.astro` —— 本地自有文件，被 `HomeInfo.astro` 引用中
+- `friends/FriendsGrid.astro` —— 本地自有文件（与上游删除的 `FriendsGrid.tsx` 不同名不同物），被 `FriendsContent.astro` 引用中
+- `CLAUDE.md` —— 本地刻意保留
 
 ---
 
@@ -238,6 +252,7 @@ setMotionLevel('lively');
 - **B2** —— 用上游 glide 替换自研指示器，以后好跟上游演进
 - **B4 + B5 + B6** —— 图表缩放 / 全屏增强 / PNG 导出，纯增量功能
 - **D1 + D3** —— 友链分组、复制与下载 Markdown，零风险 ✅（b9cb4be / 0ec8045）
+- **K 节性能批次**（v7.7.2–v7.7.4，2026-10-10 复查新增）—— 延迟查看器与评论 SDK、`lazy-mermaid`、构建层两处、预取策略；建议按 K.4 分三批做
 
 ### 想清楚再做
 
@@ -266,6 +281,7 @@ setMotionLevel('lively');
 | 5 | **A5 + E5**（motion 升级到 12.43.0） | 需全站动效回归 | `package.json` | 中 | P1 | **✅ 已做** `07cf446` |
 | 6 | **D1 + D3**（低风险增量功能） | 独立 | friends / 面包屑 | 低 | P2 | **✅ D1** b9cb4be；**✅ D3** 0ec8045；**D2** 49ee9a2、**D5** 0225d16、**D6** a1b64b7 一并落地 |
 | 7 | **B1 + B7 + B8**（动效系统） | 会改变整站观感，最后做 | 多文件 | 中 | P2 | ✅ 5907e24 / 6324152 / 9da22d3 |
+| 8 | **K 节性能批次**（v7.7.2–v7.7.4 增量，2026-10-10 复查新增） | 与 1–7 各项独立 | `astro.config.mjs` / 新 lib / 各组件 | 中 | P1 | 待做（分三批，见 K.4） |
 
 ### 复查 A1 是否已修复
 
@@ -302,19 +318,85 @@ git fetch --no-tags ssh://git@ssh.github.com:443/cosZone/astro-koharu.git \
   '+refs/tags/v6.3.0:refs/tags/up/v6.3.0' \
   '+refs/tags/v7.7.1:refs/tags/up/v7.7.1'
 
+# 增量（2026-10-10 复查用）：补 v7.7.2–v7.7.4
+git fetch --no-tags ssh://git@ssh.github.com:443/cosZone/astro-koharu.git \
+  '+refs/tags/v7.7.2:refs/tags/up/v7.7.2' \
+  '+refs/tags/v7.7.3:refs/tags/up/v7.7.3' \
+  '+refs/tags/v7.7.4:refs/tags/up/v7.7.4'
+
 # 核对本文档中任意一项
 git diff up/v6.3.0 up/v7.7.1 -- astro.config.mjs
 git diff --stat  up/v6.3.0 up/v7.7.1
 git rev-list --count up/v6.3.0..up/v7.7.1
+git diff --stat  up/v7.7.1  up/v7.7.4   # K 节增量
 ```
 
 > 注意：`git push/fetch git@ssh.github.com:...`（不带 `ssh://` scheme）会失败——**scheme 是必需的**，否则端口 443 无法传递。
 
-清理这两个临时 tag：
+清理临时 tag（2026-10-10 起 `up/v6.3.0` 与 `up/v7.7.1`–`up/v7.7.4` 都留在本地供后续增量核对；确认不再需要时一并删除）：
 
 ```bash
-git tag -d up/v6.3.0 up/v7.7.1
+git tag -d up/v6.3.0 up/v7.7.1 up/v7.7.2 up/v7.7.3 up/v7.7.4
 ```
+
+---
+
+## K. 2026-10-10 复查：上游 v7.7.2–v7.7.4（加载性能批次）
+
+上游在 v7.7.1 之后又发了三个小版本，**内容全是加载性能**（外加修掉一个 P2 封面传输回退），没有新功能、没有新视觉。A–J 各表不包含这批变更，本节单独记录。
+
+| 版本 | commit | 标题 |
+| --- | --- | --- |
+| v7.7.2 | `ca6af16`（#272） | perf: defer noncritical page resources |
+| v7.7.3 | `498e747`（#274） | perf: improve page loading while preserving blog appearance |
+| v7.7.4 | `1977643`（#276） | fix: share the hero banner, prefetch on touch and keep fonts on repeat visits |
+
+### K.1 这批改了什么（按主题）
+
+1. **首屏资源延迟**：搜索面板的 JS **和 CSS** 都延迟到首次打开（`SearchPortal.astro` 重写，`SearchDialog.tsx` 拆成 `SearchDialogContent.tsx` + `SearchTrigger.tsx`）；三个全屏查看器首次使用时才下载（新 `ArticleViewers.tsx`，`React.lazy` + Suspense + 失败重试；灯箱的 `open-image-lightbox` 监听从组件挪进 `AppShell.astro`）；评论 SDK 接近评论区才加载（新 `DeferredComment.tsx`），tweet SDK 仅实际有嵌入时加载；BGM / 公告面板打开时才水合（新 `client:panel` 指令）；正文增强岛滚动接近时水合（新 `client:content` 指令，`rootMargin: 800px`）。
+2. **图片**：封面 `sizes`/`srcset` 修正 + 新增 1200px / 1600px 候选（`public/img/site_header_1200.webp`、`site_header_1600.webp`），新 `HeroImage.astro`（avif/webp `<picture>`）与 `lib/responsive-image.ts`（竖屏统一裁切、跨页共享），移除首屏透明度动画；列表卡片（`PostItemCard.astro`）换 `ResponsiveImage` + `content-visibility: auto`；友链头像（`data-friend-src` + `friends-interactions.ts`）、`TagItem`、音乐封面（新 `lib/music-cover.ts`）等延迟加载。
+3. **预取策略**：`prefetch.defaultStrategy` 从 `viewport` 改为 `hover`（可见链接的预取不再和当前页冷加载抢带宽）；新增 `lib/touch-prefetch.ts`——触屏上手指按住链接 50ms 才预取，滑动误触由 `touchmove` 取消。
+4. **水合策略**：移动菜单 / `MobilePostHeader` / `MenuIcon` 改 `client:media`；TOC 桌面 `client:media`、抽屉 `client:visible`；新 `RoundedFonts.astro`——圆体字体样式表存 localStorage，复访时先注册 FontFace 再走缓存，省重复网络请求。
+5. **构建层**：`astro.config.mjs` 新增 rolldown `codeSplitting`（`react-runtime` / `motion-runtime` 独立共享 chunk）与 `assetsInlineLimit`（8KB 以下 CSS 内联）；新 `lib/markdown/lazy-mermaid.ts` 包装 `astro-mermaid`，mermaid 只在滚动到附近时渲染（对注入脚本做字符串补丁，上游契约一变就直接抛错）；折叠代码块加 `content-visibility`。
+6. **配套测试**：12 个测试文件更新，新增搜索 portal 浏览器测试（`tests/search/`）。
+
+### K.2 上游实测数据（摘自其仓库 `docs/performance/site-loading-2026-10-07.md`）
+
+真实内容 + CDP 限速采样（15 秒窗口）中位数：
+
+| 页面 / 设备 | 传输 MiB 前→后 | 请求数 前→后 | LCP ms 前→后 | 近似 TBT ms 前→后 |
+| --- | --- | --- | --- | --- |
+| 真实首页 · 桌面 | 6.13 → 3.33 | 178 → 157 | 156 → 170 | 0 → 10 |
+| 真实长文 · 手机 | 13.75 → 6.38 | 282 → 269 | 218 → 214 | 310 → 217 |
+| 碎碎念首页 · 手机 | 4.02 → 2.95 | 172 → 160 | 134 → 146 | 0 → 0 |
+
+- 传输量普遍砍掉 30%–55%（封面候选修正 + 延迟加载），长文手机的 TBT 明显下降。
+- ⚠️ **上游自己标注的保留意见**：56 个 Lighthouse 页面/设备组里 **29 组 Performance 中位数下降**（5 组降超 5 分）。传输与 TBT 的改善是实打实的，Lighthouse 分数却不是全赢——别把整批当「纯赚」，这也是逐项摘取、不整体合并的又一条理由。
+- 同批修掉一个 P2：`sizes=100vw` 使 1440px 桌面误选 1928px 大图（约 203KB），弱网 LCP +532ms；新增 1600px 候选（55KB）后消除。
+
+### K.3 与本地定制的关系（逐项冲突评估）
+
+| 项 | 上游做法 | 本地现状 | 冲突面 | 评估 |
+| --- | --- | --- | --- | --- |
+| 搜索延迟 | `SearchPortal` 重写（CSS+JS 延迟、失败重试、focus 管理）+ `SearchDialog` 拆分 | 自研 pagefind 懒加载（`18c3965`），同样是「首次打开才 import bundle」 | **高·二选一** | 本地版已解决主问题；上游版多做了 CSS 延迟与边界处理。可留本地版，或整体换上游版 |
+| 查看器延迟 | 新 `ArticleViewers.tsx` + 灯箱监听搬去 `AppShell` | 三个查看器 `client:idle` 常驻；灯箱文件与 v7.7.1 逐字节一致（A9 摘取时） | 中 | 需跨文件一起改（`AppShell` / `ImageLightbox` / 三查看器），本地 `AppShell` 已有小定制 |
+| 评论 SDK 延迟 | 新 `DeferredComment.tsx` | 本地 giscus 启用中；providers 与 v7.7.1 一致 | 小 | 增量文件 + 单点接线，可直接摘 |
+| 面板水合指令 | `client:panel`（BGM / 公告打开才加载） | `GlobalBGMPlayer client:only`、`AnnouncementListPopup client:load` | 小·中 | 需 astro.config 注册指令 + 各改一行属性 |
+| 正文水合指令 | `client:content`（滚动接近才水合，`rootMargin: 800px`） | `CustomContent.astro` 用 `client:idle` | 中 | 同上；对长文首屏有实际收益 |
+| 预取策略 | `hover` + `touch-prefetch.ts` | `viewport`（同 v7.7.1） | 小 | 一行配置 + 一个新文件；改的是导航体感，触摸端有 50ms 按住兜底 |
+| lazy-mermaid | 包装 `astro-mermaid` 注入脚本（滚动附近才渲染） | 直接用 `astro-mermaid` 集成 | 中 | 纯增量收益；实现是字符串补丁，需接受其升级脆弱性 |
+| 圆体字体缓存 | 新 `RoundedFonts.astro`（localStorage 缓存样式表） | `HeadMeta.astro` 用 `<link media=print onload>` 无条件加载两份圆体样式表 | 中 | 复访收益明显；与本地 `HeadMeta` / `Layout` 定制同文件，按 hunk 合并 |
+| 构建层两处 | `codeSplitting` + `assetsInlineLimit` | 本地 `astro.config.mjs` 已定制（`cssTarget`、KaTeX alias、表格插件） | 小 | 独立 hunk，可直接摘 |
+| 封面 srcset / `HeroImage` | 新增 1200/1600 候选 + avif/webp `<picture>` + 竖屏共享 | 封面已换自有图 `site_cover_*`（descriptor 已修正）+ 打字机 / `dvh` 定制 | 中·高 | 只有「补中间候选」值得单独摘；`HeroImage` / 跨页共享是视觉决策 |
+| 列表卡片 | `PostItemCard.astro` 换 `ResponsiveImage` + `content-visibility` | 本地卡片已 React 化（`PostItemCard.tsx`），上游改的 `.astro` 文件本地不存在 | — | 无直接冲突；等价收益要在本地 `.tsx` 另做 |
+| 友链头像 / TagItem / moments 图片 | `data-friend-src` 延迟、`width`/`height` 尺寸声明等 | `FriendCard.astro` / `friends-interactions.ts` 与 v7.7.1 逐字节一致；moments 本地大改 | 小 / 高 | 前两者可直接摘；moments 与本地改动（`MessageCard` 等）冲突大、收益小，建议跳过 |
+
+### K.4 建议（分三批）
+
+1. **批次 ①（低风险，建议直接摘）**：`client:panel` + `client:content` 指令与接线；评论 SDK 延迟（`DeferredComment`）；`lazy-mermaid`；构建层两处（`codeSplitting` / `assetsInlineLimit`）；友链头像 / `TagItem` 小改。每项独立 commit，逐项可回退。
+2. **批次 ②（需回归动效与导航）**：预取策略改 `hover` + `touch-prefetch.ts`；查看器延迟加载（`ArticleViewers` + `AppShell` 监听搬迁）。
+3. **批次 ③（先裁决再动）**：搜索（保留本地自研 vs 换上游版）；封面 srcset（是否引入 avif/webp 与竖屏共享）；`RoundedFonts`（与本地 `HeadMeta` / `Layout` 定制合并）。
+4. **明确不做**：moments 相关快照（本地大改、收益小）、`PostItemCard.astro` 相关（文件本地不存在）。
 
 ---
 
