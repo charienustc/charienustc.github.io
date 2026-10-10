@@ -36,6 +36,9 @@ const { className, isDrawer = false } = Astro.props;
 // Filter navigation items to exclude disabled series
 const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSeriesSlugs, RESERVED_ROUTES);
 const strippedPath = stripLocaleFromPath(Astro.url.pathname);
+
+// Normalize description to array for random selection
+const descriptions = Array.isArray(siteConfig.description) ? siteConfig.description : [siteConfig.description ?? ''];
 ---
 
 <div class={cn('flex flex-col items-center md:py-2', className)} data-home-info-container={uniqueId}>
@@ -59,7 +62,9 @@ const strippedPath = stripLocaleFromPath(Astro.url.pathname);
   </div>
 
   <p class="mt-2">{siteConfig?.name}</p>
-  <p class="text-muted-foreground mt-3 text-center">{siteConfig?.description}</p>
+  <p class="text-muted-foreground mt-3 text-center" data-random-description={JSON.stringify(descriptions)}>
+    {descriptions[0]}
+  </p>
   <Social />
   <div
     class="text-muted-foreground mt-3 flex justify-center text-center text-sm/4 whitespace-nowrap select-none dark:text-white/80"
@@ -227,6 +232,23 @@ const strippedPath = stripLocaleFromPath(Astro.url.pathname);
     });
   }
 
+  function pickRandomDescription() {
+    document.querySelectorAll<HTMLElement>('[data-random-description]').forEach((el) => {
+      if (el.dataset.descriptionInitialized) return;
+      const raw = el.dataset.randomDescription;
+      if (!raw) return;
+      try {
+        const options = JSON.parse(raw) as string[];
+        if (options.length > 1) {
+          el.textContent = options[Math.floor(Math.random() * options.length)] ?? options[0];
+        }
+      } catch {
+        // Fallback: keep the default text
+      }
+      el.dataset.descriptionInitialized = 'true';
+    });
+  }
+
   function initCollapsible() {
     // 找到所有 HomeInfo 容器
     const containers = document.querySelectorAll('[data-home-info-container]');
@@ -291,16 +313,19 @@ const strippedPath = stripLocaleFromPath(Astro.url.pathname);
   // 初始化
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
+      pickRandomDescription();
       initCollapsible();
       setupObserver();
     });
   } else {
+    pickRandomDescription();
     initCollapsible();
     setupObserver();
   }
 
   // 支持 Astro 的视图过渡
   document.addEventListener('astro:page-load', () => {
+    pickRandomDescription();
     initCollapsible();
     setupObserver();
   });

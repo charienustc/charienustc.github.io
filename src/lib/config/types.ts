@@ -13,7 +13,7 @@ export interface SiteBasicConfig {
   alternate?: string;
   subtitle?: string;
   name: string;
-  description?: string;
+  description?: string | string[];
   avatar?: string;
   showLogo?: boolean;
   author?: string;

@@ -15,7 +15,12 @@ site:
   # alternate: Charien's Nest # 网站英文名称 用于页脚、Logo、@ handle 等
   subtitle: 在无限的熵增里，维持一小块有序 # 网站副标题
   name: Charien # 作者名称 - 请修改为你的名字
-  description: 记忆是思考的外存，外存要常做备份 # 网站描述
+  description:
+    - 记忆是思考的外存，外存要常做备份
+    - 写作是思维的镜像，发布是镜像的快照
+    - 每一篇文章都是对遗忘的一次抵抗
+    - 在信息的洪流里，留下自己的坐标
+    - 记录不是为了被记住，而是为了不被自己遗忘
   avatar: /img/avatar.webp # 网站头像
   showLogo: true # 是否显示 Logo
   author: Charien # 作者名称 - 请修改为你的名字
