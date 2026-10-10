@@ -35,9 +35,11 @@ pnpm preview        # 预览生产构建
 site:
   title: 站点标题
   alternate: 英文短名        # 用作 logo 文本
-  subtitle: 副标题
+  subtitle: 副标题           # 首页打字机效果
   name: 作者简称
-  description: 站点简介      # 用于 SEO
+  description:               # 侧栏随机简介（每次加载随机一条）
+    - 第一句简介
+    - 第二句简介
   avatar: /img/avatar.webp
   url: https://example.com/  # 站点域名，影响 RSS 与 sitemap
   startYear: 2024            # 页脚版权起始年份

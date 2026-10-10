@@ -5,7 +5,7 @@ import type { PageMeta, PageMetaProps } from './page-meta';
 
 interface Props extends PageMetaProps {
   title?: string;
-  description?: string;
+  description?: string | string[];
   /**
    * Locale of the rendered page. Pages resolve it in `getStaticPaths` and pass it down;
    * callers that don't (e.g. Markdown pages rendered via `PageLayout`) fall back to the URL.
@@ -30,13 +30,14 @@ import '@styles/index.css';
 
 const {
   title = seoConfig.title,
-  description = seoConfig.description,
+  description: rawDescription = seoConfig.description,
   locale = getLocaleFromUrl(Astro.url.pathname),
   siderType,
   post,
   ...metaProps
 } = Astro.props;
 
+const description = Array.isArray(rawDescription) ? rawDescription[0] : rawDescription;
 const meta: PageMeta = { ...metaProps, locale, title, description, coverImage: post?.data.cover };
 
 // Detect if current page is a post page for mobile header (locale-prefix safe)

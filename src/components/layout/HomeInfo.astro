@@ -39,6 +39,34 @@ const strippedPath = stripLocaleFromPath(Astro.url.pathname);
 
 // Normalize description to array for random selection
 const descriptions = Array.isArray(siteConfig.description) ? siteConfig.description : [siteConfig.description ?? ''];
+
+const fortunes = {
+  good: [
+    '宜 debug — 今天 bug 看到你就会自觉修复',
+    '宜写论文 — 灵感比 gradient descent 收敛得还快',
+    '宜调 Agent — 它今天会听人话',
+    '宜打天际线 — 市民不会堵在路上骂你',
+    '宜 push — commit message 一次过审，不用 amend',
+    '宜读 paper — 注意力比 self-attention 还集中',
+    '宜摸鱼 — 但摸完会内疚，所以不如不摸',
+  ],
+  avoid: [
+    '忌直接 git push — 至少先跑一遍 pnpm check',
+    '忌改 config 不重启 dev server — 你会怀疑代码两小时',
+    '忌在 main 上直接写新功能 — 哦等等，你已经这么干了',
+    '忌多分区整理 — 会触发薛定谔的盘符',
+    '忌凌晨三点跑实验 — 结果会和你一起困',
+    '忌删 .cache — 重建时间够你打完一局天际线',
+    '忌问 AI "这段代码为什么报错" — 它会比你更迷茫',
+  ],
+  rating: [
+    '今日运势：pnpm build 一次通过 ★★★',
+    '今日运势：loss 曲线单调下降 ★★★',
+    '今日运势：所有 test 全绿 ★★★',
+    '今日运势：市民满意度 98% ★★★',
+    '今日运势：CSP 全过 ★★★',
+  ],
+};
 ---
 
 <div class={cn('flex flex-col items-center md:py-2', className)} data-home-info-container={uniqueId}>
@@ -105,6 +133,30 @@ const descriptions = Array.isArray(siteConfig.description) ? siteConfig.descript
       </div>
     )
   }
+  <div
+    class="mt-6 w-full px-3"
+    data-fortune-good={JSON.stringify(fortunes.good)}
+    data-fortune-avoid={JSON.stringify(fortunes.avoid)}
+    data-fortune-rating={JSON.stringify(fortunes.rating)}
+  >
+    <p class="text-muted-foreground/60 mb-2 flex items-center gap-1.5 text-sm tracking-widest">
+      <Icon name="ri:sparkling-2-fill" class="size-3.5 opacity-60" />
+      今日运势
+    </p>
+    <div class="rounded-xl border border-foreground/10 bg-gradient-to-br from-foreground/[0.02] to-transparent p-3.5 text-sm leading-relaxed dark:from-white/[0.03] dark:to-transparent">
+      <div class="flex items-start gap-2">
+        <span class="mt-0.5 shrink-0 rounded bg-green-500/10 px-1.5 py-0.5 text-xs font-medium text-green-600 dark:text-green-400">宜</span>
+        <p class="text-green-700 dark:text-green-300 text-sm" data-fortune-slot="good">{fortunes.good[0]}</p>
+      </div>
+      <div class="mt-2.5 flex items-start gap-2">
+        <span class="mt-0.5 shrink-0 rounded bg-red-500/10 px-1.5 py-0.5 text-xs font-medium text-red-500 dark:text-red-400">忌</span>
+        <p class="text-red-600 dark:text-red-300 text-sm" data-fortune-slot="avoid">{fortunes.avoid[0]}</p>
+      </div>
+      <div class="border-foreground/8 mt-2.5 border-t pt-2 dark:border-white/8">
+        <p class="text-muted-foreground text-center text-xs" data-fortune-slot="rating">{fortunes.rating[0]}</p>
+      </div>
+    </div>
+  </div>
   <!-- 导航按钮与顶栏重复，仅保留在移动端抽屉里；桌面侧栏不再渲染 -->
   {
     isDrawer && (
@@ -249,6 +301,35 @@ const descriptions = Array.isArray(siteConfig.description) ? siteConfig.descript
     });
   }
 
+  function dateSeed(): number {
+    const key = new Date().toISOString().slice(0, 10);
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) | 0;
+    return Math.abs(hash);
+  }
+
+  function pickDailyFortune() {
+    document.querySelectorAll<HTMLElement>('[data-fortune-good]').forEach((container) => {
+      if (container.dataset.fortuneInitialized) return;
+      const seed = dateSeed();
+      const slots = ['good', 'avoid', 'rating'] as const;
+      for (const slot of slots) {
+        const raw = container.dataset[`fortune${slot.charAt(0).toUpperCase()}${slot.slice(1)}`];
+        if (!raw) continue;
+        try {
+          const options = JSON.parse(raw) as string[];
+          const el = container.querySelector<HTMLElement>(`[data-fortune-slot="${slot}"]`);
+          if (el && options.length) {
+            el.textContent = options[(seed + slots.indexOf(slot)) % options.length] ?? options[0];
+          }
+        } catch {
+          // keep default
+        }
+      }
+      container.dataset.fortuneInitialized = 'true';
+    });
+  }
+
   function initCollapsible() {
     // 找到所有 HomeInfo 容器
     const containers = document.querySelectorAll('[data-home-info-container]');
@@ -314,11 +395,13 @@ const descriptions = Array.isArray(siteConfig.description) ? siteConfig.descript
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       pickRandomDescription();
+      pickDailyFortune();
       initCollapsible();
       setupObserver();
     });
   } else {
     pickRandomDescription();
+    pickDailyFortune();
     initCollapsible();
     setupObserver();
   }
@@ -326,6 +409,7 @@ const descriptions = Array.isArray(siteConfig.description) ? siteConfig.descript
   // 支持 Astro 的视图过渡
   document.addEventListener('astro:page-load', () => {
     pickRandomDescription();
+    pickDailyFortune();
     initCollapsible();
     setupObserver();
   });
