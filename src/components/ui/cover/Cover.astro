@@ -138,7 +138,7 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
           <h1 class="motion-rise shadow-text font-chill-round mt-3 text-5xl/[1.2] font-bold tracking-widest" style="--i: 1">
             {siteConfig?.title}
           </h1>
-          <p class="motion-rise shadow-text mt-5 text-sm tracking-[0.2em]" style="--i: 2">= {siteConfig?.subtitle} =</p>
+          <p class="motion-rise shadow-text mt-5 text-sm tracking-[0.2em]" style="--i: 2" data-typewriter>= {siteConfig?.subtitle} =</p>
         </>
       )
     }
@@ -214,7 +214,43 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
     });
   }
 
+  /**
+   * Typewriter effect for the homepage subtitle.
+   * Runs once per page load, typing out characters with a slight delay.
+   */
+  let typewriterDone = false;
+  function runTypewriter() {
+    if (typewriterDone) return;
+    const el = document.querySelector<HTMLElement>('[data-typewriter]');
+    if (!el) return;
+
+    // Respect reduced motion preference
+    if (readMotionLevel() === 'reduced') {
+      typewriterDone = true;
+      return;
+    }
+
+    const fullText = el.textContent ?? '';
+    el.textContent = '';
+    typewriterDone = true;
+
+    let i = 0;
+    const tick = () => {
+      if (i < fullText.length) {
+        el.textContent += fullText[i];
+        i++;
+        window.setTimeout(tick, 80);
+      }
+    };
+    // Small initial delay so the motion-rise animation starts first
+    window.setTimeout(tick, 300);
+  }
+
   settleBanner();
   installCoverCopyButtons();
-  document.addEventListener('astro:page-load', installCoverCopyButtons);
+  runTypewriter();
+  document.addEventListener('astro:page-load', () => {
+    installCoverCopyButtons();
+    runTypewriter();
+  });
 </script>
