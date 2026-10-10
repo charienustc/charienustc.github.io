@@ -31,6 +31,7 @@ import { rehypeEncryptedBlock } from './src/lib/markdown/rehype-encrypted-block.
 import { rehypeEncryptedPost } from './src/lib/markdown/rehype-encrypted-post.ts';
 import { rehypeImagePlaceholder } from './src/lib/markdown/rehype-image-placeholder.ts';
 import { rehypeShokaAttrs } from './src/lib/markdown/rehype-shoka-attrs.ts';
+import { rehypeTableWrapper } from './src/lib/markdown/rehype-table-wrapper.ts';
 import { remarkEncryptedDirective } from './src/lib/markdown/remark-encrypted-directive.ts';
 import { remarkLinkEmbed } from './src/lib/markdown/remark-link-embed.ts';
 import { remarkIns, remarkMark } from './src/lib/markdown/remark-shoka-effects.ts';
@@ -209,6 +210,7 @@ const rehypePlugins = [
 ];
 if (contentConfig.enableShokaAttrs) rehypePlugins.push(rehypeShokaAttrs);
 rehypePlugins.push(rehypeImagePlaceholder);
+rehypePlugins.push(rehypeTableWrapper);
 if (contentConfig.enableMath) rehypePlugins.push(rehypeKatex);
 // Encrypted block/post MUST be last rehype plugins — encrypt fully-rendered children
 if (contentConfig.enableEncryptedBlock) {

@@ -5,7 +5,7 @@
  */
 
 import DOMPurify from 'dompurify';
-import { Marked, type MarkedExtension } from 'marked';
+import { Marked, type MarkedExtension, Renderer } from 'marked';
 import { type BundledLanguage, type BundledTheme, codeToHtml, getSingletonHighlighter } from 'shiki';
 import { createLinkEmbedExtension } from './marked-link-embed';
 
@@ -116,6 +116,11 @@ function createMarkedInstance(): Marked {
   marked.use({
     gfm: true,
     breaks: false,
+    renderer: {
+      table(token) {
+        return `<div class="preview-table-wrapper">${Renderer.prototype.table.call(this, token)}</div>`;
+      },
+    },
   });
   return marked;
 }

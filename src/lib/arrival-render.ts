@@ -12,7 +12,7 @@
 
 import { isInfographicBlock } from '@lib/content-enhancer-utils';
 
-const HEAVY_BLOCKS = ':scope > :is(pre.astro-code, .code-block-wrapper, table)';
+const HEAVY_BLOCKS = ':scope > :is(pre.astro-code, .code-block-wrapper, .markdown-table-wrapper, table)';
 const BLOCKS_PER_FRAME = 24;
 
 function release(blocks: HTMLElement[]): void {

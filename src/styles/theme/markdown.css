@@ -460,10 +460,48 @@
     content: none;
   }
 
-  table {
-    display: block;
+  .markdown-table-wrapper {
+    margin: 1.5rem 0;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    display: table;
+    width: 100%;
+    margin: 0;
+    border-spacing: 0;
+    font-size: 0.9em;
+  }
+
+  thead {
+    background: hsl(var(--muted) / 0.6);
+  }
+
+  th {
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    text-align: left;
+    border-bottom: 2px solid hsl(var(--border));
+  }
+
+  td {
+    padding: 0.625rem 1rem;
+    border-bottom: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:nth-child(even) {
+    background: hsl(var(--muted) / 0.2);
+  }
+
+  tbody tr:hover {
+    background: hsl(var(--primary) / 0.04);
   }
 }
 
