@@ -1,5 +1,6 @@
 ---
 title: 使用Tailscale和Outline在Vlab虚拟机平台上搭建私有笔记平台
+link: explore/shi-yong-tailscalehe-outlinezai-vlabxu-ni-ji-ping-tai-shang-da-jian-si-you-bi-ji-ping-tai
 draft: false
 sticky: false
 tocNumbering: true
