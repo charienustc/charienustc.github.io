@@ -10,11 +10,11 @@
  * activity, once in the full list.
  */
 import { getCollection } from 'astro:content';
+import ActivityCard from '@components/home/ActivityCard';
 import { Routes } from '@constants/router';
 import { momentExcerpt, selectVisibleMoments } from '@lib/content/moments';
 import { displayDate } from '@lib/date';
 import { routeBuilder } from '@lib/route';
-import { Icon } from 'astro-icon/components';
 import Divider from '@/components/ui/divider';
 import { localizedPath, t } from '@/i18n';
 import type { PostCardData } from '@/types/blog';
@@ -38,42 +38,28 @@ const momentsHref = localizedPath('/moments', locale);
   (post || latest) && (
     <>
       <Divider>{t(locale, 'home.latestActivity')}</Divider>
-      <div class="grid grid-cols-2 gap-x-8 md:grid-cols-1 md:gap-y-2">
+      <div class="grid grid-cols-2 gap-x-8 md:grid-cols-1 md:gap-y-4">
         {post && articleHref && (
-          <a href={articleHref} class="group flex min-w-0 flex-col gap-0.5 py-1">
-            <div class="text-muted-foreground flex items-center gap-1.5 text-xs">
-              <Icon name="lucide:pen-tool" class="size-3.5 opacity-60" aria-hidden="true" />
-              <span>{t(locale, 'nav.posts')}</span>
-              <span class="opacity-50">·</span>
-              <time datetime={post.date.toISOString()}>{displayDate.date(post.date)}</time>
-            </div>
-            <p class="flex min-w-0 items-center gap-1.5 text-sm/6">
-              <span class="truncate transition-colors group-hover:text-primary">{post.title}</span>
-              <Icon
-                name="ri:arrow-right-line"
-                class="text-muted-foreground size-3.5 shrink-0 transition-all group-hover:translate-x-0.5 group-hover:text-primary"
-                aria-hidden="true"
-              />
-            </p>
-          </a>
+          <ActivityCard
+            client:load
+            href={articleHref}
+            icon="lucide:pen-tool"
+            label={t(locale, 'nav.posts')}
+            dateText={displayDate.date(post.date)}
+            dateTime={post.date.toISOString()}
+            text={post.title}
+          />
         )}
         {latest && (
-          <a href={momentsHref} class="group flex min-w-0 flex-col gap-0.5 py-1">
-            <div class="text-muted-foreground flex items-center gap-1.5 text-xs">
-              <Icon name="lucide:message-circle" class="size-3.5 opacity-60" aria-hidden="true" />
-              <span>{t(locale, 'nav.moments')}</span>
-              <span class="opacity-50">·</span>
-              <time datetime={latest.data.date.toISOString()}>{displayDate.date(latest.data.date)}</time>
-            </div>
-            <p class="flex min-w-0 items-center gap-1.5 text-sm/6">
-              <span class="truncate transition-colors group-hover:text-primary">{momentExcerpt(latest.body ?? '')}</span>
-              <Icon
-                name="ri:arrow-right-line"
-                class="text-muted-foreground size-3.5 shrink-0 transition-all group-hover:translate-x-0.5 group-hover:text-primary"
-                aria-hidden="true"
-              />
-            </p>
-          </a>
+          <ActivityCard
+            client:load
+            href={momentsHref}
+            icon="lucide:message-circle"
+            label={t(locale, 'nav.moments')}
+            dateText={displayDate.date(latest.data.date)}
+            dateTime={latest.data.date.toISOString()}
+            text={momentExcerpt(latest.body ?? '')}
+          />
         )}
       </div>
     </>
