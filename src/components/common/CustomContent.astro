@@ -46,10 +46,14 @@ const spoilerRevealLabel = t(getLocaleFromUrl(Astro.url.pathname), 'content.reve
   import { enhanceSpoilers } from '@lib/spoiler-enhancer';
 
   // Content enhancement script - handles non-React enhancements
+  // A page can hold several blocks - the moments feed renders one per entry -
+  // and enhancing only the first would leave the rest without loaded images,
+  // heading labels, or link handling.
   function enhanceContent() {
-    const contentContainer = document.querySelector('.custom-content');
-    if (!contentContainer) return;
+    document.querySelectorAll('.custom-content').forEach(enhanceContainer);
+  }
 
+  function enhanceContainer(contentContainer: Element) {
     // Keep this outside the general enhancement guard so a transient module-load
     // failure can retry without registering the other handlers again.
     enhanceSpoilers(contentContainer);
@@ -143,19 +147,13 @@ const spoilerRevealLabel = t(getLocaleFromUrl(Astro.url.pathname), 'content.reve
 
   // Run on page load
   document.addEventListener('astro:page-load', () => {
-    const contentContainer = document.querySelector('.custom-content');
-    if (contentContainer) {
-      contentContainer.removeAttribute('data-enhanced');
-    }
+    document.querySelectorAll('.custom-content').forEach((container) => container.removeAttribute('data-enhanced'));
     enhanceContent();
   });
 
   // Re-enhance after encrypted post decryption (new DOM needs external links, anchors, etc.)
   document.addEventListener('content:decrypted', () => {
-    const contentContainer = document.querySelector('.custom-content');
-    if (contentContainer) {
-      contentContainer.removeAttribute('data-enhanced');
-    }
+    document.querySelectorAll('.custom-content').forEach((container) => container.removeAttribute('data-enhanced'));
     enhanceContent();
   });
 
