@@ -9,7 +9,6 @@ import yaml from '@rollup/plugin-yaml';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, memoryCache } from 'astro/config';
 import icon from 'astro-icon';
-import mermaid from 'astro-mermaid';
 import pagefind from 'astro-pagefind';
 import robotsTxt from 'astro-robots-txt';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
@@ -26,6 +25,7 @@ import { normalizeContentConfig } from './src/lib/config/content.ts';
 import { enabledFeaturedSeriesSlugs, normalizeFeaturedSeries } from './src/lib/config/featured-series.ts';
 import { normalizeMomentsConfig } from './src/lib/config/moments.ts';
 import { RESERVED_ROUTES } from './src/lib/config/reserved-routes.ts';
+import { lazyMermaid } from './src/lib/markdown/lazy-mermaid.ts';
 import { mermaidThemeCSS } from './src/lib/markdown/mermaid-theme.ts';
 import { rehypeEncryptedBlock } from './src/lib/markdown/rehype-encrypted-block.ts';
 import { rehypeEncryptedPost } from './src/lib/markdown/rehype-encrypted-post.ts';
@@ -270,7 +270,7 @@ export default defineConfig({
       },
     }),
     pagefind(),
-    mermaid({
+    lazyMermaid({
       autoTheme: true,
       mermaidConfig: { themeCSS: mermaidThemeCSS },
     }),

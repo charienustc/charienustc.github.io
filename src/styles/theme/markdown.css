@@ -738,6 +738,11 @@
 
 /* ========== Mermaid layout styles ========== */
 
+/* Screens outside the viewport should not keep the loading skeleton animating. */
+.custom-content pre.mermaid:not([data-mermaid-visible]) {
+  animation: none;
+}
+
 .mermaid-wrapper {
   position: relative;
   margin-bottom: 1.25rem;
