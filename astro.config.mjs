@@ -287,7 +287,32 @@ export default defineConfig({
     enabled: true,
   },
   vite: {
+    environments: {
+      client: {
+        build: {
+          rolldownOptions: {
+            output: {
+              codeSplitting: {
+                // Shared React imports should not add separate network round trips to island hydration.
+                groups: [
+                  { name: 'react-runtime', test: /node_modules[/]\b(?:react|react-dom|scheduler)[/]/ },
+                  {
+                    name: 'motion-runtime',
+                    test: /node_modules[/](?:motion|framer-motion|motion-dom|motion-utils)[/]/,
+                    minShareCount: 2,
+                    entriesAware: true,
+                    entriesAwareMergeThreshold: 8 * 1024,
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
     build: {
+      // Inline small style sheets without changing caching for images or larger assets.
+      assetsInlineLimit: (filePath, content) => (filePath.endsWith('.css') ? content.length < 8192 : undefined),
       // Enable sourcemap for Sonda bundle analysis
       sourcemap: isAnalyze,
       // Astro builds for "esnext", which leaves the CSS minifier (lightningcss) without browser
