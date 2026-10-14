@@ -11,7 +11,12 @@
   --code-toolbar: hsl(var(--muted) / 0.3);
 }
 
-.prose {
+/* Shared markdown element styles. `.custom-content` blocks outside a `.prose`
+   ancestor are feed entries (the moments page renders one per moment), and they
+   should get the same element look; the reading-column properties are reset for
+   them, and their heading scale follows further down. */
+.prose,
+.custom-content:not(.prose *) {
   /* Reader variables are set by src/store/settings.ts and the inline Layout.astro script. */
   font-size: var(--reader-font-size, 1rem);
   line-height: var(--reader-line-height, 1.8);
@@ -503,6 +508,50 @@
   tbody tr:hover {
     background: hsl(var(--primary) / 0.04);
   }
+}
+
+/* Feed blocks have no reading column, so reader-size variables step aside and
+   the article's out-of-margin level chip has no margin to live in. */
+.custom-content:not(.prose *) {
+  font-size: inherit;
+  line-height: inherit;
+  max-width: none;
+}
+
+/* Tailwind Typography supplies the heading scale inside `.prose`; feed headings
+   carry a compact version of it, close to the live feed's prose-sm rendering. */
+.custom-content:not(.prose *) :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 700;
+  margin-block: 1rem 0.5rem;
+}
+
+.custom-content:not(.prose *) h1 {
+  font-size: 1.5em;
+}
+
+.custom-content:not(.prose *) h2 {
+  font-size: 1.25em;
+}
+
+.custom-content:not(.prose *) h3 {
+  font-size: 1.125em;
+}
+
+.custom-content:not(.prose *) :is(h1, h2, h3, h4, h5, h6)::before {
+  content: none;
+}
+
+/* Tailwind Typography styles quotes inside `.prose`; the feed gets the theme's own bar. */
+.custom-content:not(.prose *) blockquote {
+  margin-block: 1rem;
+  border-left: 4px solid hsl(var(--border));
+  padding-left: 1em;
+  font-style: italic;
+}
+
+/* The shared block only sets `ol` spacing (Typography normally gives `ul` its own). */
+.custom-content:not(.prose *) ul {
+  margin-block: 1rem;
 }
 
 /* ========== Code/Mermaid/Infographic wrapper layout ========== */
