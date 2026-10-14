@@ -20,6 +20,9 @@ export const uiStrings: UIStrings = {
   'nav.series': 'Series',
   'nav.bangumi': 'Bangumi',
 
+  // ── Home ────────────────────────────────────────────────────
+  'home.latestActivity': "What's new",
+
   // ── Common ──────────────────────────────────────────────────
   'common.search': 'Search',
   'common.close': 'Close',

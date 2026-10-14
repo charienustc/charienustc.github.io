@@ -1,5 +1,5 @@
 ---
-import LatestMomentCard from '@components/home/LatestMomentCard.astro';
+import LatestActivity from '@components/home/LatestActivity.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import PostList from '@components/post/PostList.astro';
 import { Button } from '@components/ui/button';
@@ -41,7 +41,7 @@ const allPostsUrl = localizedPath('/posts', locale);
     <div
       class={`bg-gradient-start shadow-box tablet:shadow-none flex flex-col gap-4 overflow-hidden  ${CONTENT_PADDING.standard}`}
     >
-      <LatestMomentCard locale={locale} />
+      <LatestActivity locale={locale} post={posts[0]} />
       {stickyPosts.length > 0 && (
         <>
           <Divider>{t(locale, 'post.stickyPosts')}</Divider>

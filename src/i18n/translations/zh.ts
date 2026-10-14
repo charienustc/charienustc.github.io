@@ -19,6 +19,9 @@ export const uiStrings = {
   'nav.series': '系列文章',
   'nav.bangumi': '追番',
 
+  // ── Home ────────────────────────────────────────────────────
+  'home.latestActivity': '最新动态',
+
   // ── Common ──────────────────────────────────────────────────
   'common.search': '搜索',
   'common.close': '关闭',

@@ -1,0 +1,80 @@
+---
+/**
+ * Homepage "latest activity" block: the newest article and the newest moment,
+ * side by side on desktop and stacked on mobile.
+ *
+ * Moments deliberately have no per-entry pages — the feed is the whole feature —
+ * so the moment entry links to /moments/ rather than anchoring a specific entry.
+ * The article entry points at the first post of the list below, so the same
+ * article intentionally appears twice on the home page: once as the latest
+ * activity, once in the full list.
+ */
+import { getCollection } from 'astro:content';
+import { Routes } from '@constants/router';
+import { momentExcerpt, selectVisibleMoments } from '@lib/content/moments';
+import { displayDate } from '@lib/date';
+import { routeBuilder } from '@lib/route';
+import { Icon } from 'astro-icon/components';
+import { localizedPath, t } from '@/i18n';
+import type { PostCardData } from '@/types/blog';
+
+interface Props {
+  locale: string;
+  post?: PostCardData;
+}
+
+const { locale, post } = Astro.props;
+
+const latest = selectVisibleMoments(await getCollection('moments'), import.meta.env.PROD)[0];
+
+const articleHref = post
+  ? localizedPath(routeBuilder(Routes.Post, { slug: post.slug, link: post.link, title: post.title }), locale)
+  : undefined;
+const momentsHref = localizedPath('/moments', locale);
+---
+
+{
+  (post || latest) && (
+    <div class="py-1">
+      <div class="text-muted-foreground text-xs font-medium">{t(locale, 'home.latestActivity')}</div>
+      <div class="mt-1 grid grid-cols-2 gap-x-8 md:grid-cols-1 md:gap-y-2">
+        {post && articleHref && (
+          <a href={articleHref} class="group flex min-w-0 flex-col gap-0.5 py-1">
+            <div class="text-muted-foreground flex items-center gap-1.5 text-xs">
+              <Icon name="lucide:pen-tool" class="size-3.5 opacity-60" aria-hidden="true" />
+              <span>{t(locale, 'nav.posts')}</span>
+              <span class="opacity-50">·</span>
+              <time datetime={post.date.toISOString()}>{displayDate.date(post.date)}</time>
+            </div>
+            <p class="flex min-w-0 items-center gap-1.5 text-sm/6">
+              <span class="truncate transition-colors group-hover:text-primary">{post.title}</span>
+              <Icon
+                name="ri:arrow-right-line"
+                class="text-muted-foreground size-3.5 shrink-0 transition-all group-hover:translate-x-0.5 group-hover:text-primary"
+                aria-hidden="true"
+              />
+            </p>
+          </a>
+        )}
+        {latest && (
+          <a href={momentsHref} class="group flex min-w-0 flex-col gap-0.5 py-1">
+            <div class="text-muted-foreground flex items-center gap-1.5 text-xs">
+              <Icon name="lucide:message-circle" class="size-3.5 opacity-60" aria-hidden="true" />
+              <span>{t(locale, 'nav.moments')}</span>
+              <span class="opacity-50">·</span>
+              <time datetime={latest.data.date.toISOString()}>{displayDate.date(latest.data.date)}</time>
+            </div>
+            <p class="flex min-w-0 items-center gap-1.5 text-sm/6">
+              <span class="truncate transition-colors group-hover:text-primary">{momentExcerpt(latest.body ?? '')}</span>
+              <Icon
+                name="ri:arrow-right-line"
+                class="text-muted-foreground size-3.5 shrink-0 transition-all group-hover:translate-x-0.5 group-hover:text-primary"
+                aria-hidden="true"
+              />
+            </p>
+          </a>
+        )}
+      </div>
+    </div>
+  )
+}
