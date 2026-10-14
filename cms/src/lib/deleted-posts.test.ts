@@ -13,7 +13,7 @@ import { test } from 'node:test';
 import { deletionTimestamp, retentionPath } from './deleted-posts';
 import { DELETED_POST_SUFFIX, DELETED_POSTS_DIR } from './paths';
 
-const ROOT = path.join('F:', 'myhomepage');
+const ROOT = path.resolve('test-project');
 const AT = new Date(2026, 9, 3, 15, 0, 37, 123);
 
 test('formats a sortable timestamp with millisecond precision', () => {

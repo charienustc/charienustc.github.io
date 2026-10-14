@@ -14,7 +14,7 @@ import { test } from 'node:test';
 import { momentVersionPath, versionTimestamp } from './moment-versions';
 import { MOMENT_VERSIONS_DIR } from './paths';
 
-const ROOT = path.join('F:', 'myhomepage');
+const ROOT = path.resolve('test-project');
 const AT = new Date(2026, 9, 3, 15, 0, 37, 123);
 
 test('formats a sortable timestamp with millisecond precision', () => {
