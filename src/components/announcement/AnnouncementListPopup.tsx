@@ -7,6 +7,7 @@
 
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { animation, zIndex } from '@constants/design-tokens';
+import { useIsMounted } from '@hooks/useIsMounted';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { displayDate } from '@lib/date';
@@ -137,6 +138,7 @@ function TimelineItem({
 }
 
 export default function AnnouncementListPopup() {
+  const isMounted = useIsMounted();
   const { t } = useTranslation();
   const isOpen = useStore(announcementListOpen);
   const announcements = useStore(activeAnnouncements);
@@ -148,7 +150,7 @@ export default function AnnouncementListPopup() {
   return (
     <LazyMotionProvider>
       <AnimatePresence>
-        {isOpen && (
+        {isMounted && isOpen && (
           <>
             {/* Backdrop */}
             <m.div

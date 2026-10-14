@@ -247,6 +247,15 @@ export default defineConfig({
     },
   },
   integrations: [
+    {
+      name: 'content-hydration',
+      hooks: {
+        'astro:config:setup': ({ addClientDirective }) => {
+          addClientDirective({ name: 'content', entrypoint: path.resolve('src/lib/markdown/client-content.ts') });
+          addClientDirective({ name: 'panel', entrypoint: path.resolve('src/lib/client-panel.ts') });
+        },
+      },
+    },
     react(),
     sitemap({
       filter: (page) => !disabledRoutePatterns.some((pattern) => pattern.test(new URL(page).pathname)),
