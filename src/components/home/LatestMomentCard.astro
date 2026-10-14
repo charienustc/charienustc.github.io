@@ -24,24 +24,21 @@ const label = t(locale, 'nav.moments');
 
 {
   latest && (
-    <a
-      href={href}
-      class="group border-foreground/10 dark:from-white/[0.03] hover:border-foreground/25 dark:hover:border-foreground/30 flex items-center gap-3 rounded-xl border bg-gradient-to-br from-foreground/[0.02] to-transparent px-4 py-3 transition-colors"
-    >
-      <div class="min-w-0 flex-1">
-        <div class="text-muted-foreground flex items-center gap-1.5 text-xs">
-          <Icon name="lucide:message-circle" class="size-3.5 opacity-60" aria-hidden="true" />
-          <span>{label}</span>
-          <span class="opacity-50">·</span>
-          <time datetime={latest.data.date.toISOString()}>{displayDate.date(latest.data.date)}</time>
-        </div>
-        <p class="text-base/6 md:text-sm/6 mt-1 truncate">{momentExcerpt(latest.body ?? '')}</p>
+    <a href={href} class="group flex flex-col gap-0.5 py-1">
+      <div class="text-muted-foreground flex items-center gap-1.5 text-xs">
+        <Icon name="lucide:message-circle" class="size-3.5 opacity-60" aria-hidden="true" />
+        <span>{label}</span>
+        <span class="opacity-50">·</span>
+        <time datetime={latest.data.date.toISOString()}>{displayDate.date(latest.data.date)}</time>
       </div>
-      <Icon
-        name="ri:arrow-right-line"
-        class="text-muted-foreground group-hover:text-foreground size-4 shrink-0 transition-transform group-hover:translate-x-0.5"
-        aria-hidden="true"
-      />
+      <p class="flex items-center gap-1.5 text-sm/6">
+        <span class="truncate transition-colors group-hover:text-primary">{momentExcerpt(latest.body ?? '')}</span>
+        <Icon
+          name="ri:arrow-right-line"
+          class="text-muted-foreground size-3.5 shrink-0 transition-all group-hover:translate-x-0.5 group-hover:text-primary"
+          aria-hidden="true"
+        />
+      </p>
     </a>
   )
 }
