@@ -15,6 +15,7 @@ import { momentExcerpt, selectVisibleMoments } from '@lib/content/moments';
 import { displayDate } from '@lib/date';
 import { routeBuilder } from '@lib/route';
 import { Icon } from 'astro-icon/components';
+import Divider from '@/components/ui/divider';
 import { localizedPath, t } from '@/i18n';
 import type { PostCardData } from '@/types/blog';
 
@@ -35,9 +36,9 @@ const momentsHref = localizedPath('/moments', locale);
 
 {
   (post || latest) && (
-    <div class="py-1">
-      <div class="text-muted-foreground text-xs font-medium">{t(locale, 'home.latestActivity')}</div>
-      <div class="mt-1 grid grid-cols-2 gap-x-8 md:grid-cols-1 md:gap-y-2">
+    <>
+      <Divider>{t(locale, 'home.latestActivity')}</Divider>
+      <div class="grid grid-cols-2 gap-x-8 md:grid-cols-1 md:gap-y-2">
         {post && articleHref && (
           <a href={articleHref} class="group flex min-w-0 flex-col gap-0.5 py-1">
             <div class="text-muted-foreground flex items-center gap-1.5 text-xs">
@@ -75,6 +76,6 @@ const momentsHref = localizedPath('/moments', locale);
           </a>
         )}
       </div>
-    </div>
+    </>
   )
 }
