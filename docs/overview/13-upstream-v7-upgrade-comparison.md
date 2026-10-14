@@ -184,7 +184,7 @@ setMotionLevel('lively');
 | 编号 | 内容 | 你的现状 | 涉及文件 | 冲突面 | 优先级 | 最终解决方案 |
 | --- | --- | --- | --- | --- | --- | --- |
 | F1 | Vite `worker: { format: 'es' }` 配置 | 无 | `astro.config.mjs` | 小 | P2 | 待做 |
-| **F2** | 隐藏的桌面目录、关闭的抽屉**停止跟踪滚动**；缓存目录节点状态，减少重绘与逐帧 DOM 读取 | 无 | 目录 / 抽屉组件 | 中 | P1 | 待做 |
+| **F2** | 隐藏的桌面目录、关闭的抽屉**停止跟踪滚动**；缓存目录节点状态，减少重绘与逐帧 DOM 读取 | 无 | 目录 / 抽屉组件 | 中 | P1 | **✅ 已完成**（核心门控随 B3 移植带入 `eab30be`；`9d59a90` 补齐 directive 拆分、初始测量合并与缺失的 `isDrawer` 接线，见 K.5） |
 | F3 | 停止隐藏装饰的计算，限制雪花绘制频率与画布尺寸，减少无效弹簧与指针追踪 | 无 | 动效层 | 中 | P2 | 待做 |
 | F4 | 测试从本地 6 组扩到 117 编辑器 + 32 Markdown + 11 图表 + 25 动效 + 灯箱 / TOC / 设置 / BGM 浏览器回归 | 本地 6 组 | `tests/` + `*.test.ts` | 小 | P3 | 待做 |
 | F5 | 41 个新 lib 模块，全部带 `.test.ts`（`zoom-pan` / `glide` / `toc-ribbon` / `lightbox-flip` / `motion-level` ……） | 无 | `src/lib/` | — | — | — 上游有、本地无，随对应项落地时一并摘 |
@@ -281,7 +281,7 @@ setMotionLevel('lively');
 | 5 | **A5 + E5**（motion 升级到 12.43.0） | 需全站动效回归 | `package.json` | 中 | P1 | **✅ 已做** `07cf446` |
 | 6 | **D1 + D3**（低风险增量功能） | 独立 | friends / 面包屑 | 低 | P2 | **✅ D1** b9cb4be；**✅ D3** 0ec8045；**D2** 49ee9a2、**D5** 0225d16、**D6** a1b64b7 一并落地 |
 | 7 | **B1 + B7 + B8**（动效系统） | 会改变整站观感，最后做 | 多文件 | 中 | P2 | ✅ 5907e24 / 6324152 / 9da22d3 |
-| 8 | **K 节性能批次**（v7.7.2–v7.7.4 增量，2026-10-10 复查新增） | 与 1–7 各项独立 | `astro.config.mjs` / 新 lib / 各组件 | 中 | P1 | 待做（分三批，见 K.4） |
+| 8 | **K 节性能批次**（v7.7.2–v7.7.4 增量，2026-10-10 复查新增） | 与 1–7 各项独立 | `astro.config.mjs` / 新 lib / 各组件 | 中 | P1 | **批次① + F2 ✅ 已完成**（2026-10-14，见 K.5）；②③ 待做 |
 
 ### 复查 A1 是否已修复
 
@@ -393,10 +393,32 @@ git tag -d up/v6.3.0 up/v7.7.1 up/v7.7.2 up/v7.7.3 up/v7.7.4
 
 ### K.4 建议（分三批）
 
-1. **批次 ①（低风险，建议直接摘）**：`client:panel` + `client:content` 指令与接线；评论 SDK 延迟（`DeferredComment`）；`lazy-mermaid`；构建层两处（`codeSplitting` / `assetsInlineLimit`）；友链头像 / `TagItem` 小改。每项独立 commit，逐项可回退。
+1. **批次 ①（低风险，建议直接摘）**：`client:panel` + `client:content` 指令与接线；评论 SDK 延迟（`DeferredComment`）；`lazy-mermaid`；构建层两处（`codeSplitting` / `assetsInlineLimit`）；友链头像 / `TagItem` 小改。每项独立 commit，逐项可回退。**→ ✅ 2026-10-14 已完成，记录见 K.5。**
 2. **批次 ②（需回归动效与导航）**：预取策略改 `hover` + `touch-prefetch.ts`；查看器延迟加载（`ArticleViewers` + `AppShell` 监听搬迁）。
 3. **批次 ③（先裁决再动）**：搜索（保留本地自研 vs 换上游版）；封面 srcset（是否引入 avif/webp 与竖屏共享）；`RoundedFonts`（与本地 `HeadMeta` / `Layout` 定制合并）。
 4. **明确不做**：moments 相关快照（本地大改、收益小）、`PostItemCard.astro` 相关（文件本地不存在）。
+
+### K.5 批次① + F2 摘取记录（2026-10-14）
+
+批次① 五项 + F2 已全部落地，每项独立 commit：
+
+| 项 | commit | 说明 |
+| --- | --- | --- |
+| `client:panel` + `client:content` | `46e373f` | 新增 `lib/client-panel.ts` / `lib/markdown/client-content.ts`（逐字上游）；`astro.config.mjs` 注册指令；BGM / 公告面板、`CustomContent.astro` 改指令水合 |
+| 评论 SDK 延迟 | `7d20246` | 新增 `DeferredComment.tsx`（lazy + Suspense + ErrorBoundary + 占位骨架），三个评论客户端改 `client:visible`（`rootMargin: 400px`）；实测加载时零 giscus 请求，接近评论区才下载 |
+| `lazy-mermaid` | `b6f27da` | 新增 `lib/markdown/lazy-mermaid.ts`（对 astro-mermaid 注入脚本字符串补丁，契约不符直接抛错）；滚动 800px 内才渲染；含跨页 swap 的重渲染防串（`mermaidRenderVersion`） |
+| 构建层两处 | `8274a2b` | rolldown `codeSplitting`（`react-runtime` / `motion-runtime` 共享 chunk，含 motion 的 `entriesAware`）+ `assetsInlineLimit`（8KB 以下 CSS 内联；A/B 实测 404 / 友链两份小 CSS 由独立文件转为内联） |
+| 友链头像 / `TagItem` | `b8eaae2` | `data-friend-src` + IntersectionObserver（`rootMargin: 160px`，观察外层固定尺寸容器）+ `<noscript>` 回退；`TagItem` 计数 `sup` 加 `aria-hidden` |
+| **F2** 目录 / 抽屉跟踪 | `9d59a90` | `HomeSider` 桌面 TOC 改 `client:media="(min-width: 993px)"`、抽屉改 `client:visible isDrawer`；`TableOfContents` 加 `useIsMounted` 占位符（`min-h-24`）；`useReadingProgress` 初始测量 `update()`→`schedule()` 合并 |
+
+F2 与上游的差异说明：本地 F2 的**核心门控**（非移动端只跟踪桌面目录 / 抽屉仅在移动端且打开时跟踪）在此前 B3 移植（`eab30be`，v7.7.1 ToC 全量）时就已带入，本地缺的是外围三处——**`HomeSider` 未传 `isDrawer`**（直接后果：移动端抽屉 TOC 永不跟踪，本轮修复并实测点标题可高亮）、桌面/抽屉仍用 `client:only`、初始测量未合并。`9d59a90` 一并补齐；无头浏览器实测：桌面 `client:media` 岛水合且滚动跟踪正常、抽屉 `client:visible` 岛关闭时不加载，打开后才水合，移动端桌面岛始终不加载。
+
+本轮**明确跳过**的范围（维持原状，均非批次① 项）：
+
+- **折叠代码 `content-visibility`** —— 与上游 v7.7.4 的 shiki「始终包裹」改造绑定（上游对所有代码块预包裹并加标题占位符/链接样式；本地 `shiki-collapsible-transformer.ts` 仍只包裹超行数阈值的块），属视觉行为变更，不取。
+- **移动菜单 / `MenuIcon` 改 `client:media`** —— 本地头部与移动菜单为自有实现（A6/A7 系列），上游改法不适用。
+- `RoundedFonts`、`ArticleViewers`、`touch-prefetch`、搜索、封面 srcset —— 仍按 K.4 归属批次 ②③，未动。
+- F1（Vite `worker: { format: 'es' }`）—— 仍为 P2 待做。
 
 ---
 
