@@ -37,6 +37,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install CMS dependencies
+        run: pnpm --dir cms install --ignore-workspace --frozen-lockfile
+
+      - name: Check Astro and TypeScript
+        run: pnpm check
+
+      - name: Check CMS TypeScript
+        run: pnpm --dir cms exec tsc --noEmit
+
+      - name: Run tests
+        run: pnpm test
+
       - name: Build
         run: pnpm build
 

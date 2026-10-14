@@ -4,10 +4,17 @@ import path from 'node:path';
 
 import { PROJECT_ROOT } from '../constants';
 
+// Windows ships BSD tar, while Git installations may provide GNU tar.
+// Only GNU tar interprets drive letters as remote hosts and accepts this flag.
+const platformFlags =
+  process.platform === 'win32' && spawnSync('tar', ['--version'], { encoding: 'utf-8' }).stdout?.includes('GNU tar')
+    ? ['--force-local']
+    : [];
+
 /**
  * Run tar with the platform's required flags.
  *
- * `--force-local` is added on Windows only. GNU tar parses `C:\path` as an
+ * `--force-local` is added for GNU tar on Windows only. GNU tar parses `C:\path` as an
  * rsync-style `host:path` and fails with "Cannot connect to C: resolve failed",
  * so every archive path here — all absolute — is unusable without it. On POSIX
  * the flag is accepted but meaningless, and adding it unconditionally would
@@ -23,7 +30,6 @@ import { PROJECT_ROOT } from '../constants';
  * @returns The spawnSync result
  */
 function runTar(args: string[], options: { encoding?: BufferEncoding; stdio?: 'pipe'; cwd?: string } = {}) {
-  const platformFlags = process.platform === 'win32' ? ['--force-local'] : [];
   return spawnSync('tar', [...platformFlags, ...args], {
     cwd: PROJECT_ROOT,
     ...options,
@@ -84,7 +90,7 @@ function validateTarEntryTypes(archivePath: string, entryCount: number): void {
     throw new Error(`tar verbose list failed: ${result.stderr?.toString() || 'unknown error'}`);
   }
 
-  const lines = result.stdout.split('\n').filter(Boolean);
+  const lines = result.stdout.toString().split(/\r?\n/).filter(Boolean);
   if (lines.length !== entryCount) {
     throw new Error(`tar verbose listing is inconsistent: ${archivePath}`);
   }
@@ -102,7 +108,7 @@ function listTarEntries(archivePath: string): string[] {
   if (result.status !== 0) {
     throw new Error(`tar list failed: ${result.stderr?.toString() || 'unknown error'}`);
   }
-  const entries = result.stdout.split('\n').filter(Boolean);
+  const entries = result.stdout.toString().split(/\r?\n/).filter(Boolean);
   validateTarEntries(entries, archivePath);
   validateTarEntryTypes(archivePath, entries.length);
   return entries;
@@ -123,7 +129,7 @@ export function tarExtractManifest(archivePath: string): string | null {
       stdio: 'pipe',
     });
     if (result.status === 0 && result.stdout) {
-      return result.stdout;
+      return result.stdout.toString();
     }
   }
   return null;

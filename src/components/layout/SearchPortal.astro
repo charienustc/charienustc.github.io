@@ -44,7 +44,7 @@ const config = {
       subtree away. */
   let bundle = null;
 
-  const readConfig = (host) => ({
+  const readConfig = (host: HTMLElement) => ({
     lang: host.dataset.lang ?? 'zh-CN',
     placeholder: host.dataset.placeholder ?? '',
   });
@@ -56,7 +56,7 @@ const config = {
    * once `@pagefind/component-ui` has run — which is exactly what the dynamic
    * import below guarantees before the tags are inserted.
    */
-  function buildSearch(host) {
+  function buildSearch(host: HTMLElement) {
     const { lang, placeholder } = readConfig(host);
     const wrapper = document.createElement('div');
     wrapper.id = 'search-for-dialog';
@@ -77,7 +77,7 @@ const config = {
   }
 
   function focusInput() {
-    document.querySelector('.pf-searchbox-input')?.focus();
+    document.querySelector<HTMLInputElement>('.pf-searchbox-input')?.focus();
   }
 
   /**

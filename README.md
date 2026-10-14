@@ -148,6 +148,9 @@ rm -rf backups/deleted/* backups/versions/*
 
 推送到 `main` 即自动部署到 GitHub Pages，工作流在 `.github/workflows/deploy.yml`。
 
+部署前会依次执行前台类型检查、CMS 类型检查、完整单元测试和生产构建；任何一步失败都会阻止发布。
+工作流会通过各自的锁文件安装前台与 CMS 依赖。手动触发部署也执行相同检查。
+
 不用手动构建，也不用配 Vercel / Netlify / Docker —— 这个站就是纯静态托管。
 
 > 主题自带的「碎碎念」动态归档功能（从 Telegram 频道拉数据）**在本站未启用**，它需要 Node 按请求渲染的服务端，与静态托管不兼容。本站的碎碎念是上面那套自建方案，纯静态、可离线、无外部依赖。
