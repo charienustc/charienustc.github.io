@@ -98,6 +98,33 @@ export function momentSlugHint(body: string, maxLength = 24): string {
 }
 
 /**
+ * First-line plain-text preview of a moment, for teasers outside the feed.
+ *
+ * Mirrors what a reader sees first in the feed — the opening line — with the
+ * markdown ceremony a one-line context cannot render stripped away. Image-only
+ * lines are skipped, so a moment that opens with a photo previews its first
+ * words instead of nothing.
+ *
+ * @param body - The moment's markdown body
+ * @param maxLength - Maximum characters to keep before the ellipsis
+ * @returns A plain-text line, or an empty string when the body has no text
+ */
+export function momentExcerpt(body: string, maxLength = 60): string {
+  for (const line of body.split('\n')) {
+    const plain = line
+      .trim()
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/^#{1,6}\s+/, '')
+      .replace(/^>\s*/, '')
+      .replace(/[*_`~]/g, '')
+      .trim();
+    if (plain) return plain.length > maxLength ? `${plain.slice(0, maxLength).trimEnd()}…` : plain;
+  }
+  return '';
+}
+
+/**
  * Filter and order moments for display.
  *
  * Mirrors the post convention: drafts are visible in development so they can be

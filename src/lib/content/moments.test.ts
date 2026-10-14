@@ -12,6 +12,7 @@ import { test } from 'node:test';
 import {
   countVisibleMoments,
   groupMomentsByYear,
+  momentExcerpt,
   momentFileName,
   momentSlugHint,
   selectVisibleMoments,
@@ -82,6 +83,36 @@ test('never leaves a trailing hyphen after truncation', () => {
 test('produces a filename-safe hint with no path separators', () => {
   const hint = momentSlugHint('a/b\\c:d*e?f"g<h>i|j');
   assert.ok(!/[/\\:*?"<>|]/.test(hint), hint);
+});
+
+test('previews a plain-text opening line as-is', () => {
+  assert.equal(momentExcerpt('今天天气不错'), '今天天气不错');
+});
+
+test('strips the heading marker from an opening heading', () => {
+  assert.equal(momentExcerpt('## 关于我今天穿了两只不同的鞋出门这件事'), '关于我今天穿了两只不同的鞋出门这件事');
+});
+
+test('skips image-only lines so a photo-led moment previews its words', () => {
+  assert.equal(momentExcerpt('![cat](/img/cat.jpg)\n橘猫在车座上睡着了'), '橘猫在车座上睡着了');
+});
+
+test('reduces links to their text and drops emphasis markers', () => {
+  assert.equal(momentExcerpt('读了 [这篇](https://example.com) **很棒** 的论文'), '读了 这篇 很棒 的论文');
+});
+
+test('truncates a long opening line with an ellipsis', () => {
+  assert.equal(momentExcerpt('一二三四五六七八九十', 5), '一二三四五…');
+});
+
+test('keeps the whole line when it fits within the budget', () => {
+  assert.equal(momentExcerpt('一二三四五', 5), '一二三四五');
+});
+
+test('returns an empty preview for a body without text', () => {
+  assert.equal(momentExcerpt(''), '');
+  assert.equal(momentExcerpt('   \n  \n'), '');
+  assert.equal(momentExcerpt('![](/img/cat.jpg)'), '');
 });
 
 test('drops drafts in production but keeps them in development', () => {

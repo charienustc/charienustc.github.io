@@ -1,4 +1,5 @@
 ---
+import LatestMomentCard from '@components/home/LatestMomentCard.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import PostList from '@components/post/PostList.astro';
 import { Button } from '@components/ui/button';
@@ -46,6 +47,7 @@ const allPostsUrl = localizedPath('/posts', locale);
           <PostList posts={stickyPosts} showPaginator={false} />
         </>
       )}
+      <LatestMomentCard locale={locale} />
       <Divider>{t(locale, 'post.postList')}</Divider>
       <PostList posts={posts} showPaginator={false} isHomePage={true} />
       <div class="flex justify-center pt-2">
