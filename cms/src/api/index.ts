@@ -14,5 +14,6 @@ export { deleteMomentHandler, readMomentHandler } from './read-moment';
 export { toggleDraftHandler } from './toggle-draft';
 export { toggleStickyHandler } from './toggle-sticky';
 export { uploadImageHandler } from './upload';
+export { listVersionsHandler, readVersionHandler, restoreVersionHandler } from './versions';
 export { writeHandler } from './write';
 export { updateMomentHandler } from './write-moment';

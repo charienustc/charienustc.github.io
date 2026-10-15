@@ -14,7 +14,7 @@ import { z } from 'zod';
 import { addCategoryMappings } from '@/lib/config';
 import { serializeFrontmatter } from '@/lib/frontmatter';
 import { normalizeEscapedLineBreaks } from '@/lib/markdown-normalize';
-import { CONTENT_DIR } from '@/lib/paths';
+import { resolvePostPath, retainPostVersion, VersionError } from '@/lib/post-versions';
 import { hasValidMarkdownExtension, isPathSafe } from '@/lib/validation';
 
 /** Zod schema for write post request validation */
@@ -55,7 +55,7 @@ export async function writeHandler(c: Context) {
     }
 
     // Construct the full file path
-    const filePath = path.join(projectRoot, CONTENT_DIR, postId);
+    const filePath = await resolvePostPath(projectRoot, postId);
 
     // Convert date strings to Date objects
     // Frontend now sends local time strings in "yyyy-MM-dd HH:mm:ss" format
@@ -132,11 +132,22 @@ export async function writeHandler(c: Context) {
     const dirPath = path.dirname(filePath);
     await fs.mkdir(dirPath, { recursive: true });
 
+    // Retain the previous revision before it is lost — the same recovery
+    // guarantee moments get on edit. A brand-new file has nothing to retain.
+    const previous = await fs.readFile(filePath, 'utf-8').catch((error: NodeJS.ErrnoException) => {
+      if (error.code === 'ENOENT') return null;
+      throw error;
+    });
+    if (previous !== null) {
+      await retainPostVersion(projectRoot, postId, previous);
+    }
+
     // Write the file
     await fs.writeFile(filePath, fileContent, 'utf-8');
 
     return c.json({ success: true });
   } catch (error) {
+    if (error instanceof VersionError) return c.json({ error: error.message }, error.status);
     console.error('[CMS Write API] Error:', error);
     return c.json({ error: 'Internal server error' }, 500);
   }

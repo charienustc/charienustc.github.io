@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { CategoryMappingDialog } from '@/components/CategoryMappingDialog';
 import type { FrontmatterEditorRef } from '@/components/FrontmatterEditor';
+import { PostHistoryDialog } from '@/components/PostHistoryDialog';
 import { PublishDialog } from '@/components/PublishDialog';
 import { blocksToMarkdown, markdownToBlocks, postEditorSchema } from '@/components/post-editor/editor';
 import { PostEditorCanvas } from '@/components/post-editor/PostEditorCanvas';
@@ -36,6 +37,8 @@ interface PostEditorProps {
 export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [reloadVersion, setReloadVersion] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
@@ -86,10 +89,14 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
   const headings = useEditorHeadings(editor);
 
   // Load post data
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reloadVersion reloads disk content after restoration.
   useEffect(() => {
     async function loadPost() {
       setIsLoading(true);
       setError(null);
+      initialContentLoaded.current = false;
+      initialFrontmatterLoaded.current = false;
+      loadedContent.current = null;
 
       try {
         const data = await readPost(postId);
@@ -97,13 +104,14 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
         initialFrontmatterLoaded.current = true;
 
         // Load content into editor
-        if (data.content && editor) {
+        if (editor) {
           await markdownToBlocks(editor, data.content);
           // Snapshot what the editor now holds, so later onChange events can be
           // compared against it rather than against a timer.
           loadedContent.current = await blocksToMarkdown(editor);
           initialContentLoaded.current = true;
         }
+        setHasUnsavedChanges(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load post');
       } finally {
@@ -112,7 +120,7 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
     }
 
     loadPost();
-  }, [postId, editor]);
+  }, [postId, editor, reloadVersion]);
 
   // Track content changes
   useEffect(() => {
@@ -192,7 +200,7 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
 
   // Save post with new category detection
   const handleSave = useCallback(async () => {
-    if (!editor) return;
+    if (!editor || isHistoryOpen || isSaving) return;
 
     // Check for new categories
     const newCats = detectNewCategories(currentCategories);
@@ -203,7 +211,7 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
     }
 
     await performSave();
-  }, [editor, currentCategories, performSave]);
+  }, [editor, currentCategories, performSave, isHistoryOpen, isSaving]);
 
   // Handle category mapping confirmation
   const handleCategoryMappingConfirm = useCallback(
@@ -342,6 +350,7 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
         onClose={handleClose}
         onSave={handleSave}
         onPublish={handleOpenPublish}
+        onHistory={() => setIsHistoryOpen(true)}
         onToggleSidebar={() => setShowSidebar(!showSidebar)}
       />
 
@@ -373,6 +382,16 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
         )}
       </div>
 
+      <PostHistoryDialog
+        open={isHistoryOpen}
+        postId={postId}
+        hasUnsavedChanges={hasUnsavedChanges}
+        onOpenChange={setIsHistoryOpen}
+        onRestored={() => {
+          setReloadVersion((value) => value + 1);
+          onSaved?.();
+        }}
+      />
       {/* Unsaved changes guard, replacing a native window.confirm */}
       <UnsavedChangesDialog
         open={showUnsavedDialog}

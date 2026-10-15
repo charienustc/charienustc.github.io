@@ -269,6 +269,35 @@ export interface UpdateMomentResponse {
 }
 
 /**
+ * One retained revision of a blog post, as listed by the versions API.
+ */
+export interface PostVersionItem {
+  /** Version file path relative to the versions root, e.g. `note/a.md.20261015-103000123.md`. */
+  version: string;
+  /** Time the revision was archived, in server local time with milliseconds. */
+  savedAt: string;
+  /** File size in bytes. */
+  size: number;
+}
+
+/**
+ * Response from the list post versions API.
+ */
+export interface ListVersionsResponse {
+  versions: PostVersionItem[];
+}
+
+/**
+ * Response from the read post version API.
+ */
+export interface ReadVersionResponse {
+  /** Raw markdown of the retained revision, frontmatter included. */
+  content: string;
+  version: string;
+  savedAt: string;
+}
+
+/**
  * Response from the image upload API.
  *
  * `markdown` is assembled server-side so the alt-text escaping that keeps the

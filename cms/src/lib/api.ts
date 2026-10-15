@@ -17,8 +17,10 @@ import type {
   ListMomentsResponse,
   ListPostsParams,
   ListPostsResponse,
+  ListVersionsResponse,
   ReadMomentResponse,
   ReadPostResult,
+  ReadVersionResponse,
   ToggleDraftResponse,
   ToggleStickyResponse,
   UpdateMomentParams,
@@ -26,6 +28,31 @@ import type {
   UploadImageResponse,
 } from '@/types';
 import { setCategoryMap } from './category';
+
+export async function listPostVersions(postId: string): Promise<ListVersionsResponse> {
+  return versionRequest(`/api/cms/versions?${new URLSearchParams({ postId })}`);
+}
+
+export async function readPostVersion(postId: string, version: string): Promise<ReadVersionResponse> {
+  return versionRequest(`/api/cms/versions/read?${new URLSearchParams({ postId, version })}`);
+}
+
+export async function restorePostVersion(postId: string, version: string): Promise<void> {
+  await versionRequest('/api/cms/versions/restore', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ postId, version }),
+  });
+}
+
+async function versionRequest<T>(url: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || '历史版本操作失败');
+  }
+  return response.json();
+}
 
 /**
  * Encode a slug for URL usage

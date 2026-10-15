@@ -13,6 +13,7 @@ interface PostEditorHeaderProps {
   onSave: () => void;
   /** Opens the commit-and-push dialog without leaving the editor. */
   onPublish: () => void;
+  onHistory: () => void;
   onToggleSidebar: () => void;
 }
 
@@ -26,6 +27,7 @@ export function PostEditorHeader({
   onClose,
   onSave,
   onPublish,
+  onHistory,
   onToggleSidebar,
 }: PostEditorHeaderProps) {
   return (
@@ -47,6 +49,10 @@ export function PostEditorHeader({
       </div>
 
       <div className="flex items-center gap-2">
+        <Button variant="outline" onClick={onHistory} disabled={isSaving}>
+          <Icon icon="ri:history-line" className="mr-1.5 size-4" />
+          历史版本
+        </Button>
         <a
           href={previewUrl}
           target="_blank"

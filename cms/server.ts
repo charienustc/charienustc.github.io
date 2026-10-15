@@ -24,10 +24,13 @@ import {
   gitStatusHandler,
   listHandler,
   listMomentsHandler,
+  listVersionsHandler,
   ogCacheHandler,
   ogDataHandler,
   readHandler,
   readMomentHandler,
+  readVersionHandler,
+  restoreVersionHandler,
   toggleDraftHandler,
   toggleStickyHandler,
   updateMomentHandler,
@@ -107,6 +110,12 @@ async function main() {
   app.post('/api/cms/toggle-draft', toggleDraftHandler);
   app.post('/api/cms/toggle-sticky', toggleStickyHandler);
   app.post('/api/cms/delete', deleteHandler);
+
+  // Post version history — every save retains the previous revision under
+  // `backups/versions/` (write.ts); these endpoints browse and restore them.
+  app.get('/api/cms/versions', listVersionsHandler);
+  app.get('/api/cms/versions/read', readVersionHandler);
+  app.post('/api/cms/versions/restore', restoreVersionHandler);
   app.get('/api/cms/og-data', ogDataHandler);
   app.get('/api/cms/og-cache', ogCacheHandler);
 
