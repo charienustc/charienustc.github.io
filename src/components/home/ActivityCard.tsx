@@ -1,15 +1,11 @@
 /**
  * ActivityCard — one entry of the homepage latest-activity block.
  *
- * Reuses the friend cards' motion verbatim: magnetic 3D tilt, a
- * cursor-following spotlight, and a blurred border glow that fades in on
- * hover — tinted site-blue instead of the friend cards' per-link colour.
+ * Matches the friend cards' simple CSS hover style (FriendCard.astro):
+ * background color shift, border color shift, subtle shadow, icon micro-rotation,
+ * arrow slide-in. No heavy 3D tilt or spotlight.
  */
-import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
-import { microDampingPreset } from '@constants/anim/spring';
 import { Icon } from '@iconify/react';
-import { m, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'motion/react';
-import { type MouseEvent, useRef } from 'react';
 
 interface ActivityCardProps {
   href: string;
@@ -21,92 +17,100 @@ interface ActivityCardProps {
 }
 
 export default function ActivityCard({ href, icon, label, dateText, dateTime, text }: ActivityCardProps) {
-  const cardRef = useRef<HTMLAnchorElement>(null);
-
-  // Motion values for magnetic hover
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  // Spring animation for smooth magnetic effect
-  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [15, -15]), microDampingPreset);
-  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-15, 15]), microDampingPreset);
-
-  // Spotlight effect
-  const sheenX = useTransform(x, [-0.5, 0.5], ['0%', '100%']);
-  const sheenY = useTransform(y, [-0.5, 0.5], ['0%', '100%']);
-
-  const spotlight = useMotionTemplate`radial-gradient(
-    600px circle at ${sheenX} ${sheenY},
-    rgba(255,255,255,0.15),
-    transparent 40%
-  )`;
-
-  const handleMouseMove = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (!cardRef.current) return;
-
-    const rect = cardRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    const offsetX = (e.clientX - centerX) / rect.width;
-    const offsetY = (e.clientY - centerY) / rect.height;
-
-    x.set(offsetX);
-    y.set(offsetY);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
   return (
-    <LazyMotionProvider>
-      <m.a
-        href={href}
-        ref={cardRef}
-        className="group relative block w-full cursor-pointer select-none"
-        style={{ perspective: '1000px' }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-      >
-        <m.div
-          className="relative w-full rounded-2xl bg-white p-3 shadow-xl ring-1 ring-gray-900/5 dark:bg-gray-800 dark:ring-white/10"
-          style={{
-            transformStyle: 'preserve-3d',
-            rotateX,
-            rotateY,
-          }}
-        >
-          <div className="relative overflow-hidden rounded-xl bg-gray-50 px-4 py-3 dark:bg-gray-900">
-            <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-              <Icon icon={icon} className="size-3.5 opacity-60" aria-hidden="true" />
-              <span>{label}</span>
-              <span className="opacity-50">·</span>
-              <time dateTime={dateTime}>{dateText}</time>
-            </div>
-            <p className="mt-1 flex min-w-0 items-center gap-1.5 text-sm/6">
-              <span className="truncate transition-colors group-hover:text-primary">{text}</span>
-              <Icon
-                icon="ri:arrow-right-line"
-                className="size-3.5 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary"
-                aria-hidden="true"
-              />
-            </p>
-          </div>
+    <>
+      <a href={href} className="activity-card">
+        <span className="activity-card__icon">
+          <Icon icon={icon} className="absolute inset-0 m-auto size-4.5 opacity-60" aria-hidden="true" />
+        </span>
 
-          {/* Spotlight Overlay */}
-          <m.div
-            className="pointer-events-none absolute inset-0 z-10 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-            style={{
-              background: spotlight,
-            }}
-          />
+        <span className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="flex min-w-0 items-baseline gap-2 pr-4">
+            <strong className="activity-card__title truncate text-[0.9375rem] leading-[1.4]">{text}</strong>
+            <span className="min-w-0 flex-shrink truncate text-[hsl(var(--muted-foreground))] text-xs">
+              {label} · <time dateTime={dateTime}>{dateText}</time>
+            </span>
+          </span>
+        </span>
 
-          {/* Border Glow */}
-          <div className="absolute inset-0 -z-10 rounded-2xl bg-blue opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-60" />
-        </m.div>
-      </m.a>
-    </LazyMotionProvider>
+        <Icon
+          icon="ri:arrow-right-up-line"
+          className="activity-card__arrow absolute top-2.5 right-2.5 size-3.5"
+          aria-hidden="true"
+        />
+      </a>
+
+      <style>{`
+        .activity-card {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: 0.875rem;
+          min-width: 0;
+          padding: 0.875rem 1rem;
+          border-radius: 1rem;
+          background: color-mix(in oklab, hsl(var(--muted)) 45%, hsl(var(--card)));
+          box-shadow: inset 0 0 0 1px hsl(var(--border) / 0.6);
+          color: hsl(var(--foreground));
+          text-decoration: none;
+          transition:
+            background-color 240ms ease,
+            box-shadow 240ms ease;
+        }
+
+        .activity-card:hover {
+          background: color-mix(in oklab, hsl(var(--shoka-blue)) 10%, hsl(var(--card)));
+          box-shadow:
+            inset 0 0 0 1px color-mix(in oklab, hsl(var(--shoka-blue)) 40%, hsl(var(--border))),
+            0 10px 24px -16px color-mix(in oklab, hsl(var(--shoka-blue)) 80%, transparent);
+        }
+
+        .activity-card__icon {
+          position: relative;
+          width: 2.25rem;
+          height: 2.25rem;
+          flex-shrink: 0;
+          border-radius: 50%;
+          background: hsl(var(--card));
+          box-shadow:
+            0 0 0 2px hsl(var(--card)),
+            0 0 0 3.5px color-mix(in oklab, hsl(var(--shoka-blue)) 70%, transparent);
+          transition:
+            transform 420ms cubic-bezier(0.34, 1.4, 0.64, 1),
+            box-shadow 240ms ease;
+        }
+
+        .activity-card:hover .activity-card__icon {
+          transform: rotate(-8deg) scale(1.06);
+          box-shadow:
+            0 0 0 2px hsl(var(--card)),
+            0 0 0 4px hsl(var(--shoka-blue)),
+            0 6px 16px -6px color-mix(in oklab, hsl(var(--shoka-blue)) 80%, transparent);
+        }
+
+        .activity-card__title {
+          color: hsl(var(--foreground));
+          transition: color 200ms ease;
+        }
+
+        .activity-card:hover .activity-card__title {
+          color: color-mix(in oklab, hsl(var(--shoka-blue)) 35%, hsl(var(--foreground)));
+        }
+
+        .activity-card__arrow {
+          color: color-mix(in oklab, hsl(var(--shoka-blue)) 70%, hsl(var(--foreground)));
+          opacity: 0;
+          transform: translate(-4px, 4px);
+          transition:
+            transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+            opacity 200ms ease;
+        }
+
+        .activity-card:hover .activity-card__arrow {
+          opacity: 1;
+          transform: translate(0, 0);
+        }
+      `}</style>
+    </>
   );
 }
