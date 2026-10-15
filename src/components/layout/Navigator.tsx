@@ -182,7 +182,7 @@ function useNavIndicator<T extends HTMLElement>(activePath: string, openKey: str
 
 const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale }: NavigatorProps) {
   const { isBeyond, direction, scrollY } = useScrollTrigger({
-    triggerDistance: 0.45,
+    triggerDistance: 0.3,
     throttleMs: 80,
   });
 
@@ -215,7 +215,7 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
     // header floats transparent over the image, at it the scrolled surface
     // (pills + foreground text) takes over. Coverless pages keep the fraction.
     const waveTop = document.querySelector('.wave-wrap')?.getBoundingClientRect().top;
-    const showSurface = waveTop != null ? waveTop <= (header?.offsetHeight ?? 56) : isBeyond;
+    const showSurface = waveTop != null ? waveTop <= (header?.offsetHeight ?? 56) + 80 : isBeyond;
     header?.classList.toggle('with-background', showSurface);
     // The hamburger lives outside #site-header (fixed sibling), so host rules
     // scoped to the header cannot reach it — toggle its glass separately.
