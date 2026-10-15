@@ -60,7 +60,7 @@ export default function ActivityCard({ href, icon, label, dateText, dateTime, te
           background: color-mix(in oklab, hsl(var(--shoka-blue)) 10%, hsl(var(--card)));
           box-shadow:
             inset 0 0 0 1px color-mix(in oklab, hsl(var(--shoka-blue)) 40%, hsl(var(--border))),
-            0 10px 24px -16px color-mix(in oklab, hsl(var(--shoka-blue)) 80%, transparent);
+            0 6px 16px -12px color-mix(in oklab, hsl(var(--shoka-blue)) 60%, transparent);
         }
 
         .activity-card__icon {
@@ -82,8 +82,8 @@ export default function ActivityCard({ href, icon, label, dateText, dateTime, te
           transform: rotate(-8deg) scale(1.06);
           box-shadow:
             0 0 0 2px hsl(var(--card)),
-            0 0 0 4px hsl(var(--shoka-blue)),
-            0 6px 16px -6px color-mix(in oklab, hsl(var(--shoka-blue)) 80%, transparent);
+            0 0 0 3.5px hsl(var(--shoka-blue)),
+            0 4px 12px -6px color-mix(in oklab, hsl(var(--shoka-blue)) 60%, transparent);
         }
 
         .activity-card__content {
