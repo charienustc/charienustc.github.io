@@ -24,12 +24,10 @@ export default function ActivityCard({ href, icon, label, dateText, dateTime, te
           <Icon icon={icon} className="absolute inset-0 m-auto size-4.5 opacity-60" aria-hidden="true" />
         </span>
 
-        <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="flex min-w-0 items-baseline gap-2 pr-4">
-            <strong className="activity-card__title truncate text-[0.9375rem] leading-[1.4]">{text}</strong>
-            <span className="min-w-0 flex-shrink truncate text-[hsl(var(--muted-foreground))] text-xs">
-              {label} · <time dateTime={dateTime}>{dateText}</time>
-            </span>
+        <span className="activity-card__content">
+          <strong className="activity-card__title">{text}</strong>
+          <span className="activity-card__meta">
+            {label} · <time dateTime={dateTime}>{dateText}</time>
           </span>
         </span>
 
@@ -88,13 +86,35 @@ export default function ActivityCard({ href, icon, label, dateText, dateTime, te
             0 6px 16px -6px color-mix(in oklab, hsl(var(--shoka-blue)) 80%, transparent);
         }
 
+        .activity-card__content {
+          display: flex;
+          min-width: 0;
+          flex: 1;
+          flex-direction: column;
+          gap: 0.25rem;
+          padding-right: 1rem;
+        }
+
         .activity-card__title {
+          overflow: hidden;
+          font-size: 0.9375rem;
+          line-height: 1.4;
           color: hsl(var(--foreground));
+          text-overflow: ellipsis;
+          white-space: nowrap;
           transition: color 200ms ease;
         }
 
         .activity-card:hover .activity-card__title {
           color: color-mix(in oklab, hsl(var(--shoka-blue)) 35%, hsl(var(--foreground)));
+        }
+
+        .activity-card__meta {
+          overflow: hidden;
+          font-size: 0.75rem;
+          color: hsl(var(--muted-foreground));
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .activity-card__arrow {
