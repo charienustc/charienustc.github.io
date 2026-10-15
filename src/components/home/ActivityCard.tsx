@@ -47,7 +47,7 @@ export default function ActivityCard({ href, icon, label, dateText, dateTime, te
           min-width: 0;
           padding: 0.875rem 1rem;
           border-radius: 1rem;
-          background: color-mix(in oklab, hsl(var(--muted)) 45%, hsl(var(--card)));
+          background: hsl(var(--card));
           box-shadow: inset 0 0 0 1px hsl(var(--border) / 0.6);
           color: hsl(var(--foreground));
           text-decoration: none;
