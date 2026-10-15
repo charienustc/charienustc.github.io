@@ -416,10 +416,6 @@ html:is([data-motion="reduced"], .motion-off) :is(.series-progress-default, .ser
    with the head during the wave; the pink upstream drops are re-themed to
    hsl(var(--primary)). */
 
-.home-avatar {
-  overflow: hidden;
-}
-
 .home-avatar > img {
   transform-origin: 50% 92%;
   box-shadow:
