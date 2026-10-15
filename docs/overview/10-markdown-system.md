@@ -1,5 +1,7 @@
 # Markdown 解析与样式系统
 
+> 核对日期：2026-10-15。当前编译使用 `@astrojs/markdown-remark` 的 unified processor，remark/rehype 数组按开关组装；不能直接复制下文旧版简化配置覆盖 astro.config.mjs。表格加滚动 wrapper、Mermaid 接近视口再渲染、原生 CustomContent 增强遍历多块内容。CMS 使用自己的 marked 预览与 BlockNote 序列化，不保证与前台每种扩展完全一致。完整语法见 [语法参考](../syntax-reference.md)，架构见 [架构](01-architecture.md)。
+
 本文档详细介绍 astro-koharu 博客项目中的 Markdown 解析、渲染和样式美化系统。
 
 ## 目录
@@ -15,7 +17,7 @@
 
 ### Astro Markdown 设置
 
-项目使用 Astro 内置的 Markdown 处理能力，配置位于 `astro.config.mjs:15-37`：
+项目使用 Astro 内置的 Markdown 处理能力，配置位于 `astro.config.mjs`：
 
 ```javascript
 markdown: {
@@ -104,7 +106,7 @@ Shiki 在构建时进行语法高亮，生成的 HTML 包含内联样式，无�
 
 ### Tailwind Typography
 
-项目使用 `@tailwindcss/typography` 插件提供基础排版样式，配置在 `tailwind.config.mjs:138`：
+项目使用 `@tailwindcss/typography` 插件提供基础排版样式，配置在 `tailwind.config.mjs`：
 
 ```javascript
 plugins: [
@@ -113,7 +115,7 @@ plugins: [
 ];
 ```
 
-文章内容应用 `.prose` 类来获得优雅的排版效果（见 `src/pages/post/[...slug].astro:96`）：
+文章内容应用 `.prose` 类来获得优雅的排版效果（见 `src/pages/post/[...slug].astro`）：
 
 ```html
 <article class="prose md:prose-sm dark:prose-invert">
@@ -407,7 +409,7 @@ console.log(stats.text); // "5 min read"
 
 ### 3. SEO 优化
 
-文章详情页（`src/pages/post/[...slug].astro:29-41`）包含结构化数据（JSON-LD）：
+文章详情页（`src/pages/post/[...slug].astro`）包含结构化数据（JSON-LD）：
 
 ```javascript
 const jsonLd = {
@@ -495,8 +497,8 @@ const jsonLd = {
 
 **配置文件：**
 
-- `astro.config.mjs:15-37` - Markdown 主配置
-- `tailwind.config.mjs:138` - Typography 插件
+- `astro.config.mjs` - Markdown 主配置
+- `tailwind.config.mjs` - Typography 插件
 - `src/content.config.ts` - Content Collections loader 与 Schema
 
 **样式文件：**

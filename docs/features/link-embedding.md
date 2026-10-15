@@ -1,5 +1,7 @@
 # 链接嵌入功能
 
+> 核对日期：2026-10-15。独行链接在构建期生成 OG 卡片，缓存 `.cache/og-data.json` 有意跟踪；Tweet 和 CodePen 是客户端嵌入。正文增强由 CustomContent 和 EmbedHydrator 分工，CMS 有独立预览处理，不能将下文前台 SSR 行为直接等同 CMS 预览。配置改动需重启开发服务器；构建失败先查链接抓取日志，勿删除缓存作为默认处理。
+
 ![](https://r2.cosine.ren/i/2026/01/6804aa167fd4cf7022a9b511d52017ce.webp)
 
 自动将独行的 Twitter/X、CodePen 链接转换为嵌入组件,并为其他链接显示 OG 预览卡片。

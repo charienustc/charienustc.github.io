@@ -1,5 +1,7 @@
 # 样式系统（Tailwind + 设计令牌）
 
+> 核对日期：2026-10-15。实际样式入口为 `src/styles/index.css` → `global/tailwind.css`，后者使用 Tailwind 4 导入并通过 @config 引用 `tailwind.config.mjs`。正文表格由 rehype-table-wrapper 和 theme/markdown.css 配合处理；碎碎念的基础 Markdown 还需照顾非 `.prose` 的 `.custom-content`。CMS 使用独立 globals.css / preview.css。下文配置片段为简化示例，以当前导出为准。
+
 ## 概述
 
 astro-koharu 使用 **Tailwind CSS 4.x** 作为样式框架，结合**设计令牌系统**实现一致的视觉设计。

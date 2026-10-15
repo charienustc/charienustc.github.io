@@ -1,5 +1,7 @@
 # Moments
 
+> Verified for this fork on 2026-10-15: see the [static Moments guide](static-moments.md) and [local CMS guide](cms.md). The example dynamic `path: moments` conflicts with this fork's existing static routes. Statements about no routes while disabled refer only to suite-injected routes.
+
 > **Status in this fork**: This article describes the template's dynamic suite version (disabled
 > here via `moments.enabled: false`). This site actually uses the static `src/content/moments/`
 > content collection — see the root [README](../../README.md).

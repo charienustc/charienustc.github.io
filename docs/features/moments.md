@@ -1,5 +1,7 @@
 # 碎碎念（Moments）
 
+> 本文保留动态版参考（2026-10-15 核对）。本站静态用法见 [静态碎碎念指南](static-moments.md)，写作见 [CMS](cms.md)。动态版默认示例的 `path: moments` 与本站静态路由冲突，不能直接启用；下文“无路由”只指 suite 注入的路由。
+
 > **本站状态**：本文描述模板自带的动态 suite 版（本仓库 `moments.enabled: false`，**未启用**）。
 > 本站实际使用的是 `src/content/moments/` 静态内容集合方案，见根 [README](../../README.md) 的碎碎念一节。
 

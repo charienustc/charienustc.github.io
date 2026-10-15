@@ -1,9 +1,26 @@
 # Deployment Adapters
 
+> 本站核对（2026-10-15）：当前使用 GitHub Pages 静态部署，静态 `/moments` 即使 `moments.enabled: false` 也存在。下文“碎碎念关闭”均指动态 suite 集成，不是本地内容集合；Docker/Node 是可选方案。若启用 suite，须先解决静态 `/moments`、locale 镜像与保留路径冲突，不能直接照抄同名路径。
+
 astro-koharu 提供两条明确分离的部署路径：默认的 **static nginx** 与启用碎碎念时使用的
 **dynamic Astro Node standalone**。默认仍是纯静态站；安装或升级代码不会自动开启动态能力。
 
 ## 模式对照
+
+本站实际发布不使用容器：`.github/workflows/deploy.yml` 监听 `main` 推送和手动触发。
+
+1. 用 root lockfile 安装前台依赖。
+2. 用 CMS 独立 lockfile 安装 CMS 依赖。
+3. `pnpm check`，要求零错误。
+4. `pnpm --dir cms exec tsc --noEmit`，要求零错误。
+5. `pnpm test`。
+6. `pnpm build`，上传静态 artifact，成功后才部署 Pages。
+
+本机 lint-staged 检查不替代远程完整门禁。CMS 只在本机运行，不进入 Pages artifact。
+失败时先运行 `gh run list`，再用 `gh run view <run-id> --log-failed` 定位具体阶段；不要通过跳过测试恢复部署。
+Linux CI 与 Windows 本机的路径、tar 和权限语义不同，测试夹具必须用可移植路径。
+
+下面表格仅比较保留的 Docker 模式。
 
 | 模式 | 适用场景 | 运行时 | suite 要求 | 端口 |
 |---|---|---|---|---:|

@@ -1,5 +1,7 @@
 # Astro 7 升级说明
 
+> 历史记录说明（2026-10-15 核对）：本文保留 Astro 7 升级时的依赖与回滚背景，不是当前发布步骤。本站启用语言以 site.yaml 为准（当前 zh/en）；Pages 发布已新增前台类型、CMS 类型、完整测试和构建门禁，见 [部署说明](11-deployment-adapters.md)。
+
 astro-koharu 使用 Astro 7、Vite 8 和 Rolldown，同时继续以纯静态构建作为默认交付方式。
 本次升级不启用 koharu-suite、Live Collections、动态路由或 Node adapter。
 
@@ -36,7 +38,7 @@ ANALYZE=true pnpm build
 
 ## 验证重点
 
-- 首页、文章、Pagefind 搜索与三语路由；
+- 首页、文章、Pagefind 搜索与已配置语言的路由（本站 zh/en）；
 - Markdown 扩展、Mermaid、Shiki 和加密内容；
 - Tailwind、YAML、SVGR、自定义 Vite plugin 与 Sonda analysis mode；
 - 浅色/暗色、桌面/移动布局；

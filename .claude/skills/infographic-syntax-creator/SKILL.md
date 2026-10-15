@@ -1,9 +1,14 @@
 ---
 name: infographic-syntax-creator
-description: Generate AntV Infographic syntax outputs. Use when asked to turn user content into the Infographic DSL (template selection, data structuring, theme), or to output `infographic <template>` plain syntax.
+description: Generate AntV Infographic DSL from supplied content with template selection, structured data and theme. Use for syntax-only output or infographic Markdown fences in blog posts; do not use for AntV library component development.
 ---
 
 # Infographic Syntax Creator
+
+## Repository scope
+
+For this blog, verify template availability against the installed `@antv/infographic` version; the reference catalog is not a guarantee for every installed version. A syntax-only request still returns the single plain block below. When inserting into an article, wrap the same DSL in an `infographic` Markdown fence, following docs/syntax-reference.md. Do not rewrite site configuration or generate a standalone HTML file unless requested.
+
 
 ## Overview
 

@@ -1,9 +1,14 @@
 ---
 name: infographic-structure-creator
-description: Generate or update infographic Structure components for this repo (TypeScript/TSX in src/designs/structures). Use when asked to design, implement, or modify structure layouts (list/compare/sequence/hierarchy/relation/geo/chart), including layout logic, component composition, and registration.
+description: Generate or update AntV Infographic library Structure components when the user provides a library checkout or explicitly requests custom structure code. Not for ordinary blog diagrams; this blog has no src/designs/structures source tree.
 ---
 
 # Infographic Structure Creator
+
+## Repository scope
+
+This skill targets AntV framework development. The current blog consumes `@antv/infographic` and does not contain `src/designs/structures`. Use the existing blog renderer and syntax skill for content work. Apply the reference only after identifying the actual library checkout or explicit custom integration target; do not create library directories or edit dependencies implicitly.
+
 
 ## Overview
 

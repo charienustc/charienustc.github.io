@@ -1,5 +1,7 @@
 # 友链分组
 
+> 核对日期：2026-10-15。本站分组以 site.yaml 实际内容为准（目前 site/buddies/theme）；下文 familiar/community/following 是可替换示例。FriendCard 的头像在接近视口时请求，修改分组或样式后也要检查移动端、无脚本展示和图片加载。
+
 在 `config/site.yaml` 中添加可选的 `friends.groups`，并通过每条友链的 `group` 指定分组。分组名称和说明可自由修改；页面按分组配置顺序展示，同组友链保持 `friends.data` 中的顺序。
 
 ```yaml

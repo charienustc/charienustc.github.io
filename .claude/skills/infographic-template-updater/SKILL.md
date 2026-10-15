@@ -1,9 +1,14 @@
 ---
 name: infographic-template-updater
-description: Update template catalogs and UI prompts after adding new infographic templates (src/templates/*.ts), including SKILL.md template list, site gallery template mappings, and the AIPlayground prompt list.
+description: Synchronize AntV Infographic template catalogs after an explicit library-template change in a supplied source checkout. Not a routine blog-writing task; this blog has no AntV src/templates or gallery source tree.
 ---
 
 # Infographic Template Updater
+
+## Repository scope
+
+The paths below belong to the upstream AntV library/site, not this blog. This checkout stores skills under `.claude/skills/`, not `.skills/`, and has no `src/templates` or `site/src/components/AIPlayground`. Verify the target source repository first. Do not create missing upstream paths or update catalogs merely because a blog post uses a template. Only claim a template is available after checking the installed package; frontend and CMS package versions differ.
+
 
 ## Overview
 

@@ -1,5 +1,7 @@
 # 状态管理（Nanostores）
 
+> 核对日期：2026-10-15。Nanostores 用于前台跨岛共享状态，CMS 编辑与历史弹窗使用独立 React 状态。公告已读 ID 位于 localStorage，关闭通知不等于已读；具体行为见 [公告指南](../features/announcements.md)。BGM/公告加载器通过 store 与 `koharu:*` 事件协调，保留重试/ready 握手，不能只设置 open 而绕过按需水合。下文通用示例以源码导出为准。
+
 ## 为什么选择 Nanostores？
 
 astro-koharu 使用 **Nanostores** 进行全局状态管理，而非更流行的 Redux 或 Zustand。原因如下：

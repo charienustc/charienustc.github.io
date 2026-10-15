@@ -1,5 +1,7 @@
 # 路由系统详解
 
+> 核对日期：2026-10-15。实际路由以 `src/pages/` 和 `_shared/routes.ts` 为准，下文代码为简化说明。`/posts` 已改为单页按月分组，首页新增 LatestActivity；本站 `/moments` 是静态集合页面。CMS 的 `/api/cms/*` 属于 4322 本地服务，不是 Pages 路由。参见 [静态碎碎念](../features/static-moments.md) 和 [CMS](../features/cms.md)。
+
 ## Astro 文件路由基础
 
 Astro 使用**文件系统路由**，`src/pages/` 目录下的文件会自动映射为 URL 路径：
@@ -16,11 +18,10 @@ src/pages/
 ├── [seriesSlug].astro   →  /weekly 等精选系列页
 ├── rss.xml.ts           →  /rss.xml
 ├── rss/
-│   └── feed.xsl.ts      →  /rss/cos-feed.xsl（RSS 样式表）
+│   └── feed.xsl.ts      →  /rss/feed.xsl（RSS 样式表）
 ├── post/
 │   └── [...slug].astro  →  /post/*
-├── posts/
-│   └── [...page].astro  →  /posts/*, /posts/2, /posts/3
+├── posts.astro          →  /posts（按月分组）
 ├── categories/
 │   ├── index.astro      →  /categories
 │   └── [...slug].astro  →  /categories/*
@@ -35,7 +36,7 @@ src/pages/
 
 > 精选系列页由 `[seriesSlug].astro` 动态路由承担，`slug` 来自 `config/site.yaml` 的 `featuredSeries` 配置，无需为每个系列新建页面。
 >
-> `[lang]/` 目录是 i18n 镜像：默认语言不加坡前缀，其他语言在 `src/pages/[lang]/` 下放置对应镜像页（由 `getLocaleStaticPaths()` 生成静态路径）。
+> `[lang]/` 目录是 i18n 镜像：默认语言不加前缀，其他语言在 `src/pages/[lang]/` 下放置对应镜像页（由 `getLocaleStaticPaths()` 生成静态路径）。
 
 ### 路由类型
 
@@ -184,7 +185,7 @@ const months = bucketPostsByMonth(posts, siteTimezone);
 
 ## 首页路由 `index.astro`
 
-首页是特殊的静态页面，只展示最新 5 篇普通文章，更早的文章通过列表下方的「全部文章」按钮（`/posts`）按月浏览：
+首页顶部先展示最新普通文章与最新可见碎碎念组成的 LatestActivity，再展示系列/置顶和最新 5 篇普通文章，更早的文章通过列表下方的「全部文章」按钮（`/posts`）按月浏览：
 
 ```astro
 ---
@@ -264,7 +265,7 @@ export async function GET(context: APIContext) {
     description: siteConfig.subtitle || 'No description',
     site,
     trailingSlash: false,
-    stylesheet: '/rss/cos-feed.xsl',  // RSS 样式表
+    stylesheet: '/rss/feed.xsl',  // RSS 样式表
 
     // 只包含最新 20 篇文章
     items: posts

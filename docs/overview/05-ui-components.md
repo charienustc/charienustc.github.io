@@ -1,5 +1,7 @@
 # UI 组件库实现
 
+> 核对日期：2026-10-15。以下为前台组件设计与简化示例。CMS 的 `cms/src/components/ui/` 独立于前台，不能直接混用两套 `@/` 路径。新增文章历史弹窗沿用 CMS 的 Radix Dialog/Button，包含空状态、读取失败、未保存阻止恢复和二次确认；见 [CMS 指南](../features/cms.md)。首页最新动态使用 LatestActivity/ActivityCard，样式并非通用卡片组件的全部默认行为。
+
 ## 设计理念
 
 astro-koharu 的 UI 组件库遵循 **shadcn/ui** 的设计理念：

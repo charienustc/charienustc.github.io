@@ -1,5 +1,7 @@
 # 主题系统实现
 
+> 核对日期：2026-10-15。主题启动脚本由 `src/layouts/BootScripts.astro` 组合，页面外壳由 Layout/AppShell 拆分维护；下文早期内联示例说明原理，不代表当前布局的完整代码。主题变量与前台/CMS 样式入口分别维护；调色后验证两侧、页面切换和 reduced-motion。当前架构见 [架构](01-architecture.md)。
+
 ## 概述
 
 astro-koharu 实现了完整的深色/浅色主题切换功能，包括：

@@ -1,325 +1,106 @@
-# astro-koharu 项目总览
+# 项目总览
 
-## 项目简介
+核对日期：2026-10-15。本站是 Charien's Yard，基于 astro-koharu 定制。完整导航见 [文档索引](../README.md)。
 
-astro-koharu 是一个基于 **Astro 7.x** 构建的现代化静态博客系统，从 Hexo 迁移而来，灵感源自 Shoka 主题。项目采用 React 实现交互组件，Tailwind CSS 进行样式设计，同时保持与原有 Hexo 博客内容的兼容性。
+## 技术与部署
 
-### 项目特点
+| 部分 | 当前实现 |
+| --- | --- |
+| 前台 | Astro 7 + React 19 + Tailwind CSS 4 |
+| 状态 | Nanostores，按交互域拆分 |
+| 内容 | `src/content.config.ts` 中的 blog 和静态 moments 集合 |
+| 搜索 | Pagefind，首次打开搜索时下载组件 bundle |
+| 评论 | 当前配置 giscus，接近评论区再加载 SDK |
+| 写作 | 独立的本地 React/Vite + Hono CMS |
+| 发布 | `main` → GitHub Actions 检查 → 静态 `dist/` → GitHub Pages |
 
-- **高性能**：Astro Islands 架构，默认零 JavaScript，按需加载
-- **现代化**：React 19 + Tailwind CSS 4 + Motion 动画库
-- **内容优先**：Astro Content Collections 管理博客文章（正文由私有内容仓库提供）
-- **全文搜索**：Pagefind 静态搜索，无需后端
-- **主题切换**：深色/浅色模式，支持 View Transitions 动画
-- **Hexo 兼容**：保留原有文章格式和分类结构
+`package.json` 的 6.3.0 是保留的包版本；Astro 版本、主题包版本和上游移植进度是三件不同的事。
+内容直接位于本仓库，不需要额外 checkout 私有内容仓库。动态 suite 功能保留在源码中，但本站没有启用。
 
----
-
-## 技术栈概览
-
-```plain
-┌─────────────────────────────────────────────────────────────┐
-│                        astro-koharu                         │
-├─────────────────────────────────────────────────────────────┤
-│  框架层                                                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
-│  │  Astro 7.x  │  │  React 19   │  │  TypeScript │         │
-│  └─────────────┘  └─────────────┘  └─────────────┘         │
-├─────────────────────────────────────────────────────────────┤
-│  样式层                                                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
-│  │ Tailwind 4  │  │   Motion    │  │  CSS Vars   │         │
-│  └─────────────┘  └─────────────┘  └─────────────┘         │
-├─────────────────────────────────────────────────────────────┤
-│  功能层                                                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
-│  │ Nanostores  │  │  Pagefind   │  │ Floating UI │         │
-│  │  状态管理    │  │  全文搜索    │  │  浮动定位    │         │
-│  └─────────────┘  └─────────────┘  └─────────────┘         │
-├─────────────────────────────────────────────────────────────┤
-│  内容层                                                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
-│  │  Content    │  │   Shiki     │  │   Rehype    │         │
-│  │ Collections │  │  代码高亮    │  │  Markdown   │         │
-│  └─────────────┘  └─────────────┘  └─────────────┘         │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 核心依赖说明
-
-| 依赖             | 版本     | 用途                           |
-| ---------------- | -------- | ------------------------------ |
-| `astro`          | 7.1.3    | 核心框架，静态站点生成         |
-| `react`          | ^19.2.1  | 交互组件开发                   |
-| `tailwindcss`    | ^4.3.3   | 原子化 CSS 框架                |
-| `motion`         | ^12.43.0 | 动画库（Framer Motion 后继者） |
-| `nanostores`     | -        | 轻量级状态管理                 |
-| `astro-pagefind` | -        | 静态全文搜索                   |
-| `astro-icon`     | 1.1.5    | 图标系统（Iconify）            |
-
----
-
-## 目录结构
+## 目录与职责
 
 ```plain
-astro-koharu/
-├── public/                     # 静态资源（直接复制到构建目录）
-│   ├── favicon.ico
-│   ├── img/                    # 图片资源
-│   │   ├── avatar.webp        # 头像
-│   │   └── cover/             # 文章封面
-│   └── js/                     # 第三方脚本
-│
-├── src/                        # 源代码
-│   ├── assets/                 # 需要处理的资源
-│   │   └── svg/               # SVG 文件
-│   │
-│   ├── components/             # 组件库（60+ 组件）
-│   │   ├── common/            # 通用组件（ErrorBoundary）
-│   │   ├── layout/            # 布局组件（Header, Navigator）
-│   │   ├── ui/                # UI 基础组件（Button, Card, Popover）
-│   │   ├── post/              # 文章相关组件
-│   │   ├── category/          # 分类组件
-│   │   ├── theme/             # 主题切换
-│   │   ├── friends/           # 友链组件
-│   │   ├── comment/           # 评论组件
-│   │   ├── analytics/         # 统计组件（UmamiAnalytics）
-│   │   ├── umami/             # Umami PV 展示
-│   │   └── ...
-│   │
-│   ├── content/                # Astro Content Collections
-│   │   ├── config.ts          # Schema 定义
-│   │   └── blog/              # 博客文章（正文由私有内容仓库提供，checkout 仅含示例）
-│   │       ├── life/          # 随笔
-│   │       ├── note/          # 笔记
-│   │       │   ├── front-end/ # 前端笔记
-│   │       │   └── ...
-│   │       ├── series/        # 系列文章
-│   │       └── ...
-│   │
-│   ├── constants/              # 常量配置
-│   │   ├── site-config.ts     # 站点配置（最重要）
-│   │   ├── router.ts          # 导航路由
-│   │   ├── design-tokens.ts   # 设计令牌
-│   │   └── anim/              # 动画配置
-│   │
-│   ├── hooks/                  # React Hooks
-│   │   ├── useToggle.ts
-│   │   ├── useFloatingUI.ts
-│   │   └── ...
-│   │
-│   ├── layouts/                # 页面布局
-│   │   ├── Layout.astro       # 主布局
-│   │   └── TwoColumnLayout.astro
-│   │
-│   ├── lib/                    # 工具函数
-│   │   ├── config/            # 站点配置解析（content/moments/featured-series 等）
-│   │   ├── content/           # 内容操作
-│   │   │   ├── posts.ts       # 文章查询
-│   │   │   ├── categories.ts  # 分类处理
-│   │   │   └── tags.ts        # 标签处理
-│   │   ├── utils.ts           # 通用工具
-│   │   └── datetime.ts        # 日期处理
-│   │
-│   ├── pages/                  # 页面路由
-│   │   ├── index.astro        # 首页
-│   │   ├── post/[...slug].astro    # 文章详情
-│   │   ├── posts.astro           # 所有文章（按月分块）
-│   │   ├── categories/        # 分类页面
-│   │   ├── tags/              # 标签页面
-│   │   └── rss.xml.ts         # RSS 源
-│   │
-│   ├── features/               # 功能模块
-│   │   └── moments/           # 碎碎念（含动态路由集成）
-│   │
-│   ├── store/                  # Nanostores 状态
-│   │   ├── app.ts             # 应用状态
-│   │   ├── settings.ts        # 设置
-│   │   ├── locale.ts          # 语言
-│   │   ├── modal.ts           # 弹窗
-│   │   ├── player.ts          # 播放器
-│   │   ├── bgm.ts             # Bangumi 追番
-│   │   ├── christmas.ts       # 圣诞主题
-│   │   └── announcement.ts    # 公告
-│   │
-│   ├── styles/                 # 全局样式
-│   │   ├── index.css          # 入口
-│   │   ├── global/            # 全局样式
-│   │   ├── theme/             # 主题样式
-│   │   └── components/        # 组件样式
-│   │
-│   └── types/                  # TypeScript 类型
-│       ├── blog.ts
-│       └── components.ts
-│
-├── astro.config.mjs            # Astro 配置
-├── tailwind.config.mjs         # Tailwind 配置
-├── tsconfig.json               # TypeScript 配置
-├── package.json                # 依赖和脚本
-├── _config.yml                 # Hexo 分类映射（遗留）
-└── CLAUDE.md                   # AI 助手指南
+config/
+  site.yaml                   # 用户配置
+  i18n-content.yaml           # 分类、系列等内容名称译文
+src/
+  content.config.ts           # 两个静态内容集合、时区日期转换与 schema
+  content/blog/               # 文章；译文在 locale 子目录
+  content/moments/            # 无标题的短内容
+  pages/                     # 路由与 [lang] 镜像、_shared 枚举
+  layouts/                   # Layout、HeadMeta、BootScripts、AppShell
+  components/                # 静态 Astro 和 React islands
+  hooks/                     # 交互逻辑
+  lib/config/                # 配置归一化
+  lib/content/               # 查询、索引、分组、转换
+  lib/markdown/              # 编译插件与正文增强工具
+  store/                     # 主题、弹窗、音乐、公告等状态
+  styles/                    # 主题、正文、组件样式
+  scripts/                   # LQIP、摘要、相似度生成
+cms/
+  server.ts                  # Hono 文件 API + Vite 开发服务
+  src/components/            # 仪表盘、文章编辑、历史弹窗、碎碎念编辑
+  src/api/                   # 文件、图片、Git 与历史版本接口
+  src/lib/                   # 校验、存储、序列化与测试
+  pnpm-lock.yaml             # 独立依赖锁文件
+scripts/koharu/              # 备份、迁移、更新等 CLI
+.github/workflows/deploy.yml # 发布门禁与 Pages 部署
+backups/                    # 本机保留，gitignored
 ```
 
----
+`dist/`、`.astro/` 为生成输出。`.cache/og-data.json` 是有意跟踪的 OG 元数据缓存。
+Tailwind 入口是 `src/styles/global/tailwind.css`，其中保留对 `tailwind.config.mjs` 的引用。
+日期工具是 `src/lib/date.ts` 与 `timezone.ts`，不是旧文档中的 datetime.ts。
 
-## 快速开始
-
-### 环境要求
-
-- **Node.js**: 22.20.0 或更高版本
-- **包管理器**: pnpm 10.28.2（项目指定）
-
-### 安装与运行
+## 本地运行与验证
 
 ```bash
-# 1. 克隆项目
-git clone <repo-url>
-cd astro-koharu
-
-# 2. 安装依赖
-pnpm install
-
-# 3. 启动开发服务器
+pnpm install --frozen-lockfile
 pnpm dev
-# 访问 http://localhost:4321
+pnpm cms:install
+pnpm cms
+```
 
-# 4. 构建生产版本
+前台默认 4321，CMS 4322，通常分别占一个终端。环境要求 Node.js ≥ 22.20.0、pnpm 10.28.2。
+前台配置改动后重启 dev；CMS Preview 依赖运行中的前台开发服务器。
+
+```bash
+pnpm lint:fix
+pnpm check
+pnpm --dir cms exec tsc --noEmit
+pnpm test
 pnpm build
-
-# 5. 预览构建结果
-pnpm preview
 ```
 
-### 常用命令速查
+两套类型检查均要求零错误。CI 使用各自锁文件安装依赖，先类型检查、测试、构建，全部通过才发布。
+修改文档时核对内部链接与对应代码；修改交互时额外手动验证，不能仅靠单元测试。
 
-| 命令               | 说明                   |
-| ------------------ | ---------------------- |
-| `pnpm dev`         | 启动开发服务器         |
-| `pnpm build`       | 构建生产版本           |
-| `pnpm preview`     | 预览生产构建           |
-| `pnpm lint`        | 运行 Biome 检查        |
-| `pnpm lint-md`     | 检查 Markdown 文件     |
-| `pnpm lint-md:fix` | 自动修复 Markdown 问题 |
-| `pnpm knip`        | 查找未使用的代码和依赖 |
-| `pnpm change`      | 生成 CHANGELOG         |
+## 内容与页面
 
----
+- `/`：最新动态、系列高亮/置顶、最新五篇普通文章及分类入口。
+- `/posts`：按月份组织的文章索引，没有 `/posts/2` 分页路由。
+- `/post/<slug>`：文章详情；同路径 `.md` 端点提供文章源码。
+- `/moments`：静态短内容按年份展示，没有详情页和专用 RSS。
+- `/categories`、`/tags`、`/archives`、`/friends`、`/about`：分类、标签、归档、友链和个人介绍。
+- `/<seriesSlug>`：按配置生成系列页，本站为 `/series`。
+- `/rss.xml`：文章订阅；非默认语言在 `[lang]` 下有对应镜像。
 
-## 路径别名
+文章至少有 title/date，碎碎念只有 date 和正文；生产过滤草稿，日期按站点时区处理。
+分类来自 frontmatter，URL 映射来自 site.yaml。不要把文件夹名字当作自动分类规则。
 
-项目配置了丰富的路径别名，简化导入路径：
+## 配置与模块边界
 
-```typescript
-// tsconfig.json 中定义
-import { cn } from '@lib/utils';           // src/lib/utils.ts
-import { Button } from '@components/ui/button';  // src/components/ui/button.tsx
-import { siteConfig } from '@constants/site-config';  // src/constants/site-config.ts
-import type { BlogPost } from '@types/blog';  // src/types/blog.ts
-```
+配置从 `config/site.yaml` 进入 `src/lib/config/site.ts` 和各 `normalize*` 函数。
+`src/constants/site-config.ts` 是装配/兼容层，底层 lib 不应反向导入它。
+根别名 `@/` 指向 `src/`；CMS 别名指向自己的 `cms/src/`。
 
-| 别名            | 对应路径           |
-| --------------- | ------------------ |
-| `@/*`           | `src/*`            |
-| `@components/*` | `src/components/*` |
-| `@lib/*`        | `src/lib/*`        |
-| `@constants/*`  | `src/constants/*`  |
-| `@hooks/*`      | `src/hooks/*`      |
-| `@store/*`      | `src/store/*`      |
-| `@types/*`      | `src/types/*`      |
-| `@layouts/*`    | `src/layouts/*`    |
-| `@pages/*`      | `src/pages/*`      |
-| `@content/*`    | `src/content/*`    |
-| `@styles/*`     | `src/styles/*`     |
-| `@assets/*`     | `src/assets/*`     |
-| `@scripts/*`    | `src/scripts/*`    |
+前台按需水合：BGM/公告列表用 `client:panel`，正文增强用 `client:content`，桌面目录用 media 指令，抽屉目录用 visible 指令并保留打开状态门控。
+三个全屏查看器仍以 `client:idle` 挂载，不要将上游尚未摘取的懒加载方案写成当前实现。
 
----
+## 继续阅读
 
-## 站点配置
-
-站点的核心配置位于 `src/constants/site-config.ts`：
-
-```typescript
-export const siteConfig = {
-  // 基本信息
-  title: '余弦の博客',
-  alternate: 'cosine',
-  subtitle: 'WA 的一声就哭了',
-  name: 'cos',
-  description: 'FE / ACG / 手工 / 深色模式强迫症...',
-
-  // 资源
-  avatar: '/img/avatar.webp',
-  site: 'https://blog.cosine.ren/',
-  startYear: 2020,
-
-  // 特色分类（首页展示）
-  featuredCategories: [...],
-
-  // 周刊专栏配置
-  featuredSeries: {
-    categoryName: '周刊',
-    label: 'FE Bits',
-    fullName: 'FE Bits 前端周周谈',
-  },
-
-  // 社交链接
-  socialConfig: {
-    github: '...',
-    bilibili: '...',
-    email: '...',
-    twitter: '...',
-    rss: '/rss.xml',
-  }
-};
-```
-
----
-
-## 页面路由概览
-
-```plain
-/                           # 首页（最新文章 + 置顶）
-├── /posts                  # 所有文章（按月分块，导航"文章"入口）
-├── /post/[slug]            # 文章详情页
-├── /categories/            # 分类首页
-│   └── /categories/[...slug]  # 分类页面（支持多级）
-├── /tags/                  # 标签首页
-│   └── /tags/[tag]         # 标签页面
-├── /archives               # 归档页面
-├── /series                 # 系列文章专栏
-├── /friends                # 友链页面
-├── /about                  # 关于页面
-└── /rss.xml                # RSS 订阅源
-```
-
----
-
-## 文档导航
-
-本系列文档共 14 篇，建议按顺序阅读：
-
-1. **[00-overview.md](./00-overview.md)**（当前） - 项目总览与快速开始
-2. **[01-architecture.md](./01-architecture.md)** - 架构设计与技术栈
-3. **[02-content-system.md](./02-content-system.md)** - 内容系统深度解析
-4. **[03-routing.md](./03-routing.md)** - 路由系统详解
-5. **[04-component-patterns.md](./04-component-patterns.md)** - 组件模式与最佳实践
-6. **[05-ui-components.md](./05-ui-components.md)** - UI 组件库实现
-7. **[06-state-management.md](./06-state-management.md)** - 状态管理（Nanostores）
-8. **[07-theme-system.md](./07-theme-system.md)** - 主题系统实现
-9. **[08-animation-system.md](./08-animation-system.md)** - 动画系统设计
-10. **[09-styling.md](./09-styling.md)** - 样式系统（Tailwind + 设计令牌）
-11. **[10-markdown-system.md](./10-markdown-system.md)** - Markdown 处理管线
-12. **[11-deployment-adapters.md](./11-deployment-adapters.md)** - 静态部署与适配器边界
-13. **[12-astro-7-upgrade.md](./12-astro-7-upgrade.md)** - Astro 7 升级、验证与回滚
-14. **[13-upstream-v7-upgrade-comparison.md](./13-upstream-v7-upgrade-comparison.md)** - 上游 v7 升级差异对比与合并决策
-
----
-
-## 学习要点
-
-- astro-koharu 是一个从 Hexo 迁移到 Astro 的现代化博客项目
-- 采用 Astro Islands 架构，默认静态渲染，按需激活 React 组件
-- 项目结构清晰，按功能模块化组织
-- 使用 pnpm 作为包管理器，确保一致的依赖版本
-- 路径别名简化了模块导入，提升开发体验
+- [架构](01-architecture.md)、[内容](02-content-system.md)、[路由](03-routing.md)。
+- [组件模式](04-component-patterns.md)、[UI](05-ui-components.md)、[状态](06-state-management.md)。
+- [主题](07-theme-system.md)、[动画](08-animation-system.md)、[样式](09-styling.md)、[Markdown](10-markdown-system.md)。
+- [部署](11-deployment-adapters.md)、[Astro 7 升级记录](12-astro-7-upgrade.md)、[上游差异与摘取记录](13-upstream-v7-upgrade-comparison.md)。
+- [CMS](../features/cms.md)、[公告](../features/announcements.md)、[静态碎碎念](../features/static-moments.md)。

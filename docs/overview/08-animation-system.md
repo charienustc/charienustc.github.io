@@ -1,5 +1,7 @@
 # 动画系统设计
 
+> 核对日期：2026-10-15。本文的动画参数片段是教学示例。当前全局入口在 AppShell 中调用 morph-transitions、header-continuity、arrival-render、scroll-reveal 和 petal-burst，配置经 `src/lib/config/motion.ts` 归一化。保留动效等级与 reduced-motion 分支，不要把所有效果恢复成无条件 Motion 动画。最近头像 wrapper 裁剪已在 `04db601` 撤销，不能将它描述为已保留的修复。
+
 ## 概述
 
 astro-koharu 使用 **Motion**（Framer Motion 的继任者）作为动画库，结合设计令牌系统提供一致的动画体验。

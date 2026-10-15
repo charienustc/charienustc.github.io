@@ -1,268 +1,62 @@
 ---
 name: blog-writer
-description: 帮助用户按照 astro-koharu 博客的规范创建新博文。自动生成正确的 frontmatter 结构、选择合适的分类路径，并提供 Markdown 内容框架建议。使用场景：写一篇博文、创建新文章、写文章、写博客、new post、create blog post。
+description: 按 Charien's Yard 当前配置创建或整理文章草稿，维护合法 frontmatter、稳定链接、分类映射和本地预览。用于写博文、创建文章、new post；碎碎念、公告、项目代码和 Git 发布不属于默认写作动作。
 ---
 
-# Blog Writer Skill
+# Blog Writer
 
-帮助用户按照 astro-koharu 博客的规范创建新博文。
+核对日期：2026-10-15。先读取根 AGENTS.md 与 docs/README.md；用户本轮要求优先于示例格式。
 
-## 你的任务
+## 开始前
 
-当用户请求创建新博文时：
+1. 查看工作区状态和目标文件，保留已有内容及用户未提交改动。
+2. 从 config/site.yaml 读取站点时区、categoryMap、featuredSeries 和启用语言，不使用硬编码的工具/周刊分类列表。
+3. 缺少主题或关键事实时只问必要问题；用户已给出素材时直接组织内容，不编造实验、引用或个人经历。
+4. 默认创建草稿，除非用户明确要求发布或将草稿改为公开。创建文章不等于授权 commit/push。
 
-1. **收集必要信息**（如果用户未提供）：
-   - 文章标题
-   - 文章分类（从下面的分类列表中选择）
-   - 文章主题/关键词（用于生成标签和描述）
+## Frontmatter
 
-2. **生成 frontmatter**：
-   ```yaml
-   ---
-   title: [文章标题]
-   link: [URL slug，使用英文短横线分隔]
-   catalog: true
-   date: [当前日期时间，格式：YYYY-MM-DD HH:mm:ss]
-   description: [一句话描述文章内容，50-100字]
-   tags:
-     - [相关标签1]
-     - [相关标签2]
-     - [相关标签3]
-   categories:
-     - [一级分类, 二级分类]
-   ---
-   ```
-
-   **分类格式说明**：
-   - 嵌套分类使用数组格式：`- [一级分类, 二级分类]`
-   - 例如：`- [笔记, 前端]` 会创建 URL `/categories/note/front-end` 和面包屑 "笔记 → 前端"
-   - 单个分类直接写分类名：`categories: 随笔`
-
-3. **确定文件路径**：
-   - 基础路径：`src/content/blog/`
-   - 根据分类生成对应的子目录结构
-   - 文件名：使用 `link` 字段值 + `.md` 扩展名
-
-4. **生成 Markdown 内容框架**：
-   - 提供文章结构建议（引言、正文章节、总结等）
-   - 如果适合，建议使用 infographic 信息图
-   - 提供代码示例占位符（如果是技术文章）
-
-## 分类系统
-
-### 一级分类及其子分类
-
-1. **笔记 (note/)**
-   - 前端 (front-end/)
-     - React
-     - Vue
-     - TypeScript
-     - CSS
-     - 性能优化
-   - 后端 (back-end/) - 如果需要使用，确保已在 `_config.yml` 中添加映射
-   - 其他新增子分类 - 需要先在 `_config.yml` 添加映射
-
-2. **工具 (tools/)**
-   - 开发工具
-   - 效率工具
-   - 使用指南
-
-3. **随笔 (life/)**
-   - 生活随笔
-   - 年度总结
-   - 读书笔记
-
-4. **周刊 (weekly/)**
-   - 技术周刊
-   - 每周分享
-
-### 分类映射规则
-
-**YAML 格式（重要）**：
 ```yaml
-# 嵌套分类（推荐）- 使用数组包裹
+---
+title: 文章标题
+link: stable-post-slug
+date: 2026-10-15 10:00:00
+description: 简洁、准确的内容说明。
+tags: [主题标签]
 categories:
-  - [笔记, 前端]
-
-# 单个分类 - 直接写分类名
-categories: 随笔
+  - [笔记]
+draft: true
+---
 ```
 
-**URL 和路径映射**：
-- `categories: 随笔` → URL: `/categories/life` → 文件路径: `src/content/blog/life/`
-- `categories: - [笔记, 前端]` → URL: `/categories/note/front-end` → 文件路径: `src/content/blog/note/front-end/`
-- `categories: - [笔记, 前端, CSS]` → URL: `/categories/note/front-end` → 文件路径: `src/content/blog/note/front-end/`（三级分类作为标签）
+- title/date 必填，日期按站点时区；例中日期是格式示例，实际使用用户指定或当前时间。
+- 单层分类写 `categories: [随笔]`，层级写 `categories: [[笔记, 前端]]`；不能写 `categories: 随笔`。
+- 分类与 URL 映射来自 site.yaml 的 categoryMap，不再编辑旧 `_config.yml`。
+- 例中的前端分类只有在映射确实存在时才使用。三级层级不会自动变成标签，分类和 tags 各自维护。
+- link 可以省略，但新建文章建议指定稳定的小写连字符地址；已有 link 不改写，显式值不会被统一强制小写。
+- catalog 默认 true，tocNumbering 默认 true；只有任务需要时才添加 math、quiz、password、colophon 等字段。
+- 字段契约以 src/content.config.ts 为准，语法见 docs/syntax-reference.md。
 
-**注意**：
-- 嵌套分类必须使用 `- [一级, 二级]` 格式
-- 分类名称（中文）会映射到 URL slug（英文），映射关系见上方分类列表
+## 文件与分类
 
-### 新增分类
+文章写入 src/content/blog/。目录用于组织文件，不会自动创建分类；不要因为用了 note/ 目录就漏写 frontmatter。
+可按已有目录惯例放置文章，文件名与 link 不必相同；不要覆盖同名文件。译文放在对应 locale 子目录并保持映射关系。
 
-如果用户需要创建上述分类之外的新分类，需要：
+新增分类时先确认是否可复用已有分类，确需新分类则更新 site.yaml 的 categoryMap；只修改所需映射，保留其他 YAML 改动。
+向用户说明新路径；配置变化后重启 Astro 开发服务器。
 
-1. **更新 `_config.yml`**：
-   ```yaml
-   category_map:
-     # 一级分类
-     随笔: life
-     笔记: note
-     工具: tools
-     周刊: weekly
+## 写作与图表
 
-     # 二级分类
-     前端: front-end
-     后端: back-end  # 新增示例
+结构围绕内容组织，按需要使用背景、步骤、结果、限制等章节，不强制每篇文章都套引言/总结。
+有数据或结构关系时可使用现有 Mermaid 或 infographic 围栏，不为装饰增加图表，也不默认创建独立 HTML 页面。
+前台与 CMS 的语法支持并非完全一致，复杂扩展要在 Astro 页面预览。
 
-     # 添加新分类映射
-     新分类名: new-category-slug
-   ```
+## 保存、版本与验证
 
-2. **创建对应目录**：
-   - 在 `src/content/blog/` 下创建对应的目录结构
-   - 例如：新增"后端"分类需要创建 `src/content/blog/note/back-end/`
+- 编辑已有文章前保留用户文字。手工写文件不会触发 CMS 自动备份，不要声称已生成历史版本。
+- CMS Save 和历史恢复会备份文章到 backups/versions/posts/；该目录 gitignored，不要清理或作为正文提交。
+- 根据任务运行 Markdown 检查、`pnpm dev` 预览和 `pnpm build`，确认日期、分类、链接和草稿状态。
+- 内容资产按需生成；摘要需要可用的模型 API，相似度需要模型缓存。不要为小改动无条件调用模型。
+- 提交前遵循 AGENTS.md 的检查要求；只有用户明确要求才 commit 或 push。
 
-3. **提醒用户**：
-   - 告知用户已添加新分类映射到 `_config.yml`
-   - 说明新分类的 URL 路径
-
-## 文件命名规范
-
-- 使用英文小写字母
-- 单词间用短横线 `-` 分隔
-- 避免特殊字符
-- 例如：`react-hooks-guide.md`, `astro-blog-setup.md`
-
-## 内容建议
-
-### 技术文章结构
-
-```markdown
-## 背景/问题
-
-[描述要解决的问题或技术背景]
-
-## 解决方案
-
-[详细说明解决方法]
-
-### 关键技术点1
-
-[技术细节和代码示例]
-
-### 关键技术点2
-
-[技术细节和代码示例]
-
-## 实践效果
-
-[实际应用效果、性能对比等]
-
-## 总结
-
-[总结要点和经验]
-```
-
-### 工具/指南类文章结构
-
-```markdown
-## 简介
-
-[工具/方法简介]
-
-## 安装/准备
-
-[安装步骤或前置条件]
-
-## 基本使用
-
-[基础用法和示例]
-
-## 高级功能
-
-[进阶功能和技巧]
-
-## 实用技巧
-
-[最佳实践和注意事项]
-
-## 总结
-
-[总结和资源链接]
-```
-
-### 随笔类文章结构
-
-```markdown
-## 引言
-
-[开场白，引出话题]
-
-## 正文
-
-[多个段落展开论述]
-
-## 感悟/总结
-
-[个人思考和总结]
-```
-
-## Infographic 使用建议
-
-根据文章类型，建议使用信息图的场景：
-
-- **列表信息**（技术栈、功能特性）→ `list-grid-badge-card`
-- **流程步骤**（安装步骤、开发流程）→ `sequence-zigzag-steps-underline-text`
-- **对比分析**（技术对比、优缺点）→ `compare-binary-horizontal-simple-fold`
-- **统计数据**（性能对比、用量统计）→ `chart-column-simple` 或 `chart-bar-plain-text`
-- **层级结构**（目录结构、知识体系）→ `hierarchy-tree-tech-style-capsule-item`
-
-## 最后步骤
-
-创建完博文后：
-
-1. **如果添加了新分类**：
-   - 确认已更新 `_config.yml` 中的 `category_map`
-   - 确认已创建对应的目录结构
-   - 告知用户新分类的 URL 路径
-
-2. **运行检查**：
-   - 运行 `pnpm dev` 在本地预览
-   - 运行 `pnpm lint:fix` 检查格式
-
-3. **后续建议**：
-   - 提醒用户可以使用 infographic skills 添加信息图
-   - 如果需要，提供相关文章推荐的建议（基于 tags）
-
-## 示例对话
-
-### 示例 1：使用现有分类
-
-**用户**：写一篇关于 React Hooks 使用技巧的文章
-
-**你应该**：
-
-1. 确认分类：笔记 > 前端 > React
-2. 生成文件路径：`src/content/blog/note/front-end/react-hooks-best-practices.md`
-3. 创建包含完整 frontmatter 的文件（使用 `- [笔记, 前端]` 分类格式）
-4. 提供文章结构框架
-5. 建议在"常用 Hooks 对比"部分使用 `list-grid-badge-card` 信息图
-6. 建议在"Hooks 使用流程"部分使用 `sequence-zigzag-steps-underline-text` 信息图
-
-### 示例 2：需要新增分类
-
-**用户**：写一篇关于 Node.js 后端开发的文章
-
-**你应该**：
-
-1. 发现"后端"分类不在现有分类列表中
-2. 询问用户是否要添加"后端"分类
-3. 如果用户同意：
-   - 更新 `_config.yml`，添加 `后端: back-end`
-   - 创建目录 `src/content/blog/note/back-end/`
-   - 生成文章文件 `src/content/blog/note/back-end/nodejs-development.md`
-   - frontmatter 使用 `- [笔记, 后端]` 分类格式
-4. 告知用户：
-   - 新分类已添加到 `_config.yml`
-   - URL 路径为 `/categories/note/back-end`
-   - 已创建对应目录结构
+如果用户实际要写短内容，使用 src/content/moments/ 或 CMS Moments，参考 docs/features/static-moments.md；公告用 site.yaml 的 announcements，参考 docs/features/announcements.md，不能将两者写成文章。

@@ -1,7 +1,12 @@
 ---
 name: infographic-creator
-description: Create beautiful infographics based on the given text content. Use this when users request creating infographics.
+description: Create AntV Infographic diagrams from supplied content, using blog infographic fences for article work or standalone HTML when explicitly requested. Verify templates against the installed package and preserve the existing Astro renderer.
 ---
+
+## Repository scope
+
+Current scope (verified 2026-10-15): this repository is an Astro blog consuming `@antv/infographic`, not the AntV library source. For article work, insert DSL in an infographic Markdown fence and reuse the existing renderer; the standalone HTML workflow below is conditional on a standalone deliverable request. Do not add duplicate CDN scripts, resource loaders or export controls to the blog. The template catalog and CDN sample below are references, not a reason to upgrade dependencies. Read root AGENTS.md and docs/syntax-reference.md, and verify the installed package version, before editing.
+
 
 
 An infographic (Infographic) transforms data, information, and knowledge into perceivable visual language. It combines visual design with data visualization, using intuitive symbols to compress complex information and help audiences quickly understand and remember key points.

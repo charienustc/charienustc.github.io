@@ -1,5 +1,7 @@
 # ひとこと（Moments）
 
+> 2026-10-15 確認：本サイトの使い方は [静的 Moments](static-moments.md) と [CMS](cms.md) を参照してください。動的版の例 `path: moments` は既存の静的ルートと競合します。「無効時はルートなし」は suite が追加するルートのみを指します。
+
 > **このフォークでの状態**：本文はテンプレート標準の動的 suite 版（本リポジトリでは
 > `moments.enabled: false` で**無効**）について述べます。本サイト実際には `src/content/moments/`
 > の静的コンテンツコレクションを使用しています。詳細はルートの [README](../../README.md) を参照。

@@ -1,5 +1,7 @@
 # Koharu 双服务部署样例
 
+> 本站状态（2026-10-15）：这是保留的可选 VPS/suite 部署样例，本站实际使用 GitHub Pages。请先阅读 [部署说明](../../docs/overview/11-deployment-adapters.md)；当前已有静态 `/moments`，启用动态版前需处理路由冲突。镜像存在性和公开版本需在实际部署时核验，本文不保证样例中的预定 tag 已发布。
+
 这是一条面向个人博客的单机部署基线：一台 Linux VPS 同时运行 astro-koharu、koharu-suite、
 PostgreSQL 18 和 Caddy。Caddy 为博客与 suite 两个子域名自动申请 HTTPS 证书；数据库、suite 与 Astro
 端口只在 Docker 网络内开放。

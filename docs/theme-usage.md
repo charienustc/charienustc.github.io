@@ -1,5 +1,7 @@
 # astro-koharu 主题使用手册
 
+> 核对日期：2026-10-15。本文描述本站定制，包版本 6.3.0 不代表完整上游 v7 状态。新入口：[文档导航](README.md)、[CMS](features/cms.md)、[公告](features/announcements.md)、[静态碎碎念](features/static-moments.md)。发布以 GitHub Pages 门禁为准，保留的 Docker 说明属于可选方案。
+
 本文汇总 astro-koharu 主题的使用方法，内容整合自仓库中原有的 7 篇主题说明文章。
 所有路径与命令均按**当前仓库（`F:\myhomepage`）的实际情况**核对过；下文与原始文章中冲突之处，以本文为准（差异见文末「勘误」）。
 
@@ -13,7 +15,7 @@
 
 ### 环境要求
 
-- Node.js 22.x
+- Node.js ≥ 22.20.0
 - pnpm 10.28.2（`package.json` 的 `packageManager` 字段已锁定精确版本）
 
 ### 常用命令
@@ -51,7 +53,7 @@ site:
 
 ### 构建缓存
 
-`.cache/og-data.json` **有意提交到 Git**。它缓存链接嵌入所抓取的外部链接 OG 元数据，提交后 Vercel / Netlify 等平台构建时可复用，无需重复抓取。
+`.cache/og-data.json` **有意提交到 Git**。它缓存链接嵌入所抓取的外部链接 OG 元数据，提交后 GitHub Actions 等构建环境可复用，无需重复抓取。
 
 `.cache/` 下的其他内容（`transformers/` 模型缓存、`summaries-cache.json`）仍被 `.gitignore` 忽略。
 
@@ -70,7 +72,7 @@ pnpm koharu new friend    # 创建友链
 
 **方式二：手动创建**
 
-在 `src/content/blog/` 下新建 Markdown 文件。**目录结构决定分类**：
+在 `src/content/blog/` 下新建 Markdown 文件。**分类由 frontmatter 指定，目录用于组织文件**：
 
 ```plain
 src/content/blog/
@@ -102,7 +104,7 @@ title: 文章标题
 date: 2024-12-06
 updated: 2024-12-15      # 存在时文章页显示更新时间
 description: 摘要描述      # 用于 SEO 与列表展示
-link: custom-url-slug    # 自定义 URL（默认取文件名）
+link: custom-url-slug    # 自定义 URL（否则使用去语言前缀的集合 ID）
 cover: /img/cover/1.webp # 封面图
 tags: [JavaScript, React]
 categories: [笔记]
@@ -118,17 +120,12 @@ password: mySecret       # 整篇加密，设置后需密码才能阅读
 ---
 ```
 
-**`description` 的优先级**：手写 `description` > AI 摘要 > 正文前 150 字。
+**`description` 的优先级**：手写 `description` > 加密文章通用描述 > AI 摘要 > 正文前 150 字。
 建议重要文章手写描述以获得更好 SEO。
 
-**`link` 字段会被自动转为小写**：
-
-```yaml
-link: my-awesome-post   # ✅ 推荐：URL = /post/my-awesome-post
-link: MyAwesomePost     # ⚠️ URL = /post/myawesomepost
-```
-
-省略 `link` 时使用文件名，同样会转小写。`summaries.json` / `similarities.json` 的 key 也统一为小写。
+**`link` 显式值保持稳定**：getPostSlug 优先使用它，再由路由工具逐段编码并保留 `/`，不会统一强制转小写。
+建议新地址使用小写连字符；不填时使用去语言前缀的集合 ID，是否转写非 ASCII 由 enableSlugTransliteration 控制。
+不要为统一格式改掉已有公开链接。
 
 ### 嵌套分类
 
@@ -168,6 +165,17 @@ categories:
 ---
 
 ## 4. 特色功能
+
+### 首页最新动态与静态碎碎念
+
+首页 LatestActivity 并列显示最新普通文章和最新可见碎碎念；短内容放在 src/content/moments/，详情见 [静态碎碎念](features/static-moments.md)。
+`moments.enabled` 只控制动态 suite 集成，不会关掉现有静态 feed。
+
+### 公告
+
+在 site.yaml 的 announcements 数组增加条目即可。多条公告可共存，每条新消息使用唯一 id；旧消息可设置 endDate 自动隐藏。
+未读项通过右下角通知展示，页脚铃铛可查看有效公告列表。支持的类型是 info/success/warning/important；关闭通知不等于标记已读。
+正文为纯文字，完整字段与日期示例见 [公告指南](features/announcements.md)。
 
 ### 系列文章（featuredSeries）
 
@@ -218,7 +226,7 @@ pnpm generate:lqips      # 处理 public/img/ 下所有图片
 
 应用于文章卡片封面、页面横幅、分类卡片、系列封面、侧边栏头像等。
 
-> ⚠️ 请用 `pnpm generate:lqips` 或 `npx tsx src/scripts/generateLqips.ts` 生成。`pnpm koharu generate lqips` 这个包装命令在本仓库会静默失败。
+> Windows 下 Koharu 包装命令的 npx 子进程曾出现启动失败；遇到无输出可直接运行 `pnpm generate:lqips` 排查。不要据此认定所有平台的 CLI 都不可用。
 
 ### AI 摘要
 
@@ -227,12 +235,11 @@ pnpm generate:summaries          # 生成摘要
 pnpm generate:summaries:force    # 强制重新生成
 ```
 
-- 默认模型 `Xenova/LaMini-Flan-T5-783M`（约 300MB，首次运行自动下载到 `.cache/transformers`）
-- 结果写入 `src/assets/summaries.json`，**需提交到 Git**
-- 需本地运行（部署平台无法跑大模型）
-- 未生成时会 fallback 到正文提取
-
-模型与提示词可在 `src/scripts/generateSummaries.ts` 的 `MODEL_NAME` / `PROMPT_TEMPLATE` 中修改。
+- 通过 OpenAI-compatible API 请求摘要，脚本默认地址为 `http://127.0.0.1:1234/v1/`，默认模型名为 `qwen/qwen3-4b-2507`；运行前需要启动相应本地模型服务。
+- 服务地址、API key 占位值与 DEFAULT_MODEL 见 `src/scripts/generateSummaries.ts`；可通过 `--model` 选择模型。
+- 结果写入 `src/assets/summaries.json`，需随内容提交；增量缓存 `.cache/summaries-cache.json` 不提交。
+- 脚本不会自行下载摘要模型；无生成结果时页面仍可从正文提取描述。
+- 摘要生成会跳过草稿、excludeFromSummary 与非默认语言内容，精确处理范围以脚本为准。
 
 ### 语义相似度推荐
 
@@ -377,10 +384,12 @@ pnpm cms            # 启动，访问 http://localhost:4322
 - 浏览器内编辑：基于 BlockNote 的富文本编辑 + Markdown 预览
 - Frontmatter 编辑：标题/日期/分类/标签
 - 草稿切换、置顶管理、新建文章
+- 文章保存前备份、历史 Markdown 浏览、二次确认恢复及恢复前备份
+- 碎碎念编辑、图片上传、删除留存与编辑前旧版备份
 
 **安全特性：** 服务端校验 Host 头，仅允许 localhost 访问；支持可选的 `CMS_API_KEY` 环境变量做 Bearer 鉴权。
 
-> ⚠️ CMS **直接读写 `src/content/blog/` 下的源文件**，没有中间层。使用前建议先 `git commit`，改坏了可用 `git checkout -- src/content/blog` 回滚。
+> CMS 直接管理本仓库文件。文章版本位于 `backups/versions/posts/`，碎碎念旧版保留在 `backups/versions/`，这些是本机 gitignored 备份，不会上线。恢复时校验版本归属；未保存改动必须先保存。详见 [CMS 指南](features/cms.md)。不要用整目录 checkout 撤销操作覆盖其他未提交内容。
 
 > ⚠️ **Publish 按钮 = `git add -A` + commit + push 当前分支**，而站点从 `main` 部署。所以请在 `main` 分支上启动 CMS，并保证工作区里没有不想一起提交的内容；在其他分支上 publish 只会推那个分支，站点不会更新。
 
@@ -496,7 +505,7 @@ pnpm test          # 运行单元测试
 pnpm lint-md       # 检查 Markdown
 ```
 
-> 项目使用 **Biome**（非 ESLint），配置见 `biome.json`：行宽 128、单引号、尾逗号。提交前 `pnpm lint:fix` 与 `pnpm check` 应通过。
+> 项目使用 **Biome**（非 ESLint），配置见 `biome.json`：行宽 128、单引号、尾逗号。代码提交前运行 `pnpm lint:fix`、前台与 CMS 类型检查、完整测试及构建；类型检查均需零错误。CI 依次检查后才发布到 Pages。
 
 ### Docker 部署
 
@@ -507,13 +516,13 @@ open http://localhost:4321
 
 目录：`docker/`（`Dockerfile` 多阶段构建、`docker-compose.yml`、`nginx/default.conf`、`rebuild.sh`）。
 
-**生成脚本必须在本地运行**，不能在 Docker 构建期执行：
+**生成脚本按需在本地运行**，当前 Docker 构建不会替你准备模型或摘要服务：
 
 | 脚本 | 原因 |
 |---|---|
 | `pnpm generate:lqips` | 使用 `sharp` 原生模块 |
 | `pnpm generate:similarities` | 需下载 500MB+ 模型 |
-| `pnpm generate:summaries` | 需下载模型 |
+| `pnpm generate:summaries` | 需可访问的本地模型 API |
 
 推荐流程：本地 `pnpm generate:all` → 提交 `src/assets/*.json` → `./docker/rebuild.sh`。
 
@@ -525,7 +534,7 @@ open http://localhost:4321
 YAML 在构建期缓存，需重启 dev server 或重新构建。
 
 **`pnpm koharu generate lqips` 没反应？**
-该包装命令在本仓库会静默失败，直接用 `pnpm generate:lqips`。
+Windows 下 npx 子进程启动失败时，可用 `pnpm generate:lqips` 直接运行并检查输出。
 
 **分类 URL 是中文？**
 在 `config/site.yaml` 的 `categoryMap` 中为分类名配置英文 slug。
@@ -560,4 +569,4 @@ giscus 的 `mapping: pathname` 按路径关联评论，改 URL 会导致匹配�
 
 ---
 
-*本文档整合自仓库原有的 7 篇文章（`getting-started`、`astro-koharu-guide`、`theme-customization`、`shoka-features`、`markdown-features`、`infographic-guide`、`astro-6-migration`），整合后这些文章已从博客中移除。Shoka 语法与 Markdown 语法的逐项示例（下划线、高亮、折叠块、标签卡、注音、练习题等）属于语法演示而非使用说明，未纳入本文，需要时可查阅上游仓库文档。*
+*本文档整合自仓库原有的 7 篇文章（`getting-started`、`astro-koharu-guide`、`theme-customization`、`shoka-features`、`markdown-features`、`infographic-guide`、`astro-6-migration`），整合后这些文章已从博客中移除。Shoka 语法与 Markdown 语法的逐项示例（下划线、高亮、折叠块、标签卡、注音、练习题等）属于语法演示而非使用说明，见本仓库 [语法参考](syntax-reference.md)。*

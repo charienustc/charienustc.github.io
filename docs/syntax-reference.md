@@ -1,5 +1,7 @@
 # astro-koharu 文章格式与语法手册
 
+> 核对日期：2026-10-15。本文描述前台 Markdown 语法，CMS 的 BlockNote 编辑和 marked 预览不保证完整复现所有扩展，发布效果以 Astro 页面为准。静态碎碎念可使用基础 Markdown；文章专用 frontmatter 不应照搬到短内容。日常写作、备份与历史恢复见 [CMS 指南](features/cms.md)。
+
 本文列出本站支持的**全部** Markdown 与 Shoka 扩展语法，内容依据仓库中实际的解析器源码（`src/lib/markdown/`、`src/lib/quiz/`）整理，非凭记忆编写。
 
 - 使用场景：写文章时查语法
@@ -598,10 +600,10 @@ title: 文章标题
 date: 2026-01-01 12:00:00
 updated: 2026-01-02 12:00:00  # 显示更新时间
 description: 文章摘要            # SEO 与列表展示
-link: custom-url                # 自定义 URL，自动转小写
+link: custom-url                # 显式 URL，建议小写并保持稳定
 cover: /img/cover/1.webp        # 封面图
 tags: [标签一, 标签二]
-categories: [笔记]              # 嵌套写法 [笔记, 前端]
+categories: [[笔记, 前端]]      # 嵌套层级写法
 subtitle: 副标题
 catalog: true                   # 计入分类页统计，默认 true
 tocNumbering: true              # 目录自动编号，默认 true
@@ -615,17 +617,11 @@ keywords: [关键词一, 关键词二]   # SEO 关键词
 ---
 ```
 
-**`description` 优先级**：手写 > AI 摘要 > 正文前 150 字。
+**`description` 优先级**：手写 > 加密文章通用描述 > AI 摘要 > 正文前 150 字。
 
-**`link` 会自动转小写**：`link: MyPost` → URL 为 `/post/mypost`。建议直接写小写连字符。
+**`link` 保留显式值**：由 getPostSlug 优先使用，再由路由工具逐段编码；不会统一转小写。建议创建时使用小写连字符，已有链接保持稳定。
 
-**配套示例文章**（本站已上线，可直接参考）：
-
-| 文章 | 演示内容 |
-|---|---|
-| `/post/custom-keywords` | `keywords` 字段用法 |
-| `/post/toc-no-numbering` | `tocNumbering: false` 关闭目录编号 |
-| `/post/encrypted-post-demo` | `password` 整篇加密（密码 `demo`） |
+实际示例可查看 `src/content/blog/` 中的 Markdown 示例文章。旧版 custom-keywords、toc-no-numbering、encrypted-post-demo 页面不是当前保证存在的入口；测试新语法时创建独立草稿。
 
 ---
 

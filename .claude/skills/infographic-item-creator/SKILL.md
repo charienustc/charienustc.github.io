@@ -1,9 +1,14 @@
 ---
 name: infographic-item-creator
-description: Generate or update infographic Item components for this repo (TypeScript/TSX in src/designs/items). Use when asked to design, implement, or modify data item visuals, layout logic, or registerItem composites.
+description: Generate or update AntV Infographic library Item components when a library source checkout or an explicit custom-component task is provided. Not for ordinary blog infographic DSL; this blog does not contain src/designs/items.
 ---
 
 # Infographic Item Generator
+
+## Repository scope
+
+This is an AntV library-development reference, not a claim that this blog contains `src/designs/items`. Verify the target checkout and installed API before applying it. For ordinary article diagrams use the existing infographic fence and the syntax skill; do not create an AntV library tree inside the blog. Read root AGENTS.md and docs/syntax-reference.md before any repository edits.
+
 
 ## Overview
 

@@ -1,5 +1,7 @@
 # 组件模式与最佳实践
 
+> 核对日期：2026-10-15。本文保留教学模式示例，不是可直接覆盖当前组件的完整源码。本站自定义 `client:panel` 用于 BGM/公告列表，`client:content` 用于正文增强；桌面 TOC 用 media、抽屉 TOC 用 visible 并保留 isDrawer 门控。注册与具体加载方式见 [架构](01-architecture.md)。CMS 使用自己的一套 UI 组件与别名，历史弹窗见 [CMS 指南](../features/cms.md)。
+
 ## 组件类型选择
 
 在 astro-koharu 中，组件分为两大类：**Astro 组件**和 **React 组件**。选择哪种类型取决于组件的功能需求。

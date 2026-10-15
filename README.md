@@ -6,6 +6,8 @@
 - **建站年份**：2026
 - **时区**：Asia/Shanghai
 
+维护说明核对于 2026-10-15；完整入口见 [文档导航](docs/README.md) 与 [快速开始](GETTING-STARTED.md)。
+
 ## 技术栈
 
 | 部分 | 说明 |
@@ -79,7 +81,7 @@ draft: true
 
 - `draft: true` 的文章在开发环境可见，**生产构建里会被过滤掉**
 - 正文里段内换行用**行尾双空格**表示
-- 分类可以写成 `'笔记'` 或 `['笔记', '前端']` 两种形式
+- 分类字段需为数组：单层写 `categories: [笔记]`，层级写 `categories: [[笔记, 前端]]`；不会按文件目录自动分类
 
 ### 碎碎念
 
@@ -94,9 +96,10 @@ tags: ['日常']
 随手写的一句话。
 ```
 
-- 文件名用 `YYYY-MM-DD-HHmmss.md`，日期前缀保证按时间排序
+- 文件名用 `YYYY-MM-DD-HHmmss.md`，实际显示按 frontmatter 的 `date` 排序
 - 编辑过的条目会多一个 `updated` 字段，页面上显示「改于 X」；没编辑过则不显示
 - 站点页面：<https://charienustc.github.io/moments>
+- 首页「最新动态」并列展示最新普通文章和最新可见碎碎念；详见 [静态碎碎念指南](docs/features/static-moments.md)
 
 ### 用 CMS 写作
 
@@ -114,8 +117,8 @@ pnpm cms:install
 
 它能做的事：
 
-- 看所有文章和碎碎念，按分类/标签/状态筛选
-- 新建文章、新建碎碎念；**编辑碎碎念**（保存前旧版自动留一份到 `backups/versions/`）
+- 文章仪表盘、搜索与筛选，独立的碎碎念列表
+- 新建和编辑文章、碎碎念；文章提供历史浏览与恢复，碎碎念编辑前留存旧文件
 - 碎碎念正文**支持表情和图片**：表情直接打；图片点「插入图片」选、粘贴截图、或拖进输入框，
   都会存到 `public/img/moments/` 并在光标处插入 Markdown 引用
 - 删除任何内容——**不会真删**，会移到 `backups/deleted/` 带时间戳保留
@@ -125,7 +128,9 @@ pnpm cms:install
 > 单张上限 5 MB，格式限 png / jpg / gif / webp / avif——服务端按**文件头字节**判定真实
 > 类型，不信任文件名或 `Content-Type`。
 
-> CMS 只监听本机。它没有登录鉴权，**不要暴露到公网**。
+> CMS API 校验本机 Host，支持可选 API key，但没有公网登录体系，**不要暴露到公网**。
+
+完整操作、API 和存储边界见 [CMS 指南](docs/features/cms.md)。文章 Preview 需要另开终端运行 `pnpm dev`。
 
 ### 文章版本历史
 
@@ -135,6 +140,7 @@ pnpm cms:install
 文章备份保存在 `backups/versions/posts/`，按文章原目录组织，与碎碎念的旧版备份分开。
 只有通过 CMS 保存的改动会自动备份；恢复会原样写回选中的文件内容，不会修改原版本的日期或属性。
 这些备份仅保存在本机，不会提交到 Git，也不会自动清理。
+手工改文件、Git 操作以及单独切换草稿/置顶不会生成文章版本；碎碎念目前仅保留文件旧版，没有历史弹窗。
 
 ### 删除与版本保留
 
@@ -145,11 +151,7 @@ pnpm cms:install
 | `backups/deleted/` | 删除的内容，文件名带毫秒时间戳 |
 | `backups/versions/` | 碎碎念旧版；其中 `posts/` 子目录保存文章旧版 |
 
-**这两处都不会自动清理**，需要时手动删：
-
-```bash
-rm -rf backups/deleted/* backups/versions/*
-```
+**这两处都不会自动清理**。清理前逐项确认并另存需要的备份，尤其注意 `versions/posts/` 中的文章历史。
 
 注意这只是本地的安全网 —— 它不在 Git 里，所以**从版本控制的角度看，删除仍是一次删除**。想真正保住内容，先提交。
 
@@ -172,10 +174,18 @@ rm -rf backups/deleted/* backups/versions/*
 - `navigation` —— 顶部导航栏，支持子菜单
 - `comment` —— 评论系统，当前用 giscus
 - `friends` —— 友链列表与分组（buddies / theme 等）
+- `announcements` —— 公告列表，新消息使用新 ID，旧消息可保留或设置 `endDate`；详见 [公告指南](docs/features/announcements.md)
 - `analytics.umami` —— Umami Cloud 访客统计（`statistics_display` 可开页脚/文章 PV 展示）
 - `moments` / `bangumi` / `featuredSeries` 等各功能开关
 
 改完 YAML **需要重启开发服务器或重新构建**，配置在构建期被缓存。
+
+## 开发验证
+
+前台 `pnpm check` 与 `pnpm --dir cms exec tsc --noEmit` 均要求零错误。CMS 依赖独立安装，根目录安装不会覆盖它。
+改代码后运行 `pnpm lint:fix`、相关类型检查、`pnpm test`、`pnpm build`，并验证受影响的界面。
+Windows 上部分 POSIX 文件权限或符号链接测试可能因能力不足明确跳过；CI 的 Linux 环境继续验证这些分支。
+智能体协作规则见 [AGENTS.md](AGENTS.md) 和 [CLAUDE.md](CLAUDE.md)。
 
 ## 致谢
 

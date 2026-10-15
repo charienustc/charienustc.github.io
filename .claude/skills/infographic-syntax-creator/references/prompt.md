@@ -1,5 +1,7 @@
 # 信息图语法生成规范
 
+> 本站说明（2026-10-15）：本文是语法生成参考。模板是否存在取决于当前安装的 AntV 版本；生成文章内容时使用 infographic Markdown 围栏，纯语法请求才按本文的 plain 输出。正文语法入口见 docs/syntax-reference.md。
+
 本文件用于指导生成符合 AntV Infographic 语法规范的纯文本输出。
 
 ## 目录

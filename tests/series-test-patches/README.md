@@ -1,222 +1,50 @@
 # 多系列功能测试指南
 
-本文档介绍如何使用 patch 文件测试多系列功能的各种场景。
+核对日期：2026-10-15。目录中的 patch 是以旧 weekly 配置为基线的历史夹具，当前本站使用 `/series`。
+它们适合作为测试场景参考，不保证能直接应用到现有 site.yaml。
 
-## 前置准备
-
-```bash
-# 确保工作区干净
-git status
-
-# 如果有未提交的更改，先暂存
-git stash
-```
-
----
-
-## 测试 1：添加第二个系列（书摘）
-
-**目的**：验证多系列功能正常工作
-
-### 应用 Patch
+## 自动检查优先
 
 ```bash
-git apply tests/series-test-patches/01-add-reading-series.patch
+pnpm test:config
+pnpm test:content
 ```
 
-### 变更内容
+配置归一化测试包括系列数组、slug 唯一性与保留路由冲突；内容测试覆盖索引与分组。
+界面行为仍需启动 `pnpm dev` 检查。
 
-- `config/site.yaml`：
-  - categoryMap 添加 `书摘: reading`
-  - featuredSeries 添加第二个系列配置
-  - navigation 添加「书摘」导航项
-- 新建测试文章 `src/content/blog/reading/test-book.md`
+## 手工验收场景
 
-### 验证步骤
+在独立、可丢弃的 checkout 中按当前配置添加合成内容，不要在有未提交内容的工作区批量还原。
 
-1. 启动开发服务器
-   ```bash
-   pnpm dev
-   ```
+| 场景 | 操作 | 预期 |
+| --- | --- | --- |
+| 两个系列 | categoryMap 加入书摘，featuredSeries 增加 reading，创建带分类/日期/稳定 link 的测试文章 | `/series` 与 `/reading` 均存在，按规则显示高亮 |
+| 禁用系列 | 将某项 enabled 设为 false | 对应专栏路由和入口不再生成，普通文章是否出现由内容查询规则决定 |
+| 保留名冲突 | 将系列 slug 改成已有保留路径 | 构建明确报配置错误 |
+| 关闭首页高亮 | 设置 highlightOnHome: false | 系列页仍可访问，首页不再把它作为系列高亮 |
+| 语言镜像 | 检查默认语言与 `/en/` 的系列入口 | URL 和页面 locale 一致，内容回退符合预期 |
 
-2. 检查以下页面：
-   - [ ] 首页：应显示「书摘」系列的最新文章高亮卡片
-   - [ ] `/reading`：系列页面正常显示，有测试文章
-   - [ ] 导航栏：应出现「书摘」菜单项
-   - [ ] `/weekly`：周刊页面仍正常工作
+每次修改 site.yaml 后重启 dev。结束前运行 `pnpm check` 和 `pnpm build`。
 
-3. 构建测试
-   ```bash
-   pnpm build
-   ```
-   应无错误完成构建。
+## 历史 patch
 
-### 还原
+| 文件 | 原始场景 |
+| --- | --- |
+| `01-add-reading-series.patch` | 增加第二个系列 |
+| `02-disable-weekly.patch` | 禁用 weekly |
+| `03-test-reserved-slug-error.patch` | 触发保留名错误 |
+| `04-test-highlight-off.patch` | 关闭 weekly 首页高亮 |
+
+先确认工作区状态，再做只读应用检查：
 
 ```bash
-git checkout -- .
-rm -rf src/content/blog/reading  # 删除新建的测试文章目录
+git status --short
+git apply --check tests/series-test-patches/01-add-reading-series.patch
 ```
 
----
+检查失败时按当前配置手工复现场景，不要强制应用或用整目录 checkout 清理。
+若已在隔离 checkout 中应用 patch，可用 `git apply --reverse --check <patch>` 核对后反向应用；新增夹具文件只删除本轮明确创建的文件。
+不要使用 `git checkout -- .`、`git clean -fd` 或整目录递归删除来还原测试，这会丢失不相关改动。
 
-## 测试 2：禁用周刊系列
-
-**目的**：验证 `enabled: false` 能正确禁用系列
-
-### 应用 Patch
-
-```bash
-git apply tests/series-test-patches/02-disable-weekly.patch
-```
-
-### 变更内容
-
-- `config/site.yaml`：将 weekly 系列的 `enabled: true` 改为 `enabled: false`
-
-### 验证步骤
-
-1. 启动开发服务器
-   ```bash
-   pnpm dev
-   ```
-
-2. 检查以下内容：
-   - [ ] 首页：不应显示周刊系列的高亮卡片
-   - [ ] `/weekly`：访问应返回 404 页面
-   - [ ] 侧边栏：不应显示周刊入口
-
-3. 构建测试
-   ```bash
-   pnpm build
-   ```
-   应无错误完成构建，且不生成 `/weekly` 相关页面。
-
-### 还原
-
-```bash
-git checkout -- .
-```
-
----
-
-## 测试 3：保留路由冲突错误
-
-**目的**：验证使用保留路由作为 slug 时会触发构建错误
-
-### 应用 Patch
-
-```bash
-git apply tests/series-test-patches/03-test-reserved-slug-error.patch
-```
-
-### 变更内容
-
-- `config/site.yaml`：将 slug 从 `weekly` 改为 `categories`（保留路由）
-
-### 验证步骤
-
-1. 尝试构建
-   ```bash
-   pnpm build
-   ```
-
-2. 预期结果：
-   - [ ] 构建应该**失败**
-   - [ ] 错误信息应提示 `categories` 是保留路由
-   - [ ] 错误信息应列出所有保留路由名称
-
-3. 开发模式也应报错
-   ```bash
-   pnpm dev
-   ```
-   - [ ] 启动时应显示配置错误警告
-
-### 还原
-
-```bash
-git checkout -- .
-```
-
----
-
-## 测试 4：关闭首页高亮
-
-**目的**：验证 `highlightOnHome: false` 能关闭首页高亮显示
-
-### 应用 Patch
-
-```bash
-git apply tests/series-test-patches/04-test-highlight-off.patch
-```
-
-### 变更内容
-
-- `config/site.yaml`：为 weekly 系列添加 `highlightOnHome: false`
-
-### 验证步骤
-
-1. 启动开发服务器
-   ```bash
-   pnpm dev
-   ```
-
-2. 检查以下内容：
-   - [ ] 首页：**不应**显示周刊系列的高亮卡片
-   - [ ] `/weekly`：系列页面仍正常工作
-   - [ ] 导航栏：周刊菜单项仍存在
-
-3. 构建测试
-   ```bash
-   pnpm build
-   ```
-   应无错误完成构建。
-
-### 还原
-
-```bash
-git checkout -- .
-```
-
----
-
-## 组合测试（可选）
-
-你也可以组合应用多个 patch 进行更复杂的测试：
-
-```bash
-# 同时启用书摘系列 + 关闭周刊首页高亮
-git apply tests/series-test-patches/01-add-reading-series.patch
-git apply tests/series-test-patches/04-test-highlight-off.patch
-
-pnpm dev
-# 验证：首页只显示书摘高亮，不显示周刊高亮
-
-# 还原
-git checkout -- .
-rm -rf src/content/blog/reading
-```
-
----
-
-## 快速参考
-
-| Patch | 测试场景 | 预期结果 |
-|-------|---------|---------|
-| `01-add-reading-series.patch` | 添加第二个系列 | 正常工作，两个系列并存 |
-| `02-disable-weekly.patch` | 禁用系列 | 系列页面 404，首页无高亮 |
-| `03-test-reserved-slug-error.patch` | 保留路由冲突 | 构建失败，报错提示 |
-| `04-test-highlight-off.patch` | 关闭首页高亮 | 系列正常但首页无高亮卡片 |
-
----
-
-## 测试完成后
-
-```bash
-# 确保所有更改已还原
-git checkout -- .
-rm -rf src/content/blog/reading  # 如果测试过 patch 01
-
-# 恢复之前暂存的更改（如果有）
-git stash pop
-```
+系列用法见 [内容系统](../../docs/overview/02-content-system.md)，开发和发布要求见 [AGENTS.md](../../AGENTS.md)。
