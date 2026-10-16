@@ -24,7 +24,31 @@
      interactive children carry the text-shadow flip.
    --------------------------------------------------------------------------- */
 #site-header {
-  transition: translate 480ms var(--ease-out-expo);
+  transition:
+    translate 480ms var(--ease-out-expo),
+    top 320ms var(--ease-out-quart);
+}
+
+/* Announcement banner offset. The banner (`.announcement-banner`, sticky,
+   2.5rem tall, z-40) owns the topmost strip; while it is in the DOM the fixed
+   chrome must sit below it instead of sliding under it. `:has()` keeps this
+   purely declarative — dismissing the banner releases the header back to
+   top:0 with the transition above. The hamburger is a separate fixed sibling,
+   so it gets the same offset (its own transition covers `top` below). */
+html:has(.announcement-banner) #site-header {
+  top: 2.5rem;
+}
+
+html:has(.announcement-banner) #mobile-menu-container {
+  top: 2.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #mobile-menu-container {
+    transition:
+      transform 320ms var(--ease-out-quart),
+      top 320ms var(--ease-out-quart);
+  }
 }
 
 #site-header.-translate-y-full {

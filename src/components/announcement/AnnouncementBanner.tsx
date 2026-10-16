@@ -36,7 +36,7 @@ function BannerContent({ announcement }: { announcement: Announcement }) {
 
   return (
     <m.div
-      className="relative z-40"
+      className="announcement-banner sticky top-0 z-40"
       style={style}
       initial={{ opacity: 0, y: -16 }}
       animate={{ opacity: 1, y: 0 }}
@@ -45,7 +45,7 @@ function BannerContent({ announcement }: { announcement: Announcement }) {
       role="region"
       aria-label={t('announcement.title')}
     >
-      <div className="mx-auto flex max-w-6xl items-center gap-2.5 px-4 py-2 md:gap-3">
+      <div className="mx-auto flex h-10 max-w-6xl items-center gap-2.5 px-4 md:gap-3">
         <span
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full md:h-7 md:w-7"
           style={{ backgroundColor: `color-mix(in oklab, ${color} 14%, transparent)` }}
