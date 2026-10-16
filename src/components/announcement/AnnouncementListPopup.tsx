@@ -23,7 +23,7 @@ import {
 } from '@store/announcement';
 import { AnimatePresence, m } from 'motion/react';
 import type { Announcement } from '@/types/announcement';
-import { getAnnouncementColor, getAnnouncementIcon } from './AnnouncementToaster';
+import { getAnnouncementColor, getAnnouncementIcon } from './announcement-styles';
 
 function formatAnnouncementDate(dateStr?: string): string {
   if (!dateStr) return '';

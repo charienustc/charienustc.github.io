@@ -1,16 +1,14 @@
 ---
 import AnnouncementListPopup from './AnnouncementListPopup';
-import AnnouncementToaster from './AnnouncementToaster';
 /**
  * AnnouncementProvider Component
  *
- * Initializes the announcement system and mounts the React toast/popup components.
- * Should be placed in Layout.astro alongside other global components.
+ * Initializes the announcement system and mounts the list popup.
+ * The top banner itself lives in AppShell, above the header.
  */
 ---
 
-<!-- React components for Toast and Popup -->
-<AnnouncementToaster client:load />
+<!-- React component for the full list popup -->
 <AnnouncementListPopup client:panel="announcement" />
 
 <script>

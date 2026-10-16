@@ -10,6 +10,7 @@ interface Props {
   isPostPage: boolean;
 }
 
+import AnnouncementBanner from '@components/announcement/AnnouncementBanner';
 import AnnouncementProvider from '@components/announcement/AnnouncementProvider.astro';
 import GlobalBGMPlayer from '@components/bgm/GlobalBGMPlayer';
 import ChristmasEffects from '@components/christmas/ChristmasEffects.astro';
@@ -31,6 +32,7 @@ const { post, siderType, isPostPage } = Astro.props;
 
 <ChristmasEffects transition:persist="christmas-snowfall" />
 <div class="flex min-h-screen flex-col text-black dark:text-white">
+  <AnnouncementBanner client:load />
   <Header isPostPage={isPostPage} tocNumbering={post?.data.tocNumbering ?? true} />
   <main class="relative flex grow flex-col gap-4">
     {(<slot />)}

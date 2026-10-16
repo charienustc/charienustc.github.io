@@ -309,6 +309,7 @@ export const uiStrings: UIStrings = {
   'announcement.unreadCount': '{count} unread',
   'announcement.markAllRead': 'Mark all read',
   'announcement.dismiss': 'Dismiss',
+  'announcement.viewAll': 'View all',
   'announcement.learnMore': 'Learn more',
   'announcement.empty': 'No announcements',
   'announcement.emptyHint': 'New announcements will appear here',

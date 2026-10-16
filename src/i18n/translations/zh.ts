@@ -306,6 +306,7 @@ export const uiStrings = {
   'announcement.unreadCount': '{count} 条未读',
   'announcement.markAllRead': '全部已读',
   'announcement.dismiss': '关闭公告',
+  'announcement.viewAll': '查看全部',
   'announcement.learnMore': '了解更多',
   'announcement.empty': '暂无公告',
   'announcement.emptyHint': '有新公告时会在这里显示',
