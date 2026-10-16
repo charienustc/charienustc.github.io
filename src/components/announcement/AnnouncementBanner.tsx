@@ -45,12 +45,17 @@ function BannerContent({ announcement }: { announcement: Announcement }) {
       role="region"
       aria-label={t('announcement.title')}
     >
-      <div className="mx-auto flex max-w-6xl items-center gap-2.5 px-4 py-2.5 md:gap-3">
-        <Icon icon={icon} className="h-4 w-4 shrink-0 md:h-5 md:w-5" style={{ color }} />
+      <div className="mx-auto flex max-w-6xl items-center gap-2.5 px-4 py-2 md:gap-3">
+        <span
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full md:h-7 md:w-7"
+          style={{ backgroundColor: `color-mix(in oklab, ${color} 14%, transparent)` }}
+        >
+          <Icon icon={icon} className="h-3.5 w-3.5 md:h-4 md:w-4" style={{ color }} />
+        </span>
 
         <div className="flex min-w-0 flex-1 items-baseline gap-2 md:gap-3">
-          <span className="shrink-0 font-semibold text-sm md:text-base">{announcement.title}</span>
-          <span className="truncate text-muted-foreground text-sm">{announcement.content}</span>
+          <span className="truncate font-semibold text-sm md:text-base">{announcement.title}</span>
+          <span className="min-w-0 flex-1 truncate text-muted-foreground text-sm">{announcement.content}</span>
         </div>
 
         {announcement.link && (
@@ -59,7 +64,10 @@ function BannerContent({ announcement }: { announcement: Announcement }) {
             target={announcement.link.external ? '_blank' : undefined}
             rel={announcement.link.external ? 'noopener noreferrer' : undefined}
             className="hidden shrink-0 items-center gap-1 rounded-full px-3 py-1 text-xs transition-opacity hover:opacity-80 sm:inline-flex md:text-sm"
-            style={{ backgroundColor: color, color: '#fff' }}
+            style={{
+              backgroundColor: `color-mix(in oklab, ${color} 14%, transparent)`,
+              color,
+            }}
           >
             {announcement.link.text ?? t('announcement.learnMore')}
             {announcement.link.external && <Icon icon="lucide:external-link" className="h-3 w-3" />}
