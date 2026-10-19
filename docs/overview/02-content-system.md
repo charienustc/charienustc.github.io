@@ -105,7 +105,7 @@ slug 必须唯一且不与保留路由、语言和其他功能路径冲突，cat
 | 资产 | 生成入口 | 说明 |
 | --- | --- | --- |
 | `src/assets/lqips.json` | `pnpm generate:lqips` | 图片占位数据 |
-| `src/assets/summaries.json` | `pnpm generate:summaries` | 调用本地 OpenAI-compatible 服务，不是脚本自己下载摘要模型 |
+| `src/assets/summaries.json` | `pnpm generate:summaries` | 调用本地 Ollama（OpenAI-compatible，默认 `qwen3.5:4b`），不是脚本自己下载摘要模型 |
 | `src/assets/similarities.json` | `pnpm generate:similarities` | transformers.js 嵌入与相似度 |
 | `.cache/og-data.json` | 链接嵌入构建 | 有意跟踪的 OG 元数据缓存 |
 

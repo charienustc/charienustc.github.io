@@ -235,7 +235,8 @@ pnpm generate:summaries          # 生成摘要
 pnpm generate:summaries:force    # 强制重新生成
 ```
 
-- 通过 OpenAI-compatible API 请求摘要，脚本默认地址为 `http://127.0.0.1:1234/v1/`，默认模型名为 `qwen/qwen3-4b-2507`；运行前需要启动相应本地模型服务。
+- 通过 OpenAI-compatible API 请求摘要，脚本默认地址为本机 Ollama 的 `http://127.0.0.1:11434/v1/`，默认模型名为 `qwen3.5:4b`；运行前需启动 Ollama 并准备好该模型。
+- `qwen3.5` 默认开启思考，脚本会传 `reasoning_effort: none`；否则 200 token 的输出预算会被思考过程耗尽，正文摘要为空。
 - 服务地址、API key 占位值与 DEFAULT_MODEL 见 `src/scripts/generateSummaries.ts`；可通过 `--model` 选择模型。
 - 结果写入 `src/assets/summaries.json`，需随内容提交；增量缓存 `.cache/summaries-cache.json` 不提交。
 - 脚本不会自行下载摘要模型；无生成结果时页面仍可从正文提取描述。

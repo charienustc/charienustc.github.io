@@ -1,1 +1,14 @@
-{}
+{
+  "sample/markdown-syntax-demo": {
+    "title": "Markdown 语法与增强特性示例",
+    "summary": "本文全面介绍了 Astro-koharu 主题支持的全部写作语法，涵盖基础 Markdown、文字特效、属性标签及颜色样式等核心功能。文章还详细列举了提示块、折叠块、代码块增强、练习题生成以及加密内容等高级特性，并提供了各语法的示例代码与使用规则。"
+  },
+  "explore/shi-yong-tailscalehe-outlinezai-vlabxu-ni-ji-ping-tai-shang-da-jian-si-you-bi-ji-ping-tai": {
+    "title": "使用Tailscale和Outline在Vlab虚拟机平台上搭建私有笔记平台",
+    "summary": "文章介绍了一款名为 Outline 的开源团队知识库工具及其自部署方案，该工具支持原生 Markdown、层级化文档管理及完整的团队协作功能。作者利用计算机学院的虚拟机资源，通过 Docker Compose 结合 Tailscale 实现内网安全访问，并配置 OIDC 认证与 MCP 接口以集成 AI Agent 进行自动化管理。"
+  },
+  "about/academic": {
+    "title": "关于我",
+    "summary": "Charien 是中国科学技术大学信息安全专业的本科生，专注于自然语言处理、多模态大模型及 AI Agent 等研究方向。他目前正开展基于多模态大模型的跨模态检索算法研究，并拥有多项竞赛奖项与奖学金荣誉。"
+  }
+}

@@ -33,10 +33,10 @@ const OUTPUT_FILE = 'src/assets/summaries.json';
 const CACHE_VERSION = '1';
 
 // LLM API settings (OpenAI-compatible)
-// Works with: LM Studio, Ollama, OpenAI, etc.
-const API_BASE_URL = 'http://127.0.0.1:1234/v1/';
-const API_KEY = 'lm-studio'; // LM Studio doesn't require a real key
-const DEFAULT_MODEL = 'qwen/qwen3-4b-2507';
+// Works with: Ollama, LM Studio, OpenAI, etc.
+const API_BASE_URL = 'http://127.0.0.1:11434/v1/';
+const API_KEY = 'ollama'; // Ollama doesn't require a real key
+const DEFAULT_MODEL = 'qwen3.5:4b';
 
 // --------- Parse CLI Arguments ---------
 function parseArgs(): { model: string; force: boolean } {
@@ -159,6 +159,9 @@ async function generateSummary(text: string, model: string): Promise<string> {
     ],
     temperature: 0.3,
     maxTokens: 200,
+    // qwen3.5 thinks by default; without this the 200-token budget goes
+    // entirely to reasoning and the final summary comes back empty.
+    reasoningEffort: 'none',
   });
 
   if (!summary) {
@@ -234,7 +237,7 @@ async function main() {
     const apiRunning = await checkApiRunning();
     if (!apiRunning) {
       console.log(chalk.red('Error: LLM API is not running.'));
-      console.log(chalk.gray('Please start your LLM server (LM Studio, Ollama, etc.)'));
+      console.log(chalk.gray('Please start your LLM server (Ollama, LM Studio, etc.)'));
       process.exitCode = 1;
       return;
     }
@@ -335,7 +338,7 @@ async function main() {
 
     const outputDir = path.dirname(OUTPUT_FILE);
     await fs.mkdir(outputDir, { recursive: true });
-    await fs.writeFile(OUTPUT_FILE, JSON.stringify(output, null, 2));
+    await fs.writeFile(OUTPUT_FILE, `${JSON.stringify(output, null, 2)}\n`);
 
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
     console.log(chalk.green(`\nDone! Generated summaries for ${Object.keys(newEntries).length} posts in ${elapsed}s`));
