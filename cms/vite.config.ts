@@ -4,6 +4,9 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  // Serve the site's public assets so preview images uploaded under
+  // `public/img/moments/` resolve in the CMS dev server.
+  publicDir: path.resolve(__dirname, '../public'),
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

@@ -13,6 +13,7 @@
 import { Icon } from '@iconify/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { MarkdownPreview } from '@/components/MarkdownPreview';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { createMoment, readMoment, updateMoment, uploadImage } from '@/lib/api';
@@ -48,9 +49,12 @@ function parseTags(input: string): string[] {
   return tags;
 }
 
+type ComposerMode = 'edit' | 'preview';
+
 export function MomentComposer({ open, onOpenChange, onSuccess, editingMomentId = null }: MomentComposerProps) {
   const [body, setBody] = useState('');
   const [tagInput, setTagInput] = useState('');
+  const [mode, setMode] = useState<ComposerMode>('edit');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -67,6 +71,7 @@ export function MomentComposer({ open, onOpenChange, onSuccess, editingMomentId 
   const reset = useCallback(() => {
     setBody('');
     setTagInput('');
+    setMode('edit');
     setLoadError(null);
   }, []);
 
@@ -219,77 +224,112 @@ export function MomentComposer({ open, onOpenChange, onSuccess, editingMomentId 
         )}
 
         <div className="space-y-3">
-          <textarea
-            ref={textareaRef}
-            aria-label="碎碎念正文"
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            // Editing disables the field until the existing text has loaded, so
-            // typing cannot race the fetch and get overwritten by it.
-            disabled={isLoading}
-            placeholder={isLoading ? '读取中…' : '随便写点什么…'}
-            rows={8}
-            // eslint-disable-next-line jsx-a11y/no-autofocus -- the dialog exists to be typed in
-            autoFocus
-            className={cn(
-              'w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60',
-              isDragging ? 'border-primary ring-2 ring-primary' : 'border-input',
-            )}
-            // Pasting a screenshot straight from the clipboard is the fastest
-            // path in, and the browser hands over a File blob we can post
-            // as-is. Falls through to the default when the clipboard holds text.
-            onPaste={(e) => {
-              const file = Array.from(e.clipboardData?.files ?? []).find((f) => f.type.startsWith('image/'));
-              if (!file) return;
-              e.preventDefault();
-              void handleFile(file);
-            }}
-            onDragOver={(e) => {
-              // Only claim the drop when files are actually being dragged, so
-              // dragging selected text still behaves normally.
-              if (!e.dataTransfer?.types.includes('Files')) return;
-              e.preventDefault();
-              setIsDragging(true);
-            }}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={(e) => {
-              if (!e.dataTransfer?.types.includes('Files')) return;
-              e.preventDefault();
-              setIsDragging(false);
-              const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith('image/'));
-              if (file) void handleFile(file);
-            }}
-          />
+          <div className="flex justify-end">
+            <div className="inline-flex items-center gap-0.5 rounded-md border border-input bg-muted/30 p-0.5">
+              {(
+                [
+                  { id: 'edit', icon: 'ri:edit-line', label: '编辑' },
+                  { id: 'preview', icon: 'ri:eye-line', label: '预览' },
+                ] as const
+              ).map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  aria-pressed={mode === option.id}
+                  onClick={() => setMode(option.id)}
+                  className={cn(
+                    'inline-flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors',
+                    mode === option.id
+                      ? 'bg-background text-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  <Icon icon={option.icon} className="size-3.5" />
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={isLoading || isUploading}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Icon
-                icon={isUploading ? 'ri:loader-4-line' : 'ri:image-add-line'}
-                className={cn('size-4', isUploading && 'animate-spin')}
-              />
-              {isUploading ? '上传中…' : '插入图片'}
-            </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/gif,image/webp,image/avif"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                // Reset first: picking the same file twice in a row fires no
-                // change event unless the input is cleared.
-                e.target.value = '';
+          {mode === 'preview' ? (
+            <div className="max-h-[22rem] min-h-48 overflow-auto rounded-lg border border-input bg-background px-4 py-3">
+              <MarkdownPreview content={body} />
+            </div>
+          ) : (
+            <textarea
+              ref={textareaRef}
+              aria-label="碎碎念正文"
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              // Editing disables the field until the existing text has loaded, so
+              // typing cannot race the fetch and get overwritten by it.
+              disabled={isLoading}
+              placeholder={isLoading ? '读取中…' : '随便写点什么…'}
+              rows={8}
+              // eslint-disable-next-line jsx-a11y/no-autofocus -- the dialog exists to be typed in
+              autoFocus
+              className={cn(
+                'w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60',
+                isDragging ? 'border-primary ring-2 ring-primary' : 'border-input',
+              )}
+              // Pasting a screenshot straight from the clipboard is the fastest
+              // path in, and the browser hands over a File blob we can post
+              // as-is. Falls through to the default when the clipboard holds text.
+              onPaste={(e) => {
+                const file = Array.from(e.clipboardData?.files ?? []).find((f) => f.type.startsWith('image/'));
+                if (!file) return;
+                e.preventDefault();
+                void handleFile(file);
+              }}
+              onDragOver={(e) => {
+                // Only claim the drop when files are actually being dragged, so
+                // dragging selected text still behaves normally.
+                if (!e.dataTransfer?.types.includes('Files')) return;
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={(e) => {
+                if (!e.dataTransfer?.types.includes('Files')) return;
+                e.preventDefault();
+                setIsDragging(false);
+                const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith('image/'));
                 if (file) void handleFile(file);
               }}
             />
-            <span className="text-muted-foreground text-xs">也可以直接粘贴截图，或把图片拖进来</span>
-          </div>
+          )}
+
+          {mode === 'edit' && (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isLoading || isUploading}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Icon
+                  icon={isUploading ? 'ri:loader-4-line' : 'ri:image-add-line'}
+                  className={cn('size-4', isUploading && 'animate-spin')}
+                />
+                {isUploading ? '上传中…' : '插入图片'}
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/gif,image/webp,image/avif"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  // Reset first: picking the same file twice in a row fires no
+                  // change event unless the input is cleared.
+                  e.target.value = '';
+                  if (file) void handleFile(file);
+                }}
+              />
+              <span className="text-muted-foreground text-xs">也可以直接粘贴截图，或把图片拖进来</span>
+            </div>
+          )}
 
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative flex-1">
