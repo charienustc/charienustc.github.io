@@ -98,6 +98,9 @@ function handleImageClick(e: Event): void {
 
 export function enhanceImages(container: Element): void {
   const images = container.querySelectorAll<HTMLImageElement>('.markdown-image');
+  // The static moments feed uses a WeChat-style square grid instead of the
+  // article flow's portrait pairing.
+  const isMoments = Boolean(container.closest('.moments-content'));
 
   // Event delegation for clicks
   container.addEventListener('click', handleImageClick);
@@ -107,8 +110,15 @@ export function enhanceImages(container: Element): void {
   let groupTimer: ReturnType<typeof setTimeout> | undefined;
   const scheduleGrouping = () => {
     clearTimeout(groupTimer);
-    groupTimer = setTimeout(() => groupPortraitImages(container), 100);
+    groupTimer = setTimeout(() => {
+      if (isMoments) groupMomentImages(container);
+      else groupPortraitImages(container);
+    }, 100);
   };
+
+  // The moment grid depends on DOM order, not on image dimensions, so it can
+  // form immediately and avoid a flash of stacked images before the timer.
+  if (isMoments) groupMomentImages(container);
 
   images.forEach((img) => {
     if (enhancedImages.has(img)) {
@@ -229,6 +239,74 @@ function groupPortraitImages(container: Element): void {
       }
     } else {
       flushGroup();
+    }
+  });
+
+  flushGroup();
+}
+
+/**
+ * Group consecutive images on the static moments feed into a Moments-style
+ * square grid: one image keeps the article flow, while two or more become
+ * square thumbnails in a three-column track. Four images use a 2×2 block, and
+ * anything past nine is hidden behind a +N overlay on the ninth cell.
+ */
+const MOMENTS_IMAGE_GRID_LIMIT = 9;
+
+function groupMomentImages(container: Element): void {
+  const allWrappers = Array.from(container.querySelectorAll<HTMLElement>('.markdown-image-wrapper'));
+  let currentGroup: HTMLElement[] = [];
+
+  const flushGroup = () => {
+    if (currentGroup.length < 2) {
+      currentGroup = [];
+      return;
+    }
+
+    const total = currentGroup.length;
+    const grid = document.createElement('div');
+    grid.className = 'moments-image-grid';
+    grid.dataset.count = String(Math.min(total, MOMENTS_IMAGE_GRID_LIMIT));
+
+    currentGroup[0].parentNode?.insertBefore(grid, currentGroup[0]);
+    for (const wrapper of currentGroup) {
+      grid.appendChild(wrapper);
+    }
+
+    if (total > MOMENTS_IMAGE_GRID_LIMIT) {
+      for (const wrapper of currentGroup.slice(MOMENTS_IMAGE_GRID_LIMIT)) {
+        wrapper.classList.add('moments-image-extra');
+        // Hidden images never intersect the viewport, so the lazy loader would
+        // never fetch them and the lightbox would drop them from the gallery.
+        wrapper.querySelector<HTMLImageElement>('.markdown-image')?.setAttribute('loading', 'eager');
+      }
+      const more = document.createElement('span');
+      more.className = 'moments-image-more';
+      more.textContent = `+${total - MOMENTS_IMAGE_GRID_LIMIT}`;
+      more.setAttribute('aria-label', `还有 ${total - MOMENTS_IMAGE_GRID_LIMIT} 张图片`);
+      currentGroup[MOMENTS_IMAGE_GRID_LIMIT - 1]?.appendChild(more);
+    }
+
+    currentGroup = [];
+  };
+
+  allWrappers.forEach((wrapper, index) => {
+    // An earlier pass already placed this one; re-running after image loads
+    // must not nest grids or pull images back out.
+    if (wrapper.closest('.moments-image-grid')) return;
+
+    const previous = allWrappers[index - 1];
+    const consecutive =
+      previous &&
+      !previous.closest('.moments-image-grid') &&
+      previous.parentElement === wrapper.parentElement &&
+      isConsecutiveSibling(previous, wrapper);
+
+    if (consecutive) {
+      currentGroup.push(wrapper);
+    } else {
+      flushGroup();
+      currentGroup = [wrapper];
     }
   });
 
