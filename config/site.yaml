@@ -363,6 +363,38 @@ content:
   enableEncryptedBlock: true    # :::encrypted{password="..."} 加密内容块
 
 # =============================================================================
+# Post Colophon (optional)
+# 文章落款 - 在文章信息行、文末落款和列表卡片上标识执笔方式
+# 使用方式：文章 frontmatter 写 `colophon: [ai-written]`
+# 可选项：placement 支持 meta / banner / seal / card；tone 支持 muted / accent / warn
+# 不配置 defaults 时，未标注的文章不会自动带标；`colophon: []` 可显式退出默认标记
+# =============================================================================
+colophon:
+  groups:
+    authorship:
+      label: 执笔
+      exclusive: true
+      placement: [meta, seal, card]
+  marks:
+    handwritten:
+      group: authorship
+      icon: ri:quill-pen-line
+      label: 手写
+      description: 完全由我撰写。
+    ai-cowrite:
+      group: authorship
+      icon: ri:sparkling-2-line
+      label: 与 AI 合写
+      description: 我主笔，AI 辅助。
+      tone: accent
+    ai-written:
+      group: authorship
+      icon: ri:robot-2-line
+      label: AI 主笔
+      description: AI 起草，我审校。
+      tone: accent
+
+# =============================================================================
 # Moments Archive (optional)
 # 碎碎念动态归档 - 默认关闭；启用时还需配置 KOHARU_SUITE_URL 和 dynamic Docker target
 # =============================================================================
