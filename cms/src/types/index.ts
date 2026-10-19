@@ -30,6 +30,33 @@ export interface CMSConfig {
   editors: EditorConfig[];
 }
 
+export type ColophonPlacement = 'meta' | 'banner' | 'seal' | 'card';
+export type ColophonTone = 'muted' | 'accent' | 'warn';
+
+/**
+ * A post's colophon entry: a dictionary id, a dictionary id with a per-post
+ * note, or a one-off mark that is not registered in site.yaml.
+ */
+export type ColophonEntry =
+  | string
+  | { id: string; note?: string }
+  | {
+      icon: string;
+      label: string;
+      description?: string;
+      note?: string;
+      tone?: ColophonTone;
+      placement?: ColophonPlacement | ColophonPlacement[];
+    };
+
+/** Raw `colophon` section from config/site.yaml, as served by /api/cms/config. */
+export interface ColophonSiteConfig {
+  enabled?: boolean;
+  groups?: Record<string, { label: string; exclusive?: boolean }>;
+  marks?: Record<string, { group?: string; icon: string; label: string; description?: string }>;
+  defaults?: string | string[];
+}
+
 /**
  * Blog post frontmatter schema
  */
@@ -49,6 +76,7 @@ export interface BlogSchema {
   excludeFromSummary?: boolean;
   math?: boolean;
   quiz?: boolean;
+  colophon?: ColophonEntry[];
 }
 
 /**

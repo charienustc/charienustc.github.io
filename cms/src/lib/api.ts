@@ -7,6 +7,7 @@
 import { format, isValid, parse, parseISO } from 'date-fns';
 import type {
   BlogSchema,
+  ColophonSiteConfig,
   CreateMomentParams,
   CreateMomentResponse,
   CreatePostParams,
@@ -318,6 +319,7 @@ export interface CMSConfigResponse {
   projectRoot: string;
   contentDir: string;
   categoryMap: Record<string, string>;
+  colophon?: ColophonSiteConfig | null;
 }
 
 // Cache for CMS config

@@ -38,6 +38,7 @@ export const frontmatterSchema = z.object({
   excludeFromSummary: z.boolean().optional(),
   math: z.boolean().optional(),
   quiz: z.boolean().optional(),
+  colophon: z.array(z.string()).optional(),
 });
 
 /**

@@ -144,6 +144,7 @@ async function main() {
       projectRoot: PROJECT_ROOT,
       contentDir: 'src/content/blog',
       categoryMap,
+      colophon: siteConfig.colophon ?? null,
     });
   });
 

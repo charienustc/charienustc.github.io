@@ -8,11 +8,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Icon } from '@iconify/react';
 import { format, isValid, parse } from 'date-fns';
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { getCMSConfig } from '@/lib/api';
+import { buildColophonGroups, extractColophonIds, mergeColophonEntries, toggleColophonMark } from '@/lib/colophon-form';
 import { type FrontmatterFormData, frontmatterSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
-import type { BlogSchema } from '@/types';
+import type { BlogSchema, ColophonEntry, ColophonSiteConfig } from '@/types';
 
 export interface FrontmatterEditorRef {
   getFormData: () => FrontmatterFormData;
@@ -94,7 +96,11 @@ function stringToTags(str: string): string[] | undefined {
 /**
  * Converts form data back to BlogSchema format
  */
-function formDataToFrontmatter(data: FrontmatterFormData): BlogSchema {
+function formDataToFrontmatter(
+  data: FrontmatterFormData,
+  originalColophon: readonly ColophonEntry[] | undefined,
+  hadColophonField: boolean,
+): BlogSchema {
   const result: BlogSchema = {
     title: data.title,
     draft: data.draft,
@@ -131,6 +137,14 @@ function formDataToFrontmatter(data: FrontmatterFormData): BlogSchema {
   if (data.cover?.trim()) result.cover = data.cover.trim();
   if (data.link?.trim()) result.link = data.link.trim();
   if (data.subtitle?.trim()) result.subtitle = data.subtitle.trim();
+
+  const colophon = mergeColophonEntries(data.colophon ?? [], originalColophon);
+  if (colophon.length > 0) {
+    result.colophon = colophon;
+  } else if (hadColophonField) {
+    // An explicit `colophon: []` opts out of site defaults; keep the opt-out.
+    result.colophon = [];
+  }
 
   return result;
 }
@@ -243,6 +257,27 @@ export const FrontmatterEditor = forwardRef<FrontmatterEditorRef, FrontmatterEdi
   ref,
 ) {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [colophonConfig, setColophonConfig] = useState<ColophonSiteConfig | null>(null);
+  // Captured on mount: the selector edits ids, and these keep notes and one-off
+  // marks that the selector cannot represent from being dropped on save.
+  const originalColophon = useRef(frontmatter.colophon);
+  const hadColophonField = useRef(Object.hasOwn(frontmatter, 'colophon'));
+
+  useEffect(() => {
+    let active = true;
+    getCMSConfig()
+      .then((config) => {
+        if (active) setColophonConfig(config.colophon ?? null);
+      })
+      .catch(() => {
+        // The sidebar stays usable when the mark dictionary cannot be loaded.
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const colophonGroups = useMemo(() => buildColophonGroups(colophonConfig), [colophonConfig]);
 
   const form = useForm<FrontmatterFormData>({
     resolver: zodResolver(frontmatterSchema),
@@ -262,6 +297,7 @@ export const FrontmatterEditor = forwardRef<FrontmatterEditorRef, FrontmatterEdi
       excludeFromSummary: frontmatter.excludeFromSummary ?? false,
       math: frontmatter.math ?? false,
       quiz: frontmatter.quiz ?? false,
+      colophon: extractColophonIds(frontmatter.colophon),
     },
   });
 
@@ -270,6 +306,8 @@ export const FrontmatterEditor = forwardRef<FrontmatterEditorRef, FrontmatterEdi
     watch,
     formState: { errors, isDirty },
   } = form;
+
+  const selectedColophon = watch('colophon') ?? [];
 
   // Expose form methods via ref
   useImperativeHandle(ref, () => ({
@@ -280,7 +318,7 @@ export const FrontmatterEditor = forwardRef<FrontmatterEditorRef, FrontmatterEdi
   // Watch for changes and notify parent
   useEffect(() => {
     const subscription = watch((values, { name }) => {
-      const fm = formDataToFrontmatter(values as FrontmatterFormData);
+      const fm = formDataToFrontmatter(values as FrontmatterFormData, originalColophon.current, hadColophonField.current);
 
       // `react-hook-form` emits once on subscribe with `name` undefined to hand
       // back the initial values. Forwarding that as a change made the editor
@@ -359,6 +397,50 @@ export const FrontmatterEditor = forwardRef<FrontmatterEditorRef, FrontmatterEdi
           {...register('link')}
         />
       </div>
+
+      {/* Colophon marks from config/site.yaml */}
+      {colophonGroups.length > 0 && (
+        <div className="space-y-2">
+          <div className="font-medium text-muted-foreground text-xs">Colophon</div>
+          {colophonGroups.map((group) => {
+            const siblingIds = group.choices.map((choice) => choice.id);
+            return (
+              <div key={group.id} className="space-y-1.5">
+                <div className="text-muted-foreground text-xs">{group.label}</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {group.choices.map((choice) => {
+                    const active = selectedColophon.includes(choice.id);
+                    return (
+                      <button
+                        key={choice.id}
+                        type="button"
+                        title={choice.description}
+                        aria-pressed={active}
+                        onClick={() =>
+                          form.setValue(
+                            'colophon',
+                            toggleColophonMark(selectedColophon, choice.id, group.exclusive ? siblingIds : []),
+                            { shouldDirty: true },
+                          )
+                        }
+                        className={cn(
+                          'flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors',
+                          active
+                            ? 'border-primary bg-primary/10 text-foreground'
+                            : 'border-border text-muted-foreground hover:bg-muted/50',
+                        )}
+                      >
+                        <Icon icon={choice.icon} className="size-3.5" />
+                        {choice.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Advanced Options Toggle */}
       <button
