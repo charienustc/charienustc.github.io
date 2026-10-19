@@ -2,7 +2,6 @@
 link: sample/markdown-syntax-demo
 title: Markdown 语法与增强特性示例
 date: 2026-10-03 16:00:00
-description: astro-koharu 主题支持的全部 Markdown 与 Shoka 扩展语法，每个特性都带可复制的示例代码。
 categories:
   - [示例]
 tags:

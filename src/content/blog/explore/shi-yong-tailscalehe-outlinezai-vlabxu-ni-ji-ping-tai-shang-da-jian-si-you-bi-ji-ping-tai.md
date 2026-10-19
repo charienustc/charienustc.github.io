@@ -16,7 +16,6 @@ tags:
   - tailscale
   - 笔记软件
   - 私有化部署
-description: 记录一下自部署Outline实现多端访问的私有化笔记工具
 ---
 ## Outline 是什么
 

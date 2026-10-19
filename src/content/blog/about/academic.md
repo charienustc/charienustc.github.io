@@ -2,7 +2,6 @@
 link: about/academic
 title: 关于我
 date: 2026-10-09 09:00:00
-description: 我的研究兴趣、教育经历与科研近况，会持续更新在这篇置顶文章里。
 tags:
   - 学术
 sticky: true
