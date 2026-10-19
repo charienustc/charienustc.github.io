@@ -6,11 +6,11 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { format } from 'date-fns';
 import type { Context } from 'hono';
 import { z } from 'zod';
 import { getCategoryMap } from '@/lib/category';
 import { addCategoryMappings } from '@/lib/config';
+import { generateFrontmatter } from '@/lib/create-frontmatter';
 import { CONTENT_DIR } from '@/lib/paths';
 import { generateSlug } from '@/lib/slug';
 import { isPathSafe } from '@/lib/validation';
@@ -24,8 +24,6 @@ const createPostRequestSchema = z.object({
   draft: z.boolean().optional().default(true),
   categoryMappings: z.record(z.string(), z.string()).optional(),
 });
-
-type CreatePostParams = z.infer<typeof createPostRequestSchema>;
 
 /**
  * Generates the file path based on categories
@@ -55,50 +53,6 @@ function generateFilePath(title: string, categories?: string[], customMappings?:
   });
 
   return `${pathSegments.join('/')}/${slug}.md`;
-}
-
-/**
- * Generates initial frontmatter content
- */
-function generateFrontmatter(params: CreatePostParams): string {
-  const now = new Date();
-  const dateStr = format(now, 'yyyy-MM-dd HH:mm:ss');
-
-  const lines: string[] = ['---'];
-
-  // Title
-  lines.push(`title: ${params.title}`);
-
-  // Date
-  lines.push(`date: ${dateStr}`);
-
-  // Updated
-  lines.push(`updated: ${dateStr}`);
-
-  // Categories (as nested array format)
-  if (params.categories && params.categories.length > 0) {
-    lines.push('categories:');
-    lines.push(`  - [${params.categories.join(', ')}]`);
-  }
-
-  // Tags
-  if (params.tags && params.tags.length > 0) {
-    lines.push(`tags: [${params.tags.join(', ')}]`);
-  }
-
-  // Draft
-  if (params.draft !== false) {
-    lines.push('draft: true');
-  }
-
-  // Catalog enabled by default
-  lines.push('catalog: true');
-
-  lines.push('---');
-  lines.push('');
-  lines.push('');
-
-  return lines.join('\n');
 }
 
 /**
@@ -159,8 +113,10 @@ export async function createHandler(c: Context) {
       await addCategoryMappings(projectRoot, customMappings);
     }
 
-    // Generate frontmatter and write file
-    const content = generateFrontmatter({ title, categories, tags, draft });
+    // Generate frontmatter and write file. The link mirrors the migration's
+    // path-derived value (file path without extension, e.g. `note/my-post`).
+    const link = postId.replace(/\.(md|mdx)$/i, '');
+    const content = generateFrontmatter({ title, link, categories, tags, draft });
     await fs.writeFile(filePath, content, 'utf-8');
 
     const response: CreatePostResponse = {
