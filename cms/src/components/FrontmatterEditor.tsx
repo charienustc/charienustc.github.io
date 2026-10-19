@@ -295,7 +295,7 @@ export const FrontmatterEditor = forwardRef<FrontmatterEditorRef, FrontmatterEdi
       sticky: frontmatter.sticky ?? false,
       tocNumbering: frontmatter.tocNumbering ?? true,
       excludeFromSummary: frontmatter.excludeFromSummary ?? false,
-      math: frontmatter.math ?? false,
+      math: frontmatter.math ?? true,
       quiz: frontmatter.quiz ?? false,
       colophon: extractColophonIds(frontmatter.colophon),
     },

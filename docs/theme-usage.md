@@ -114,7 +114,7 @@ tocNumbering: true       # 目录是否自动编号，默认 true
 draft: false             # 草稿，默认 false
 sticky: false            # 置顶，默认 false
 excludeFromSummary: false # 排除 AI 摘要与相似度计算；系列文章建议 true
-math: false              # 启用 KaTeX 数学公式
+math: true               # 启用 KaTeX 数学公式，默认 true
 quiz: false              # 启用练习题交互
 password: mySecret       # 整篇加密，设置后需密码才能阅读
 ---

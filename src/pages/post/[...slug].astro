@@ -67,9 +67,11 @@ const adjacent = await getAdjacentSeriesPosts(post, locale);
 const prevPost = adjacent.prevPost ? toPostRef(adjacent.prevPost) : null;
 const nextPost = adjacent.nextPost ? toPostRef(adjacent.nextPost) : null;
 const { title, categories = [], tags = [], date, math: postMath, keywords: postKeywords = [] } = post?.data ?? {};
-// KaTeX CSS: only load when global enableMath is on AND post hasn't opted out.
+// KaTeX CSS: load when math is explicitly enabled, or when the rendered content
+// actually contains KaTeX output. Frontmatter may omit or disable the flag while
+// the post still uses formulas, so detection keeps the stylesheet in sync.
 // When enableMath is false globally, rehype-katex is not in the pipeline, so no math is rendered.
-const hasMath = defaultContentConfig.enableMath && postMath !== false;
+const hasMath = defaultContentConfig.enableMath && (postMath === true || (post.rendered?.html ?? '').includes('class="katex"'));
 
 // 使用统一的工具函数获取文章描述（加密文章使用通用描述）
 const finalDescription = getPostDescription(post, locale);

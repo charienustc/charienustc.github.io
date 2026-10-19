@@ -610,7 +610,7 @@ tocNumbering: true              # 目录自动编号，默认 true
 draft: false                    # 草稿
 sticky: false                   # 置顶
 excludeFromSummary: false       # 排除 AI 摘要与相似度
-math: false                     # 启用数学公式
+math: true                      # 启用数学公式，默认 true
 quiz: false                     # 启用练习题
 password: mySecret              # 整篇加密
 keywords: [关键词一, 关键词二]   # SEO 关键词
