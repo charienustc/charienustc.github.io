@@ -10,5 +10,9 @@
   "about/academic": {
     "title": "关于我",
     "summary": "Charien 是中国科学技术大学信息安全专业的本科生，专注于自然语言处理、多模态大模型及 AI Agent 等研究方向。他目前正开展基于多模态大模型的跨模态检索算法研究，并拥有多项竞赛奖项与奖学金荣誉。"
+  },
+  "note/lun-wen-bi-ji-openep-open-ended-future-event-prediction": {
+    "title": "论文笔记《OpenEP:Open-Ended Future Event Prediction》",
+    "summary": "本文提出开放式未来事件预测任务 OpenEP 及动态评测集 OpenEPBench，旨在突破传统分类式预测的局限。研究设计了基于利益相关方增强的检索框架 StkFEP，通过结合当前事实、历史相似事件演化模式及多方主体信息来生成更合理的预测结果。实验表明该方法在多维语义评价上优于现有基线，但受限于浅层相似性建模和缺乏显式因果推理，未来需向结构化建模与自主 Agent 方向发展。"
   }
 }
